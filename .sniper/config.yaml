@@ -1,0 +1,99 @@
+# ─────────────────────────────────────────
+# SNIPER Framework Configuration
+# ─────────────────────────────────────────
+
+project:
+  name: ""                         # Set by /sniper-init
+  type: saas                       # saas | api | mobile | cli | library | monorepo
+  description: ""                  # One-line project description
+
+stack:
+  language: typescript             # Primary language
+  frontend: react                  # Frontend framework (null if none)
+  backend: node-express            # Backend framework
+  database: postgresql             # Primary database
+  cache: redis                     # Cache layer (null if none)
+  infrastructure: aws              # Cloud provider
+  test_runner: vitest              # Test framework
+  package_manager: pnpm            # Package manager
+
+# ─────────────────────────────────────────
+# Review Gate Configuration
+# ─────────────────────────────────────────
+# strict  = full stop, human must approve before next phase
+# flexible = auto-advance, human reviews async
+# auto    = no gate (not recommended for architecture/implementation)
+
+review_gates:
+  after_discover: flexible         # Low risk — auto-advance
+  after_plan: strict               # HIGH RISK — bad architecture cascades
+  after_solve: flexible            # Low risk — stories can be refined later
+  after_sprint: strict             # HIGH RISK — code must be reviewed before merge
+
+# ─────────────────────────────────────────
+# Agent Teams Configuration
+# ─────────────────────────────────────────
+
+agent_teams:
+  max_teammates: 5                 # Max concurrent teammates (token budget)
+  default_model: sonnet            # sonnet | opus — for implementation
+  planning_model: opus             # Use Opus for planning & architecture
+  delegate_mode: true              # Lead enters delegate mode during team execution
+  plan_approval: true              # Require plan approval for complex/risky tasks
+  coordination_timeout: 30         # Minutes before lead checks on stalled teammates
+
+# ─────────────────────────────────────────
+# Domain Pack
+# ─────────────────────────────────────────
+
+domain_pack: null                  # Set to pack name (e.g., "sales-dialer")
+
+# ─────────────────────────────────────────
+# File Ownership Rules
+# ─────────────────────────────────────────
+# These are injected into spawn prompts to prevent teammates from editing
+# each other's files. Customize per project.
+
+ownership:
+  backend:
+    - "src/backend/"
+    - "src/api/"
+    - "src/services/"
+    - "src/db/"
+    - "src/workers/"
+  frontend:
+    - "src/frontend/"
+    - "src/components/"
+    - "src/hooks/"
+    - "src/styles/"
+    - "src/pages/"
+  infrastructure:
+    - "docker/"
+    - ".github/"
+    - "infra/"
+    - "terraform/"
+    - "scripts/"
+  tests:
+    - "tests/"
+    - "__tests__/"
+    - "*.test.*"
+    - "*.spec.*"
+  docs:
+    - "docs/"
+
+# ─────────────────────────────────────────
+# Lifecycle State (managed by SNIPER, don't edit manually)
+# ─────────────────────────────────────────
+
+state:
+  current_phase: null              # discover | plan | solve | sprint
+  phase_history: []                # [{phase, started_at, completed_at, approved_by}]
+  current_sprint: 0
+  artifacts:
+    brief: null                    # null | draft | approved
+    prd: null
+    architecture: null
+    ux_spec: null
+    security: null
+    epics: null
+    stories: null
