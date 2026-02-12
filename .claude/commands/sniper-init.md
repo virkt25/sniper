@@ -214,7 +214,7 @@ Check that the following framework files already exist. For each file category, 
    - Cognitive: `systems-thinker.md`, `security-first.md`, `performance-focused.md`, `user-empathetic.md`, `devils-advocate.md`, `mentor-explainer.md`
 2. **Spawn prompt template**: `.sniper/spawn-prompts/_template.md`
 3. **Team definitions**: `.sniper/teams/discover.yaml`, `plan.yaml`, `solve.yaml`, `sprint.yaml`
-4. **Artifact templates**: `.sniper/templates/brief.md`, `prd.md`, `architecture.md`, `ux-spec.md`, `epic.md`, `story.md`, `sprint-review.md`
+4. **Artifact templates**: `.sniper/templates/brief.md`, `risks.md`, `personas.md`, `prd.md`, `architecture.md`, `ux-spec.md`, `security.md`, `epic.md`, `story.md`, `sprint-review.md`
 5. **Review checklists**: `.sniper/checklists/discover-review.md`, `plan-review.md`, `story-review.md`, `sprint-review.md`, `code-review.md`
 6. **Workflows**: `.sniper/workflows/full-lifecycle.md`, `sprint-cycle.md`, `discover-only.md`, `quick-feature.md`
 
@@ -227,7 +227,7 @@ For any MISSING files, report them to the user as warnings. These are framework 
 If the user chose a domain pack:
 
 1. Check that `.sniper/domain-packs/{pack-name}/` exists
-2. Check for a `contexts/` subdirectory with `.md` files
+2. Check for a `context/` subdirectory with `.md` files
 3. If contexts exist, copy/link them into `.sniper/personas/domain/`
 4. Report what domain context files were installed
 
@@ -299,6 +299,10 @@ See `.sniper/config.yaml` -> stack section for language/framework specifics.
 Check that the following slash command files exist in `.claude/commands/`:
 - `sniper-init.md` (this file)
 - `sniper-compose.md`
+- `sniper-discover.md`
+- `sniper-plan.md`
+- `sniper-solve.md`
+- `sniper-sprint.md`
 - `sniper-review.md`
 - `sniper-status.md`
 

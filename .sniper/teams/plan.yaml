@@ -67,6 +67,7 @@ teammates:
       - id: security
         name: "Security & Compliance Requirements"
         output: "docs/security.md"
+        template: ".sniper/templates/security.md"
         reads: ["docs/prd.md", "docs/risks.md"]
         blocked_by: [prd]
         description: >

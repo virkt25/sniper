@@ -4,8 +4,8 @@ Gate mode: **STRICT** (human MUST review code before merge)
 
 ## Code Quality
 - [ ] All code passes linting (no warnings or errors)
-- [ ] All code passes type checking (TypeScript strict mode)
-- [ ] No `any` types introduced
+- [ ] All code passes static type checking (language-appropriate strict mode)
+- [ ] No type escape hatches introduced (e.g. `any` in TS, `Any` in Python, `interface{}` in Go)
 - [ ] No hardcoded secrets, API keys, or credentials
 - [ ] Error handling on all async operations
 - [ ] Follows existing codebase patterns and conventions

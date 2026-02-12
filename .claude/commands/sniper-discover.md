@@ -90,7 +90,7 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    - Process: `.sniper/personas/process/analyst.md`
    - Technical: SKIP (null in team YAML)
    - Cognitive: `.sniper/personas/cognitive/systems-thinker.md`
-   - Domain: If `domain_pack` is set, read `.sniper/domain-packs/{domain_pack}/contexts/*.md`. Otherwise skip.
+   - Domain: If `domain_pack` is set, read `.sniper/domain-packs/{domain_pack}/context/*.md`. Otherwise skip.
 
 2. Read the spawn prompt template: `.sniper/spawn-prompts/_template.md`
 
@@ -147,6 +147,7 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    **Task ID:** risk-assessment
    **Task Name:** Technical Feasibility & Risk Assessment
    **Output File:** docs/risks.md
+   **Template:** .sniper/templates/risks.md
 
    {task description from the team YAML}
 
@@ -154,11 +155,12 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    {same project context as above}
 
    ## Instructions
-   1. Assess technical feasibility, integration risks, compliance hurdles, and scalability challenges.
-   2. Challenge optimistic assumptions -- be the devil's advocate.
-   3. For each risk, provide a specific mitigation strategy.
-   4. Write the output to `docs/risks.md`.
-   5. When complete, message the team lead that your task is done.
+   1. Read the template at `.sniper/templates/risks.md` to understand the expected output format.
+   2. Assess technical feasibility, integration risks, compliance hurdles, and scalability challenges.
+   3. Challenge optimistic assumptions -- be the devil's advocate.
+   4. For each risk, provide a specific mitigation strategy.
+   5. Write the output to `docs/risks.md` following the template exactly.
+   6. When complete, message the team lead that your task is done.
    ```
 
 ### Teammate: user-researcher
@@ -180,6 +182,7 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    **Task ID:** user-personas
    **Task Name:** User Persona & Journey Mapping
    **Output File:** docs/personas.md
+   **Template:** .sniper/templates/personas.md
 
    {task description from the team YAML}
 
@@ -187,11 +190,12 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    {same project context as above}
 
    ## Instructions
-   1. Define 2-4 distinct user personas with goals, pain points, and workflows.
-   2. Map the primary user journey for each persona.
-   3. Identify key friction points and moments of delight.
-   4. Write the output to `docs/personas.md`.
-   5. When complete, message the team lead that your task is done.
+   1. Read the template at `.sniper/templates/personas.md` to understand the expected output format.
+   2. Define 2-4 distinct user personas with goals, pain points, and workflows.
+   3. Map the primary user journey for each persona.
+   4. Identify key friction points and moments of delight.
+   5. Write the output to `docs/personas.md` following the template exactly.
+   6. When complete, message the team lead that your task is done.
    ```
 
 ---

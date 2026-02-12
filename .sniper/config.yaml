@@ -78,6 +78,10 @@ ownership:
     - "__tests__/"
     - "*.test.*"
     - "*.spec.*"
+  ai:
+    - "src/ai/"
+    - "src/ml/"
+    - "src/pipeline/"
   docs:
     - "docs/"
 

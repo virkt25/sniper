@@ -121,7 +121,7 @@ If `--domain` was provided:
    ERROR: No domain pack is configured. Set domain_pack in .sniper/config.yaml or run /sniper-init.
    ```
    Set the domain layer content to `No domain-specific context available.`
-3. If `domain_pack` is set, read: `.sniper/domain-packs/{domain_pack}/contexts/{domain_name}.md`
+3. If `domain_pack` is set, read: `.sniper/domain-packs/{domain_pack}/context/{domain_name}.md`
 4. If the file does not exist, print a warning and list available contexts in that domain pack directory.
    Set the domain layer content to `No domain-specific context available.`
 

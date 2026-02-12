@@ -500,8 +500,8 @@ Dialer dispositions must map to CRM-specific field values. This mapping is confi
       "No Answer": { "hs_call_status": "COMPLETED", "hs_call_disposition": "no-answer" },
       "Voicemail": { "hs_call_status": "COMPLETED", "hs_call_disposition": "left-voicemail" },
       "Meeting Booked": { "hs_call_status": "COMPLETED", "hs_call_disposition": "connected" },
-      "Not Interested": { "hs_call_status": "COMPLETED", "hs_call_disposition": "connected" },
-      "DNC": { "hs_call_status": "COMPLETED", "hs_call_disposition": "connected" }
+      "Not Interested": { "hs_call_status": "COMPLETED", "hs_call_disposition": "busy" },
+      "DNC": { "hs_call_status": "COMPLETED", "hs_call_disposition": "busy" }
     }
   }
 }

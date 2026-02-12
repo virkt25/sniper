@@ -1,5 +1,5 @@
 team_name: "sniper-sprint-{number}"
-phase: build
+phase: sprint
 
 available_teammates:
   - name: backend-dev
@@ -35,7 +35,7 @@ available_teammates:
       technical: ai-ml
       cognitive: performance-focused
       domain: null
-    owns_from_config: backend
+    owns_from_config: ai
     model: opus
 
   - name: qa-engineer

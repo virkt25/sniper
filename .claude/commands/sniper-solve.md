@@ -69,7 +69,7 @@ This phase does NOT spawn a team. Instead, adopt the scrum-master persona yourse
 
 1. Read `.sniper/personas/process/scrum-master.md` -- internalize this role. You ARE the scrum master for this step.
 2. Read `.sniper/personas/cognitive/systems-thinker.md` -- apply this thinking pattern to your sharding decisions.
-3. If `domain_pack` is set in config.yaml, read domain context files from `.sniper/domain-packs/{domain_pack}/contexts/`.
+3. If `domain_pack` is set in config.yaml, read domain context files from `.sniper/domain-packs/{domain_pack}/context/`.
 
 ---
 

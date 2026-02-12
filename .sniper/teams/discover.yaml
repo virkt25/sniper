@@ -28,6 +28,7 @@ teammates:
       - id: risk-assessment
         name: "Technical Feasibility & Risk Assessment"
         output: "docs/risks.md"
+        template: ".sniper/templates/risks.md"
         description: >
           Assess technical feasibility, integration risks, compliance hurdles,
           and scalability challenges. Challenge optimistic assumptions.
@@ -43,6 +44,7 @@ teammates:
       - id: user-personas
         name: "User Persona & Journey Mapping"
         output: "docs/personas.md"
+        template: ".sniper/templates/personas.md"
         description: >
           Define 2-4 user personas with goals, pain points, and workflows.
           Map the primary user journey for each persona.
