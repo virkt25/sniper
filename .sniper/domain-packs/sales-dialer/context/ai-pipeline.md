@@ -314,7 +314,7 @@ When the model invokes a tool, you receive `response.function_call_arguments.don
 the function server-side, and return the result via `conversation.item.create` with a
 `function_call_output` item. This enables real-time data lookups during AI-assisted calls.
 
-**Cost Considerations:**
+**Cost Considerations (as of Feb 2026 — verify at [OpenAI pricing](https://openai.com/pricing)):**
 
 | Component | Cost | Notes |
 |-----------|------|-------|
@@ -1129,7 +1129,7 @@ since the model sees audio context natively, but costs more per minute.
 - Use Redis for real-time state (talk ratio, sentiment history) per call
 - Persist transcript events to PostgreSQL for post-call analysis
 
-**Provider cost comparison (per minute of audio):**
+**Provider cost comparison (per minute of audio, as of Feb 2026):**
 
 | Provider | STT Cost | Notes |
 |----------|----------|-------|

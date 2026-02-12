@@ -27,7 +27,7 @@ CREATE TABLE crm_credentials (
   tenant_id UUID NOT NULL REFERENCES tenants(id),
   provider TEXT NOT NULL CHECK (provider IN ('salesforce', 'hubspot', 'followupboss')),
   access_token TEXT NOT NULL,          -- encrypted at rest
-  refresh_token TEXT NOT NULL,         -- encrypted at rest
+  refresh_token TEXT,                  -- encrypted at rest; NULL for API-key-only providers (e.g., Follow Up Boss)
   instance_url TEXT,                   -- Salesforce instance URL (e.g., https://na1.salesforce.com)
   token_expires_at TIMESTAMPTZ,
   scopes TEXT[],
@@ -504,8 +504,10 @@ Webhook payload structure:
 ```
 
 FUB webhook payloads only include resource IDs — you must call the People API to fetch
-the full updated record. Validate webhooks using the `secret` you set during subscription
-(compare HMAC signature in the `X-FUB-Signature` header).
+the full updated record. Since FUB allows only 200 requests/minute, a bulk update webhook
+with many `resourceIds` can exhaust the rate limit quickly. Queue webhook-triggered fetches
+behind a rate-limit-aware worker and batch where possible. Validate webhooks using the
+`secret` you set during subscription (compare HMAC signature in the `X-FUB-Signature` header).
 
 ### Follow Up Boss Rate Limits
 
@@ -813,13 +815,17 @@ Provide sensible defaults that tenants can override:
 | email | Email | email | emails[0].value | bidirectional |
 | phone | Phone | phone | phones[0].value (type:work) | bidirectional |
 | mobile_phone | MobilePhone | mobilephone | phones[1].value (type:mobile) | bidirectional |
-| company | Company | company | — (no direct field) | bidirectional |
-| title | Title | jobtitle | — (custom field) | bidirectional |
+| company | Company | company | customFields."Company" *(auto-created)* | bidirectional |
+| title | Title | jobtitle | customFields."Title" *(auto-created)* | bidirectional |
 | lead_status | Status | hs_lead_status | stage | bidirectional |
 | owner_email | Owner.Email | hubspot_owner_id | assignedTo | inbound |
 | last_called_at | Dialer_Last_Called__c | last_call_date | customFields."Last Called" | outbound |
 | call_count | Dialer_Call_Count__c | num_calls | customFields."Dialer Call Count" | outbound |
 | ai_score | Dialer_AI_Score__c | ai_call_score | customFields."Last AI Score" | outbound |
+
+> **FUB onboarding note**: Fields marked *(auto-created)* require creating custom fields in
+> Follow Up Boss during tenant onboarding via `POST /v1/customFields`. The sync engine should
+> check for and create missing custom fields before enabling bidirectional sync for these fields.
 
 ### Data Transformation Rules
 
