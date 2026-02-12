@@ -1,0 +1,68 @@
+team_name: "sniper-sprint-{number}"
+phase: sprint
+
+available_teammates:
+  - name: backend-dev
+    compose:
+      process: developer
+      technical: backend
+      cognitive: systems-thinker
+      domain: null
+    owns_from_config: backend
+    model: sonnet
+
+  - name: frontend-dev
+    compose:
+      process: developer
+      technical: frontend
+      cognitive: user-empathetic
+      domain: null
+    owns_from_config: frontend
+    model: sonnet
+
+  - name: infra-dev
+    compose:
+      process: developer
+      technical: infrastructure
+      cognitive: systems-thinker
+      domain: null
+    owns_from_config: infrastructure
+    model: sonnet
+
+  - name: ai-dev
+    compose:
+      process: developer
+      technical: ai-ml
+      cognitive: performance-focused
+      domain: null
+    owns_from_config: ai
+    model: opus
+
+  - name: qa-engineer
+    compose:
+      process: qa-engineer
+      technical: backend
+      cognitive: devils-advocate
+      domain: null
+    owns_from_config: tests
+    model: sonnet
+
+sprint_rules:
+  - "Each teammate reads their assigned story file(s) COMPLETELY before writing any code"
+  - "Backend and frontend must agree on API contracts via inter-agent messaging BEFORE implementing"
+  - "All new code must include tests — no story is complete without passing tests"
+  - "QA engineer is blocked until implementation stories are complete"
+  - "Every teammate messages the team lead when their task is complete"
+  - "If any teammate is blocked for > 10 minutes, message the lead immediately"
+
+coordination:
+  - between: [backend-dev, frontend-dev]
+    topic: "API contracts — agree on endpoints, payloads, and auth before coding"
+  - between: [backend-dev, ai-dev]
+    topic: "AI pipeline integration points — data flow, WebSocket events, API boundaries"
+  - between: [backend-dev, qa-engineer]
+    topic: "Share testable endpoints as they're completed"
+
+review_gate:
+  checklist: ".sniper/checklists/sprint-review.md"
+  mode: strict

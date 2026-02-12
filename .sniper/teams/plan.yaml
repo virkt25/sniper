@@ -1,0 +1,86 @@
+team_name: sniper-plan
+phase: plan
+model_override: opus
+
+teammates:
+  - name: product-manager
+    compose:
+      process: product-manager
+      technical: api-design
+      cognitive: systems-thinker
+      domain: null
+    tasks:
+      - id: prd
+        name: "Product Requirements Document"
+        output: "docs/prd.md"
+        template: ".sniper/templates/prd.md"
+        reads: ["docs/brief.md", "docs/personas.md", "docs/risks.md"]
+        description: >
+          Write a comprehensive PRD covering: problem statement, user stories,
+          feature requirements (P0/P1/P2), success metrics, constraints,
+          and out-of-scope items. This is the single source of truth for what to build.
+
+  - name: architect
+    compose:
+      process: architect
+      technical: backend
+      cognitive: security-first
+      domain: null
+    tasks:
+      - id: architecture
+        name: "System Architecture Document"
+        output: "docs/architecture.md"
+        template: ".sniper/templates/architecture.md"
+        reads: ["docs/prd.md", "docs/brief.md", "docs/risks.md"]
+        blocked_by: [prd]
+        plan_approval: true
+        description: >
+          Design the complete system architecture. Include: component diagram,
+          data models, API contracts, infrastructure topology, technology choices
+          with rationale, and non-functional requirements.
+
+  - name: ux-designer
+    compose:
+      process: ux-designer
+      technical: frontend
+      cognitive: user-empathetic
+      domain: null
+    tasks:
+      - id: ux-spec
+        name: "UX Specification"
+        output: "docs/ux-spec.md"
+        template: ".sniper/templates/ux-spec.md"
+        reads: ["docs/prd.md", "docs/personas.md"]
+        blocked_by: [prd]
+        description: >
+          Define the UX: information architecture, screen inventory,
+          key user flows (with decision trees), component hierarchy,
+          interaction patterns, and responsive breakpoints.
+
+  - name: security-analyst
+    compose:
+      process: architect
+      technical: security
+      cognitive: security-first
+      domain: null
+    tasks:
+      - id: security
+        name: "Security & Compliance Requirements"
+        output: "docs/security.md"
+        template: ".sniper/templates/security.md"
+        reads: ["docs/prd.md", "docs/risks.md"]
+        blocked_by: [prd]
+        description: >
+          Define security architecture: auth model, data encryption strategy,
+          compliance requirements (with specific regulations), threat model,
+          and security testing requirements.
+
+coordination:
+  - between: [architect, security-analyst]
+    topic: "Align security architecture with system architecture"
+  - between: [architect, ux-designer]
+    topic: "Align frontend component boundaries with backend API contracts"
+
+review_gate:
+  checklist: ".sniper/checklists/plan-review.md"
+  mode: strict

@@ -1,0 +1,48 @@
+team_name: null
+phase: solve
+
+agent:
+  compose:
+    process: scrum-master
+    technical: null
+    cognitive: systems-thinker
+    domain: null
+  reads:
+    - "docs/prd.md"
+    - "docs/architecture.md"
+    - "docs/ux-spec.md"
+    - "docs/security.md"
+
+  tasks:
+    - id: epic-sharding
+      name: "Epic Sharding"
+      output: "docs/epics/"
+      template: ".sniper/templates/epic.md"
+      description: >
+        Break the PRD into 6-12 epics. Each epic file must include:
+        - Scope and clear boundaries (what's in, what's out)
+        - Relevant sections from architecture doc (EMBEDDED, not just referenced)
+        - Dependencies on other epics
+        - Acceptance criteria for the epic as a whole
+        - Estimated total story points
+
+    - id: story-creation
+      name: "Story Creation"
+      output: "docs/stories/"
+      template: ".sniper/templates/story.md"
+      blocked_by: [epic-sharding]
+      description: >
+        For each epic, create 3-8 stories. Each story file must include:
+        - Full context from PRD + Architecture (EMBEDDED in the story file)
+        - Acceptance criteria as testable assertions
+        - Test requirements (unit, integration, e2e as applicable)
+        - File ownership (which directories this story's implementation touches)
+        - Dependencies on other stories
+        - Complexity estimate (S/M/L/XL)
+
+        CRITICAL: Stories must be self-contained. A teammate reading ONLY the story
+        file must have enough context to implement it without reading any other docs.
+
+review_gate:
+  checklist: ".sniper/checklists/story-review.md"
+  mode: flexible
