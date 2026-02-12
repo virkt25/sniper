@@ -117,22 +117,24 @@
 
 ---
 
-## Epic 6: CRM Integration (Salesforce & HubSpot)
+## Epic 6: CRM Integration (Salesforce, HubSpot & Follow Up Boss)
 
-- **Description**: Build the CRM integration layer — OAuth connection flows, bi-directional sync,
-  activity auto-logging, field mapping UI, and sync health monitoring. Supports Salesforce and
-  HubSpot as launch CRMs.
+- **Description**: Build the CRM integration layer — OAuth/API-key connection flows, bi-directional
+  sync, activity auto-logging, field mapping UI, and sync health monitoring. Supports Salesforce,
+  HubSpot, and Follow Up Boss as launch CRMs.
 
 - **Key Stories**:
   - Build CRM OAuth connection flow (Salesforce Connected App, HubSpot OAuth2)
+  - Build Follow Up Boss API-key/OAuth connection flow and People sync
   - Implement contact sync engine: CRM-to-dialer (import contacts, subscribe to CDC/webhooks)
-  - Implement activity sync engine: dialer-to-CRM (auto-log calls as Tasks/Engagements)
+  - Implement activity sync engine: dialer-to-CRM (auto-log calls as Tasks/Engagements/Events)
   - Build field mapping configuration UI (map dialer fields to CRM fields per tenant)
   - Implement conflict resolution engine (CRM-wins, dialer-wins, last-write-wins per field)
-  - Build batch sync for historical data import (Salesforce Bulk API 2.0, HubSpot batch endpoints)
+  - Build batch sync for historical data import (Salesforce Bulk API 2.0, HubSpot batch endpoints, FUB pagination)
   - Implement sync health dashboard (sync status, error rates, pending records, last sync time)
   - Build disposition-to-CRM mapping configuration (map dialer dispositions to CRM picklist values)
   - Implement call recording URL sync to CRM (signed URL generation, link in CRM activity)
+  - Build FUB-specific stage mapping (FUB stages vs lead status in Salesforce/HubSpot)
 
 - **Dependencies**: Epic 3 (Telephony Core), Epic 4 (Contact Management)
 
@@ -164,12 +166,14 @@
 
 ## Epic 8: AI Pipeline (STT, Sentiment, Scoring)
 
-- **Description**: Build the AI/ML pipeline — real-time speech-to-text via Deepgram, sentiment
-  analysis per utterance, configurable call scoring rubrics, post-call summarization, and
-  action item extraction. This powers both real-time coaching and post-call intelligence.
+- **Description**: Build the AI/ML pipeline — real-time speech-to-text via Deepgram (default)
+  and OpenAI Realtime API (premium), sentiment analysis per utterance, configurable call scoring
+  rubrics, post-call summarization, and action item extraction. This powers both real-time
+  coaching and post-call intelligence.
 
 - **Key Stories**:
   - Integrate Deepgram streaming STT (WebSocket connection, audio format conversion from Twilio)
+  - Integrate OpenAI Realtime API as premium STT+AI provider (combined transcription and analysis)
   - Build transcript processor (speaker labeling, utterance segmentation, timestamp alignment)
   - Implement real-time sentiment analysis engine (per-utterance classification via LLM)
   - Build configurable call scoring rubric system (categories, criteria, weights, per-tenant config)
@@ -179,6 +183,7 @@
   - Build deal risk signal detection (analyze conversation patterns across multiple calls)
   - Implement transcript storage and search (full-text search across call transcripts)
   - Build AI model abstraction layer (swap STT/LLM providers without business logic changes)
+  - Build AI voicemail agent using OpenAI Realtime conversational mode (AMD → dynamic voicemail)
 
 - **Dependencies**: Epic 3 (Telephony Core), Epic 7 (Call Recording)
 
@@ -297,7 +302,7 @@ Epic 1: Foundation
         │     ├── Epic 10: Compliance
         │     ├── Epic 11: Analytics
         │     └── Epic 12: Manager Tools
-        └── Epic 6: CRM Integration
+        └── Epic 6: CRM Integration (SF/HS/FUB)
               └── Epic 11: Analytics (pipeline attribution)
 ```
 

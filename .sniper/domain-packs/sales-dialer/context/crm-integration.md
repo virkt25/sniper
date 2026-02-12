@@ -25,9 +25,9 @@ Store tokens per-tenant in an encrypted credentials table:
 CREATE TABLE crm_credentials (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id),
-  provider TEXT NOT NULL CHECK (provider IN ('salesforce', 'hubspot')),
+  provider TEXT NOT NULL CHECK (provider IN ('salesforce', 'hubspot', 'followupboss')),
   access_token TEXT NOT NULL,          -- encrypted at rest
-  refresh_token TEXT NOT NULL,         -- encrypted at rest
+  refresh_token TEXT,                  -- encrypted at rest; NULL for API-key-only providers (e.g., Follow Up Boss)
   instance_url TEXT,                   -- Salesforce instance URL (e.g., https://na1.salesforce.com)
   token_expires_at TIMESTAMPTZ,
   scopes TEXT[],
@@ -316,6 +316,231 @@ Custom events are powerful for tracking dialer-specific actions:
 
 ---
 
+## Follow Up Boss Integration
+
+### Authentication: API Key & OAuth 2.0
+
+Two auth patterns:
+
+1. **API Key (direct integration)** — HTTP Basic Auth with API key as username, no password
+   - Generated in Follow Up Boss Admin > API > API Keys
+   - Passed as Basic Auth: `Authorization: Basic {base64(api_key + ':')}`
+   - Simplest setup for single-tenant integrations
+
+2. **OAuth 2.0 (marketplace apps)** — for multi-tenant SaaS integrations
+   - Auth URL: `https://app.followupboss.com/oauth2/authorize`
+   - Token URL: `https://api.followupboss.com/v1/oauth2/token`
+   - Scopes: granted at app registration level (not per-request)
+   - Refresh tokens: access tokens expire; store and rotate refresh tokens per tenant
+
+Base URL: `https://api.followupboss.com/v1/`
+
+All requests require the `X-System: YourAppName` header and optionally `X-System-Key: your_key`
+for identifying your integration in FUB's logs.
+
+### Follow Up Boss People API (Contacts)
+
+FUB uses "People" as its primary contact entity. People have nested phone numbers, emails,
+addresses, tags, and custom fields.
+
+**Endpoints:**
+
+| Operation | Method | Endpoint |
+|-----------|--------|----------|
+| List people | GET | `/people` |
+| Get person | GET | `/people/{id}` |
+| Create person | POST | `/people` |
+| Update person | PUT | `/people/{id}` |
+| Search/filter | GET | `/people?sort=created&fields=...` |
+| Merge duplicates | POST | `/people/{id}/merge` |
+
+Create/update a person:
+
+```json
+POST /v1/people
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "stage": "Lead",
+  "source": "Dialer Import",
+  "emails": [
+    { "value": "john@example.com", "type": "home" }
+  ],
+  "phones": [
+    { "value": "+14155551234", "type": "mobile" },
+    { "value": "+14155550100", "type": "work" }
+  ],
+  "addresses": [
+    {
+      "street": "123 Main St",
+      "city": "San Francisco",
+      "state": "CA",
+      "code": "94105",
+      "type": "home"
+    }
+  ],
+  "tags": ["hot-lead", "dialer-campaign-q1"],
+  "assignedTo": "agent@company.com",
+  "customFields": {
+    "Dialer Call Count": 5,
+    "Last AI Score": 87
+  }
+}
+```
+
+Key FUB-specific concepts:
+
+| Concept | Description |
+|---------|-------------|
+| **Stage** | Pipeline stage: Lead, Prospect, Active Client, Past Client, etc. (not "lead status") |
+| **Source** | Lead source attribution (Zillow, Website, Referral, Dialer Import, etc.) |
+| **Tags** | Flexible labels for segmentation and filtering |
+| **Assigned To** | Agent email or team assignment |
+| **Action Plans** | Automated follow-up sequences triggered by stage/tag changes |
+| **Smart Lists** | Saved filtered views of people (similar to CRM saved searches) |
+
+**Pagination:**
+
+FUB uses offset-based pagination:
+
+```
+GET /v1/people?offset=0&limit=25&sort=lastActivity&fields=firstName,lastName,phones,emails
+```
+
+Maximum `limit` is 100. Use `offset` to page through results.
+
+### Follow Up Boss Events API (Call Logging)
+
+The Events API is the primary way to log call activities. Events appear on the person's
+activity timeline in FUB.
+
+```json
+POST /v1/events
+{
+  "source": "YourDialer",
+  "type": "Call",
+  "person": {
+    "emails": ["john@example.com"],
+    "phones": ["+14155551234"]
+  },
+  "message": "Outbound call - discussed pricing for listing at 123 Main St. Prospect interested in scheduling a showing.",
+  "description": "Call Duration: 5:42 | Disposition: Connected | AI Score: 87/100",
+  "metadata": {
+    "callDuration": 342,
+    "callDirection": "outbound",
+    "disposition": "Connected",
+    "recordingUrl": "https://recordings.example.com/rec_abc123.mp3",
+    "aiScore": 87,
+    "sentiment": "positive",
+    "callSid": "CAxxxxxxxxxx"
+  }
+}
+```
+
+The Events API is powerful because it can auto-create people if they don't exist in FUB yet.
+When you provide `person.emails` or `person.phones`, FUB matches to an existing record or
+creates a new one. This eliminates the need for a separate "create contact then log activity"
+flow.
+
+Event types relevant to sales dialer:
+
+| Type | Description |
+|------|-------------|
+| `Call` | Phone call activity |
+| `Note` | General note attached to person |
+| `Text Message` | SMS sent/received |
+| `Email` | Email sent/received |
+| `Property Visit` | Site/property visit (real estate specific) |
+| `Other` | Custom activity type |
+
+### Follow Up Boss Notes API
+
+For longer call summaries, AI-generated notes, or structured coaching feedback, use the Notes API:
+
+```json
+POST /v1/notes
+{
+  "personId": 12345,
+  "subject": "Call Summary — AI Generated",
+  "body": "--- Call Summary ---\nSpoke with John about listing at 123 Main St.\n\n--- Key Points ---\n- Motivated seller, relocating for work\n- Wants to list by end of month\n- Budget expectation: $450-480K range\n\n--- Next Steps ---\n- Send CMA by Friday\n- Schedule listing appointment next Tuesday\n\n--- Metrics ---\nDuration: 5:42 | AI Score: 87/100 | Sentiment: Positive"
+}
+```
+
+### Follow Up Boss Webhooks
+
+FUB supports webhooks for real-time CRM-to-dialer sync:
+
+Subscribe to webhooks via the FUB Admin panel or API:
+
+```json
+POST /v1/webhooks
+{
+  "event": "peopleUpdated",
+  "url": "https://your-app.com/webhooks/fub",
+  "secret": "your_webhook_secret"
+}
+```
+
+Available webhook events:
+
+| Event | Trigger |
+|-------|---------|
+| `peopleCreated` | New person added to FUB |
+| `peopleUpdated` | Person record modified (stage change, field edit, tag added) |
+| `peopleDeleted` | Person deleted |
+| `taskCreated` | New task created |
+| `taskUpdated` | Task modified or completed |
+| `callCreated` | Inbound/outbound call logged |
+| `noteCreated` | Note added to a person |
+
+Webhook payload structure:
+
+```json
+{
+  "event": "peopleUpdated",
+  "resourceIds": [12345, 12346],
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+FUB webhook payloads only include resource IDs — you must call the People API to fetch
+the full updated record. Since FUB allows only 200 requests/minute, a bulk update webhook
+with many `resourceIds` can exhaust the rate limit quickly. Queue webhook-triggered fetches
+behind a rate-limit-aware worker and batch where possible. Validate webhooks using the
+`secret` you set during subscription (compare HMAC signature in the `X-FUB-Signature` header).
+
+### Follow Up Boss Rate Limits
+
+- **200 requests per minute** per API key
+- Use batch operations and webhook-driven sync to stay within limits
+- Implement a sliding window rate limiter with 429 retry-after backoff
+- For initial data loads, throttle to ~3 requests/second to avoid rate limiting
+
+### Follow Up Boss Custom Fields
+
+FUB supports custom fields on People records. Discover and create them via API:
+
+```
+GET /v1/customFields              — List all custom fields
+POST /v1/customFields             — Create a custom field
+```
+
+Create dialer-specific custom fields during tenant onboarding:
+
+```json
+POST /v1/customFields
+{
+  "name": "Dialer Call Count",
+  "type": "number"
+}
+```
+
+Custom field types: `text`, `number`, `date`, `dropdown`, `checkbox`.
+
+Custom field values are read/written as part of the People API `customFields` object.
+
+---
+
 ## Bi-Directional Sync Engine
 
 ### Architecture Overview
@@ -331,6 +556,7 @@ For CRM-to-Dialer (inbound), use CRM webhooks/CDC:
 
 - **Salesforce**: Change Data Capture (CDC) events via CometD
 - **HubSpot**: Webhook subscriptions via App Settings (subscription API)
+- **Follow Up Boss**: Webhook subscriptions via Admin panel or API (`/v1/webhooks`)
 
 HubSpot webhook subscription:
 
@@ -352,6 +578,7 @@ CRM Webhook → API Gateway → Webhook Processor (validates signature, deduplic
 Always validate webhook signatures:
 - Salesforce: Verify the `X-Salesforce-Signature` header using your org's certificate
 - HubSpot: HMAC-SHA256 of request body using client secret, compare to `X-HubSpot-Signature-v3`
+- Follow Up Boss: HMAC signature using webhook secret, compare to `X-FUB-Signature` header
 
 ### Batch Sync for Historical Data
 
@@ -502,6 +729,14 @@ Dialer dispositions must map to CRM-specific field values. This mapping is confi
       "Meeting Booked": { "hs_call_status": "COMPLETED", "hs_call_disposition": "connected" },
       "Not Interested": { "hs_call_status": "COMPLETED", "hs_call_disposition": "busy" },
       "DNC": { "hs_call_status": "COMPLETED", "hs_call_disposition": "busy" }
+    },
+    "followupboss": {
+      "Connected": { "type": "Call", "outcome": "Connected" },
+      "No Answer": { "type": "Call", "outcome": "No Answer" },
+      "Voicemail": { "type": "Call", "outcome": "Left Voicemail" },
+      "Meeting Booked": { "type": "Call", "outcome": "Appointment Set" },
+      "Not Interested": { "type": "Call", "outcome": "Not Interested" },
+      "DNC": { "type": "Call", "outcome": "DNC" }
     }
   }
 }
@@ -573,20 +808,24 @@ CREATE TABLE field_mappings (
 
 Provide sensible defaults that tenants can override:
 
-| Dialer Field | Salesforce Lead | HubSpot Contact | Direction |
-|--------------|-----------------|-----------------|-----------|
-| first_name | FirstName | firstname | bidirectional |
-| last_name | LastName | lastname | bidirectional |
-| email | Email | email | bidirectional |
-| phone | Phone | phone | bidirectional |
-| mobile_phone | MobilePhone | mobilephone | bidirectional |
-| company | Company | company | bidirectional |
-| title | Title | jobtitle | bidirectional |
-| lead_status | Status | hs_lead_status | bidirectional |
-| owner_email | Owner.Email | hubspot_owner_id | inbound |
-| last_called_at | Dialer_Last_Called__c | last_call_date | outbound |
-| call_count | Dialer_Call_Count__c | num_calls | outbound |
-| ai_score | Dialer_AI_Score__c | ai_call_score | outbound |
+| Dialer Field | Salesforce Lead | HubSpot Contact | Follow Up Boss Person | Direction |
+|--------------|-----------------|-----------------|----------------------|-----------|
+| first_name | FirstName | firstname | firstName | bidirectional |
+| last_name | LastName | lastname | lastName | bidirectional |
+| email | Email | email | emails[0].value | bidirectional |
+| phone | Phone | phone | phones[0].value (type:work) | bidirectional |
+| mobile_phone | MobilePhone | mobilephone | phones[1].value (type:mobile) | bidirectional |
+| company | Company | company | customFields."Company" *(auto-created)* | bidirectional |
+| title | Title | jobtitle | customFields."Title" *(auto-created)* | bidirectional |
+| lead_status | Status | hs_lead_status | stage | bidirectional |
+| owner_email | Owner.Email | hubspot_owner_id | assignedTo | inbound |
+| last_called_at | Dialer_Last_Called__c | last_call_date | customFields."Last Called" | outbound |
+| call_count | Dialer_Call_Count__c | num_calls | customFields."Dialer Call Count" | outbound |
+| ai_score | Dialer_AI_Score__c | ai_call_score | customFields."Last AI Score" | outbound |
+
+> **FUB onboarding note**: Fields marked *(auto-created)* require creating custom fields in
+> Follow Up Boss during tenant onboarding via `POST /v1/customFields`. The sync engine should
+> check for and create missing custom fields before enabling bidirectional sync for these fields.
 
 ### Data Transformation Rules
 
@@ -612,6 +851,7 @@ On CRM connection, discover the tenant's custom fields automatically:
 - **Salesforce**: `GET /services/data/v59.0/sobjects/{ObjectName}/describe` returns all fields
   including custom fields (ending in `__c`)
 - **HubSpot**: `GET /crm/v3/properties/{objectType}` returns all properties including custom ones
+- **Follow Up Boss**: `GET /v1/customFields` returns all custom fields with name and type
 
 Cache the field schema per tenant and refresh periodically. Present discovered fields in the
 field mapping UI so tenants can map them without manual configuration.
