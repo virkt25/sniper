@@ -15,6 +15,7 @@ post-call intelligence, and voicemail detection.
 | **Deepgram** | Streaming WebSocket | ~300ms | Real-time transcription, production |
 | **AssemblyAI** | Streaming WebSocket | ~500ms | Real-time with built-in sentiment |
 | **OpenAI Whisper** | Batch REST | Seconds-minutes | Post-call processing, high accuracy |
+| **OpenAI Realtime** | Streaming WebSocket | ~300-500ms | Real-time STT + AI responses, voice agents |
 
 ### Deepgram Streaming API (Primary for Real-Time)
 
@@ -147,6 +148,185 @@ Whisper does not natively diarize. For post-call, combine Whisper transcription 
 a separate diarization model (e.g., pyannote.audio) or use the stereo channel approach
 (agent on left channel, prospect on right channel).
 
+### OpenAI Realtime API (Real-Time STT + AI)
+
+The OpenAI Realtime API provides a persistent WebSocket connection to GPT-4o models with native
+audio input and output. Unlike Whisper (batch-only), this is a true streaming interface that
+combines speech-to-text with LLM intelligence in a single hop — eliminating the need for a
+separate LLM call for per-utterance analysis.
+
+WebSocket endpoint: `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview`
+
+Authentication: Pass API key via header on WebSocket upgrade:
+`Authorization: Bearer {OPENAI_API_KEY}`
+
+Or use the `OpenAI-Beta: realtime=v1` header for beta access.
+
+**Session Configuration:**
+
+After connecting, send a `session.update` event to configure the session:
+
+```json
+{
+  "type": "session.update",
+  "session": {
+    "model": "gpt-4o-realtime-preview",
+    "modalities": ["text", "audio"],
+    "instructions": "You are a sales call assistant. Transcribe the conversation and provide real-time analysis.",
+    "input_audio_format": "pcm16",
+    "output_audio_format": "pcm16",
+    "input_audio_transcription": {
+      "model": "whisper-1"
+    },
+    "turn_detection": {
+      "type": "server_vad",
+      "threshold": 0.5,
+      "prefix_padding_ms": 300,
+      "silence_duration_ms": 500
+    },
+    "tools": []
+  }
+}
+```
+
+Key session parameters for sales dialer use:
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `modalities` | `["text", "audio"]` | Enable both text and audio processing |
+| `input_audio_format` | `"pcm16"` | 16-bit PCM audio input (also supports `"g711_ulaw"`, `"g711_alaw"`) |
+| `input_audio_transcription` | `{ "model": "whisper-1" }` | Enable automatic transcription of input audio |
+| `turn_detection.type` | `"server_vad"` | Server-side voice activity detection (handles turn-taking automatically) |
+| `turn_detection.threshold` | `0.5` | VAD sensitivity (0.0-1.0, lower = more sensitive) |
+| `turn_detection.silence_duration_ms` | `500` | Silence before utterance is considered complete |
+
+**Audio Input:**
+
+Send audio data as base64-encoded PCM chunks:
+
+```json
+{
+  "type": "input_audio_buffer.append",
+  "audio": "base64_encoded_pcm16_audio"
+}
+```
+
+Audio format requirements:
+- **PCM 16-bit**: mono, 24kHz sample rate (native), but also accepts 16kHz and 8kHz
+- **G.711 mulaw**: 8kHz mono — matches Twilio Media Streams directly, no conversion needed
+- **G.711 alaw**: 8kHz mono
+
+The G.711 mulaw support is a significant advantage for sales dialers — you can pipe Twilio
+Media Stream audio directly to the Realtime API without format conversion.
+
+**Server-Side VAD (Voice Activity Detection):**
+
+When `turn_detection.type` is `"server_vad"`, the API automatically detects when a speaker
+starts and stops talking. Events emitted:
+
+- `input_audio_buffer.speech_started` — speech detected in audio buffer
+- `input_audio_buffer.speech_stopped` — silence detected, utterance boundary
+- `input_audio_buffer.committed` — audio buffer committed for processing
+
+This replaces the need for external VAD logic or reliance on the STT provider's utterance
+boundaries.
+
+**Key Response Events:**
+
+| Event | Description |
+|-------|-------------|
+| `conversation.item.input_audio_transcription.completed` | Transcription of input audio is ready |
+| `response.audio_transcript.delta` | Streaming transcript chunk of model's audio response |
+| `response.audio_transcript.done` | Model's audio response transcript complete |
+| `response.text.delta` | Streaming text response chunk |
+| `response.text.done` | Text response complete |
+| `response.function_call_arguments.delta` | Streaming function/tool call arguments |
+| `response.function_call_arguments.done` | Function call complete |
+
+Transcription completed event structure:
+
+```json
+{
+  "type": "conversation.item.input_audio_transcription.completed",
+  "item_id": "item_abc123",
+  "content_index": 0,
+  "transcript": "I'd like to learn more about your enterprise pricing"
+}
+```
+
+**Two Operating Modes for Sales Dialers:**
+
+1. **Transcription-only mode** — Use the Realtime API purely for STT by enabling
+   `input_audio_transcription` and setting instructions to transcribe without responding.
+   Feed the transcripts into the existing coaching pipeline (sentiment analysis, call scoring,
+   objection detection). This gives you GPT-4o-quality transcription with streaming latency.
+
+2. **Conversational mode** — Use the full bidirectional audio capability for AI-powered
+   features like:
+   - **AI voicemail agent**: When AMD detects a machine, hand off to the Realtime API to
+     leave a dynamic, personalized voicemail
+   - **AI IVR navigator**: Automatically navigate phone trees before connecting the agent
+   - **AI call assistant**: Provide real-time whispered coaching to the agent via a
+     side-channel audio stream
+   - **AI post-call follow-up**: Generate and deliver voice messages based on call outcomes
+
+**Function Calling (Tools):**
+
+The Realtime API supports tool/function calling, enabling the AI to take actions mid-conversation:
+
+```json
+{
+  "type": "session.update",
+  "session": {
+    "tools": [
+      {
+        "type": "function",
+        "name": "lookup_crm_record",
+        "description": "Look up a contact's CRM record to get recent activity and deal stage",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "contact_name": { "type": "string" },
+            "company": { "type": "string" }
+          },
+          "required": ["contact_name"]
+        }
+      },
+      {
+        "type": "function",
+        "name": "get_pricing_info",
+        "description": "Get pricing details for a specific product or plan",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "product": { "type": "string" },
+            "plan_tier": { "type": "string", "enum": ["starter", "growth", "enterprise"] }
+          },
+          "required": ["product"]
+        }
+      }
+    ]
+  }
+}
+```
+
+When the model invokes a tool, you receive `response.function_call_arguments.done`, execute
+the function server-side, and return the result via `conversation.item.create` with a
+`function_call_output` item. This enables real-time data lookups during AI-assisted calls.
+
+**Cost Considerations:**
+
+| Component | Cost | Notes |
+|-----------|------|-------|
+| Audio input | ~$0.06/min | Significantly higher than Deepgram ($0.0043/min) |
+| Audio output | ~$0.24/min | Only applies in conversational mode |
+| Text tokens | Standard GPT-4o rates | For tool calls and text responses |
+
+The Realtime API costs ~14x more than Deepgram for pure transcription. Use it strategically:
+- **High-value calls** where AI-powered real-time assistance justifies the cost
+- **AI voicemail/IVR features** where the conversational mode provides unique capability
+- **Default to Deepgram** for standard STT on all calls, reserve Realtime for premium features
+
 ### STT Provider Abstraction
 
 Abstract the STT provider behind an interface so you can swap providers:
@@ -185,9 +365,9 @@ interface WordEvent {
 }
 
 interface STTConfig {
-  provider: 'deepgram' | 'assemblyai' | 'whisper';
+  provider: 'deepgram' | 'assemblyai' | 'whisper' | 'openai-realtime';
   encoding: 'linear16' | 'mulaw' | 'opus';
-  sampleRate: number;
+  sampleRate: number;                   // 8000, 16000, or 24000 depending on provider
   channels: number;
   language: string;
   interimResults: boolean;
@@ -212,7 +392,19 @@ Media Forwarder Service
   │ Mixes/routes audio streams
   │ Converts mulaw → linear16 if needed
   ▼
-STT Service (Deepgram WebSocket)
+┌─────────────────────────────────────────────────────┐
+│              STT Provider (choose one)              │
+│                                                     │
+│  Path A: Deepgram/AssemblyAI (standard)             │
+│    STT WebSocket → Transcript Events                │
+│      → Separate LLM calls for sentiment/coaching    │
+│                                                     │
+│  Path B: OpenAI Realtime API (combined)             │
+│    Realtime WebSocket → Transcript + AI Analysis    │
+│      → Single hop for STT + sentiment + coaching    │
+│      → Supports mulaw directly (no conversion)      │
+│      → Optional: AI voice responses (voicemail/IVR) │
+└─────────────────────────────────────────────────────┘
   │ Transcript events
   ▼
 Transcript Processor
@@ -286,12 +478,16 @@ Track values:
 
 ### Audio Format Conversion
 
-Twilio sends mulaw (G.711) at 8kHz mono. STT providers typically want linear16 (PCM) at 16kHz.
+Twilio sends mulaw (G.711) at 8kHz mono. Most STT providers want linear16 (PCM) at 16kHz.
 
-Conversion pipeline:
+Conversion pipeline per provider:
 
 ```
-mulaw 8kHz → decode to PCM 8kHz → upsample to 16kHz → send to STT
+Deepgram:          mulaw 8kHz → decode to PCM 8kHz → upsample to 16kHz → send to STT
+                   (or send mulaw directly with encoding=mulaw&sample_rate=8000)
+AssemblyAI:        mulaw 8kHz → decode to PCM 8kHz → upsample to 16kHz → send to STT
+OpenAI Realtime:   mulaw 8kHz → send directly (native g711_ulaw support, no conversion needed)
+OpenAI Whisper:    mulaw 8kHz → decode to PCM → save as WAV → POST to API (batch)
 ```
 
 Use the `@discordjs/opus` or a custom mulaw decoder:
@@ -902,24 +1098,51 @@ CREATE TABLE voicemail_recordings (
 
 For real-time coaching, the total pipeline latency must stay under 2 seconds:
 
+**Standard pipeline (Deepgram/AssemblyAI → separate LLM):**
+
 | Stage | Target Latency |
 |-------|---------------|
 | Audio from Twilio to STT | 100ms |
 | STT processing | 300ms |
 | Transcript to coaching engine | 50ms |
-| Sentiment/scoring analysis | 500ms |
+| Sentiment/scoring analysis (LLM call) | 500ms |
 | Coaching prompt to agent UI | 50ms |
 | **Total** | **~1000ms** |
+
+**Combined pipeline (OpenAI Realtime API):**
+
+| Stage | Target Latency |
+|-------|---------------|
+| Audio from Twilio to Realtime API | 100ms |
+| Realtime STT + AI analysis (single hop) | 300-500ms |
+| Coaching prompt to agent UI | 50ms |
+| **Total** | **~450-650ms** |
+
+The OpenAI Realtime path eliminates the separate LLM call for sentiment/coaching analysis
+since the model sees audio context natively, but costs more per minute.
 
 ### Scaling Considerations
 
 - Each active call = 1 STT WebSocket connection + 1 agent WebSocket
 - For 100 concurrent calls: 200 WebSocket connections, ~50 Mbps audio bandwidth
-- STT costs: Deepgram Nova-2 at ~$0.0043/minute ($0.26/hour of calls)
-- LLM costs for sentiment: ~$0.001/utterance with GPT-4o-mini
 - Run coaching engines as stateless workers behind a load balancer
 - Use Redis for real-time state (talk ratio, sentiment history) per call
 - Persist transcript events to PostgreSQL for post-call analysis
+
+**Provider cost comparison (per minute of audio):**
+
+| Provider | STT Cost | Notes |
+|----------|----------|-------|
+| Deepgram Nova-2 | ~$0.0043/min | Best value for high-volume STT |
+| AssemblyAI | ~$0.0065/min | Includes built-in sentiment |
+| OpenAI Whisper | ~$0.006/min | Batch only, no streaming |
+| OpenAI Realtime (input) | ~$0.06/min | ~14x Deepgram, but includes AI analysis |
+| OpenAI Realtime (output) | ~$0.24/min | Only if using audio responses (voice agent mode) |
+| LLM sentiment (GPT-4o-mini) | ~$0.001/utterance | Separate call on top of STT cost |
+
+**Recommended strategy**: Use Deepgram for standard STT across all calls (cost-effective at
+scale). Reserve OpenAI Realtime for premium features — AI voicemail agents, IVR navigation,
+and high-value call coaching where the combined STT+AI pipeline justifies the cost.
 
 ### Data Storage
 
