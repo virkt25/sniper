@@ -1,0 +1,57 @@
+team_name: sniper-discover
+phase: discover
+
+teammates:
+  - name: analyst
+    compose:
+      process: analyst
+      technical: null
+      cognitive: systems-thinker
+      domain: null
+    tasks:
+      - id: market-research
+        name: "Market Research & Competitive Analysis"
+        output: "docs/brief.md"
+        template: ".sniper/templates/brief.md"
+        description: >
+          Research the market landscape. Identify competitors, their features,
+          pricing, and positioning. Define the project's unique value proposition.
+          Use the domain pack context for industry-specific knowledge.
+
+  - name: risk-researcher
+    compose:
+      process: analyst
+      technical: infrastructure
+      cognitive: devils-advocate
+      domain: null
+    tasks:
+      - id: risk-assessment
+        name: "Technical Feasibility & Risk Assessment"
+        output: "docs/risks.md"
+        template: ".sniper/templates/risks.md"
+        description: >
+          Assess technical feasibility, integration risks, compliance hurdles,
+          and scalability challenges. Challenge optimistic assumptions.
+          Be specific about what could go wrong and mitigation strategies.
+
+  - name: user-researcher
+    compose:
+      process: analyst
+      technical: null
+      cognitive: user-empathetic
+      domain: null
+    tasks:
+      - id: user-personas
+        name: "User Persona & Journey Mapping"
+        output: "docs/personas.md"
+        template: ".sniper/templates/personas.md"
+        description: >
+          Define 2-4 user personas with goals, pain points, and workflows.
+          Map the primary user journey for each persona.
+          Identify key moments of friction and delight.
+
+coordination: []
+
+review_gate:
+  checklist: ".sniper/checklists/discover-review.md"
+  mode: flexible

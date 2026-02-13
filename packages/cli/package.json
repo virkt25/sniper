@@ -1,0 +1,45 @@
+{
+  "name": "@sniperai/cli",
+  "version": "0.1.0",
+  "description": "SNIPER CLI — scaffold and manage SNIPER-enabled projects",
+  "type": "module",
+  "bin": {
+    "sniper": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@sniperai/core": "workspace:*",
+    "citty": "^0.1.6",
+    "@clack/prompts": "^0.9.1",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "sniper",
+    "cli",
+    "scaffold",
+    "ai",
+    "claude"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sniperai/sniper.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

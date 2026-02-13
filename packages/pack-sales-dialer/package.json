@@ -1,0 +1,30 @@
+{
+  "name": "@sniperai/pack-sales-dialer",
+  "version": "0.1.0",
+  "description": "SNIPER domain pack — Sales dialer SaaS domain knowledge",
+  "type": "module",
+  "main": "pack",
+  "files": [
+    "pack"
+  ],
+  "sniper": {
+    "type": "domain-pack",
+    "packDir": "pack"
+  },
+  "keywords": [
+    "sniper",
+    "domain-pack",
+    "sales-dialer",
+    "telephony",
+    "crm"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sniperai/sniper.git",
+    "directory": "packages/pack-sales-dialer"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
