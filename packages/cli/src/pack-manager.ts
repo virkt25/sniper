@@ -7,8 +7,23 @@ import {
   access,
   mkdir,
 } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 import { execFileSync } from "node:child_process";
+
+/**
+ * Validates that a resolved path stays within the expected base directory.
+ * Prevents path traversal attacks via user-supplied names containing "..".
+ */
+function assertSafePath(base: string, untrusted: string): string {
+  const full = resolve(base, untrusted);
+  const safeBase = resolve(base) + sep;
+  if (!full.startsWith(safeBase) && full !== resolve(base)) {
+    throw new Error(
+      `Invalid name: path traversal detected in "${untrusted}"`,
+    );
+  }
+  return full;
+}
 import YAML from "yaml";
 import { readConfig, writeConfig } from "./config.js";
 
@@ -65,8 +80,9 @@ export async function installPack(
 
   // Determine pack name from npm package name
   const shortName = packageName.replace(/^@[^/]+\/pack-/, "");
-  const packSrc = join(pkgDir, pkgJson.sniper.packDir);
-  const packDest = join(cwd, ".sniper", "domain-packs", shortName);
+  const domainPacksDir = join(cwd, ".sniper", "domain-packs");
+  const packDest = assertSafePath(domainPacksDir, shortName);
+  const packSrc = assertSafePath(pkgDir, pkgJson.sniper.packDir);
 
   await mkdir(packDest, { recursive: true });
   await cp(packSrc, packDest, { recursive: true, force: true });
@@ -106,7 +122,8 @@ export async function removePack(
   );
   const packageName = packEntry?.package || `@sniperai/pack-${packName}`;
 
-  const packDir = join(cwd, ".sniper", "domain-packs", packName);
+  const domainPacksDir = join(cwd, ".sniper", "domain-packs");
+  const packDir = assertSafePath(domainPacksDir, packName);
   if (await pathExists(packDir)) {
     await rm(packDir, { recursive: true, force: true });
   }

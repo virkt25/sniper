@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
-import { sniperConfigExists, readConfig, writeConfig } from "../config.js";
+import { sniperConfigExists, readConfig } from "../config.js";
 import { scaffoldProject } from "../scaffolder.js";
 
 export const updateCommand = defineCommand({
@@ -36,16 +36,14 @@ export const updateCommand = defineCommand({
     s.start("Updating framework files...");
 
     try {
-      // Re-scaffold, which overwrites framework files
-      await scaffoldProject(cwd, currentConfig);
-
-      // Restore the original config (scaffolding wrote a fresh one from the template,
-      // but we want to keep the user's customizations)
-      await writeConfig(cwd, currentConfig);
+      // Re-scaffold in update mode: overwrites framework files but preserves
+      // user-customizable files (CLAUDE.md, settings.json, config.yaml)
+      const log = await scaffoldProject(cwd, currentConfig, { update: true });
 
       s.stop("Done!");
-      p.log.success("Framework files updated");
-      p.log.success("Config preserved");
+      for (const entry of log) {
+        p.log.success(entry);
+      }
       p.outro("SNIPER updated successfully.");
     } catch (err) {
       s.stop("Failed!");

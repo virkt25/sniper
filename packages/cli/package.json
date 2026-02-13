@@ -39,6 +39,9 @@
     "url": "https://github.com/sniperai/sniper.git",
     "directory": "packages/cli"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "publishConfig": {
     "access": "public"
   }

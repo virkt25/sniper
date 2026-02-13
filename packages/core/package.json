@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "SNIPER framework core — personas, teams, templates, checklists, and workflows",
   "type": "module",
-  "main": "framework",
   "exports": {
-    ".": "./framework",
     "./package.json": "./package.json",
     "./framework/*": "./framework/*"
   },

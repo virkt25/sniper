@@ -59,6 +59,20 @@ export async function sniperConfigExists(cwd: string): Promise<boolean> {
   }
 }
 
+function assertField(
+  obj: Record<string, unknown>,
+  section: string,
+  field: string,
+  type: string,
+): void {
+  const val = obj[field];
+  if (typeof val !== type) {
+    throw new Error(
+      `Invalid config.yaml: "${section}.${field}" must be a ${type}, got ${typeof val}`,
+    );
+  }
+}
+
 function validateConfig(data: unknown): SniperConfig {
   if (!data || typeof data !== "object") {
     throw new Error("Invalid config.yaml: expected an object");
@@ -75,6 +89,25 @@ function validateConfig(data: unknown): SniperConfig {
       throw new Error(`Invalid config.yaml: missing "${key}" section`);
     }
   }
+
+  // Validate nested fields
+  const project = cfg.project as Record<string, unknown>;
+  assertField(project, "project", "name", "string");
+  assertField(project, "project", "type", "string");
+
+  const stack = cfg.stack as Record<string, unknown>;
+  assertField(stack, "stack", "language", "string");
+
+  const agentTeams = cfg.agent_teams as Record<string, unknown>;
+  assertField(agentTeams, "agent_teams", "max_teammates", "number");
+
+  const state = cfg.state as Record<string, unknown>;
+  if (state.artifacts !== undefined && typeof state.artifacts !== "object") {
+    throw new Error(
+      'Invalid config.yaml: "state.artifacts" must be an object',
+    );
+  }
+
   // Normalize: ensure domain_packs is always an array
   if (!Array.isArray(cfg.domain_packs)) {
     cfg.domain_packs = [];
@@ -99,6 +132,12 @@ export function getCorePath(): string {
   // Resolve the path to @sniperai/core's framework directory
   // Works in both monorepo (workspace link) and published (node_modules)
   const require = createRequire(import.meta.url);
-  const corePkgPath = require.resolve("@sniperai/core/package.json");
-  return join(dirname(corePkgPath), "framework");
+  try {
+    const corePkgPath = require.resolve("@sniperai/core/package.json");
+    return join(dirname(corePkgPath), "framework");
+  } catch {
+    throw new Error(
+      '@sniperai/core is not installed. Run "pnpm add -D @sniperai/core" first.',
+    );
+  }
 }
