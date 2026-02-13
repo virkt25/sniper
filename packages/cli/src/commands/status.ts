@@ -46,9 +46,10 @@ export const statusCommand = defineCommand({
       console.log(`  ${icon} ${name.padEnd(16)} ${label}`);
     }
 
-    // Domain pack
-    if (config.domain_pack) {
-      p.log.info(`\nPack: ${config.domain_pack}`);
+    // Domain packs
+    if (config.domain_packs && config.domain_packs.length > 0) {
+      const packNames = config.domain_packs.map((pk) => pk.name).join(", ");
+      p.log.info(`\nPacks: ${packNames}`);
     }
 
     // Stack summary

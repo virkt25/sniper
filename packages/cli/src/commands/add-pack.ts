@@ -39,7 +39,7 @@ export const addPackCommand = defineCommand({
       const result = await installPack(packageName, cwd);
       s.stop("Done!");
 
-      p.log.success(`Installed @sniperai/pack-${result.name}@${result.version}`);
+      p.log.success(`Installed ${result.package}@${result.version}`);
       p.log.success(
         `Copied pack to .sniper/domain-packs/${result.name}/`,
       );

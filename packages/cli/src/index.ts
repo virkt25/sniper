@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { defineCommand, runMain } from "citty";
 import { initCommand } from "./commands/init.js";
 import { statusCommand } from "./commands/status.js";
@@ -6,10 +7,13 @@ import { removePackCommand } from "./commands/remove-pack.js";
 import { listPacksCommand } from "./commands/list-packs.js";
 import { updateCommand } from "./commands/update.js";
 
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
+
 const main = defineCommand({
   meta: {
     name: "sniper",
-    version: "0.1.0",
+    version,
     description: "SNIPER — Spawn, Navigate, Implement, Parallelize, Evaluate, Release",
   },
   subCommands: {

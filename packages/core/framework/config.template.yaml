@@ -46,7 +46,7 @@ agent_teams:
 # Domain Pack
 # ─────────────────────────────────────────
 
-domain_pack: null                  # Set to pack name (e.g., "sales-dialer")
+domain_packs: []                   # [{name: "sales-dialer", package: "@sniperai/pack-sales-dialer"}]
 
 # ─────────────────────────────────────────
 # File Ownership Rules

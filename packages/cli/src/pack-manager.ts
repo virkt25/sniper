@@ -8,7 +8,7 @@ import {
   mkdir,
 } from "node:fs/promises";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import YAML from "yaml";
 import { readConfig, writeConfig } from "./config.js";
 
@@ -43,16 +43,21 @@ function getPackDir(pkgName: string, cwd: string): string {
 export async function installPack(
   packageName: string,
   cwd: string,
-): Promise<{ name: string; version: string; contextCount: number }> {
+): Promise<{
+  name: string;
+  package: string;
+  version: string;
+  contextCount: number;
+}> {
   // Install the npm package
-  execSync(`pnpm add -D ${packageName}`, { cwd, stdio: "pipe" });
+  execFileSync("pnpm", ["add", "-D", packageName], { cwd, stdio: "pipe" });
 
   // Read the installed package.json
   const pkgDir = getPackDir(packageName, cwd);
   const pkgJson = await readJson<PackMetadata>(join(pkgDir, "package.json"));
 
   if (!pkgJson.sniper || pkgJson.sniper.type !== "domain-pack") {
-    execSync(`pnpm remove ${packageName}`, { cwd, stdio: "pipe" });
+    execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
     throw new Error(
       `${packageName} is not a valid SNIPER domain pack (missing sniper.type: "domain-pack")`,
     );
@@ -74,19 +79,32 @@ export async function installPack(
     contextCount = files.filter((f) => f.endsWith(".md")).length;
   }
 
-  // Update config.yaml
+  // Update config.yaml — append to domain_packs (avoid duplicates)
   const config = await readConfig(cwd);
-  config.domain_pack = shortName;
+  if (!config.domain_packs) config.domain_packs = [];
+  if (!config.domain_packs.some((p) => p.name === shortName)) {
+    config.domain_packs.push({ name: shortName, package: packageName });
+  }
   await writeConfig(cwd, config);
 
-  return { name: shortName, version: pkgJson.version, contextCount };
+  return {
+    name: shortName,
+    package: packageName,
+    version: pkgJson.version,
+    contextCount,
+  };
 }
 
 export async function removePack(
   packName: string,
   cwd: string,
 ): Promise<void> {
-  const packageName = `@sniperai/pack-${packName}`;
+  // Read config to find the full package name for this pack
+  const config = await readConfig(cwd);
+  const packEntry = (config.domain_packs || []).find(
+    (p) => p.name === packName,
+  );
+  const packageName = packEntry?.package || `@sniperai/pack-${packName}`;
 
   const packDir = join(cwd, ".sniper", "domain-packs", packName);
   if (await pathExists(packDir)) {
@@ -94,15 +112,14 @@ export async function removePack(
   }
 
   try {
-    execSync(`pnpm remove ${packageName}`, { cwd, stdio: "pipe" });
+    execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
   } catch {
     // Package may not be installed via npm
   }
 
-  const config = await readConfig(cwd);
-  if (config.domain_pack === packName) {
-    config.domain_pack = null;
-  }
+  config.domain_packs = (config.domain_packs || []).filter(
+    (p) => p.name !== packName,
+  );
   await writeConfig(cwd, config);
 }
 
@@ -136,10 +153,11 @@ export async function searchRegistryPacks(): Promise<
   Array<{ name: string; version: string; description: string }>
 > {
   try {
-    const result = execSync("npm search @sniperai/pack- --json 2>/dev/null", {
-      encoding: "utf-8",
-      timeout: 10000,
-    });
+    const result = execFileSync(
+      "npm",
+      ["search", "@sniperai/pack-", "--json"],
+      { encoding: "utf-8", timeout: 10000, stdio: ["pipe", "pipe", "pipe"] },
+    ).toString();
     const packages = JSON.parse(result);
     return packages.map(
       (pkg: { name: string; version: string; description: string }) => ({

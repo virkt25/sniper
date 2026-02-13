@@ -33,7 +33,7 @@ export interface SniperConfig {
     plan_approval: boolean;
     coordination_timeout: number;
   };
-  domain_pack: string | null;
+  domain_packs: Array<{ name: string; package: string }>;
   ownership: Record<string, string[]>;
   state: {
     current_phase: string | null;
@@ -59,9 +59,32 @@ export async function sniperConfigExists(cwd: string): Promise<boolean> {
   }
 }
 
+function validateConfig(data: unknown): SniperConfig {
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid config.yaml: expected an object");
+  }
+  const cfg = data as Record<string, unknown>;
+  for (const key of [
+    "project",
+    "stack",
+    "state",
+    "review_gates",
+    "agent_teams",
+  ]) {
+    if (!cfg[key] || typeof cfg[key] !== "object") {
+      throw new Error(`Invalid config.yaml: missing "${key}" section`);
+    }
+  }
+  // Normalize: ensure domain_packs is always an array
+  if (!Array.isArray(cfg.domain_packs)) {
+    cfg.domain_packs = [];
+  }
+  return data as SniperConfig;
+}
+
 export async function readConfig(cwd: string): Promise<SniperConfig> {
   const raw = await readFile(join(cwd, CONFIG_PATH), "utf-8");
-  return YAML.parse(raw) as SniperConfig;
+  return validateConfig(YAML.parse(raw));
 }
 
 export async function writeConfig(

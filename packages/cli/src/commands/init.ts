@@ -184,7 +184,7 @@ export const initCommand = defineCommand({
         plan_approval: true,
         coordination_timeout: 30,
       },
-      domain_pack: null,
+      domain_packs: [],
       ownership: {
         backend: [
           "src/backend/",
