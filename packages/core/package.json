@@ -1,0 +1,30 @@
+{
+  "name": "@sniperai/core",
+  "version": "0.1.0",
+  "description": "SNIPER framework core — personas, teams, templates, checklists, and workflows",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./framework/*": "./framework/*"
+  },
+  "files": [
+    "framework"
+  ],
+  "keywords": [
+    "sniper",
+    "ai",
+    "claude",
+    "framework",
+    "agent",
+    "personas"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sniperai/sniper.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
