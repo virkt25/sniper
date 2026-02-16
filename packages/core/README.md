@@ -1,4 +1,4 @@
-# @sniperai/core
+# @sniper.ai/core
 
 Framework core for SNIPER — provides personas, team compositions, templates, checklists, workflows, and spawn prompts as raw YAML and Markdown files.
 
@@ -9,7 +9,7 @@ This package contains no executable code. It ships the framework content that th
 ## Installation
 
 ```bash
-npm install @sniperai/core
+npm install @sniper.ai/core
 ```
 
 ## Contents
@@ -51,7 +51,7 @@ import { createRequire } from 'module';
 
 // Resolve the path to a framework file
 const require = createRequire(import.meta.url);
-const teamPath = require.resolve('@sniperai/core/framework/teams/sprint.yaml');
+const teamPath = require.resolve('@sniper.ai/core/framework/teams/sprint.yaml');
 const teamYaml = readFileSync(teamPath, 'utf-8');
 ```
 

@@ -46,7 +46,7 @@ agent_teams:
 # Domain Pack
 # ─────────────────────────────────────────
 
-domain_packs: []                   # [{name: "sales-dialer", package: "@sniperai/pack-sales-dialer"}]
+domain_packs: []                   # [{name: "sales-dialer", package: "@sniper.ai/pack-sales-dialer"}]
 
 # ─────────────────────────────────────────
 # Documentation Generation (/sniper-doc)

@@ -1,4 +1,4 @@
-# @sniperai/cli
+# @sniper.ai/cli
 
 ## 1.0.0
 
@@ -9,4 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @sniperai/core@1.0.0
+  - @sniper.ai/core@1.0.0

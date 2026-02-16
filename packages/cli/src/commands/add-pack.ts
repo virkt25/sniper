@@ -12,7 +12,7 @@ export const addPackCommand = defineCommand({
     name: {
       type: "positional",
       description:
-        "Pack name or full npm package name (e.g., sales-dialer or @sniperai/pack-sales-dialer)",
+        "Pack name or full npm package name (e.g., sales-dialer or @sniper.ai/pack-sales-dialer)",
       required: true,
     },
   },
@@ -29,7 +29,7 @@ export const addPackCommand = defineCommand({
     // Resolve package name
     let packageName = args.name;
     if (!packageName.startsWith("@") && !packageName.includes("/")) {
-      packageName = `@sniperai/pack-${packageName}`;
+      packageName = `@sniper.ai/pack-${packageName}`;
     }
 
     const s = p.spinner();

@@ -120,7 +120,7 @@ export async function removePack(
   const packEntry = (config.domain_packs || []).find(
     (p) => p.name === packName,
   );
-  const packageName = packEntry?.package || `@sniperai/pack-${packName}`;
+  const packageName = packEntry?.package || `@sniper.ai/pack-${packName}`;
 
   const domainPacksDir = join(cwd, ".sniper", "domain-packs");
   const packDir = assertSafePath(domainPacksDir, packName);
@@ -172,7 +172,7 @@ export async function searchRegistryPacks(): Promise<
   try {
     const result = execFileSync(
       "npm",
-      ["search", "@sniperai/pack-", "--json"],
+      ["search", "@sniper.ai/pack-", "--json"],
       { encoding: "utf-8", timeout: 10000, stdio: ["pipe", "pipe", "pipe"] },
     ).toString();
     const packages = JSON.parse(result);

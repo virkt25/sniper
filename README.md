@@ -20,15 +20,15 @@ Each agent is composed from layered personas (cognitive style, process role, tec
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| [`@sniperai/core`](packages/core) | `@sniperai/core` | Framework content — personas, teams, templates, checklists, workflows, and spawn prompts |
-| [`@sniperai/cli`](packages/cli) | `@sniperai/cli` | CLI tool — scaffolds and manages SNIPER-enabled projects |
-| [`@sniperai/pack-sales-dialer`](packages/pack-sales-dialer) | `@sniperai/pack-sales-dialer` | Example domain pack — sales dialer SaaS domain knowledge |
+| [`@sniper.ai/core`](packages/core) | `@sniper.ai/core` | Framework content — personas, teams, templates, checklists, workflows, and spawn prompts |
+| [`@sniper.ai/cli`](packages/cli) | `@sniper.ai/cli` | CLI tool — scaffolds and manages SNIPER-enabled projects |
+| [`@sniper.ai/pack-sales-dialer`](packages/pack-sales-dialer) | `@sniper.ai/pack-sales-dialer` | Example domain pack — sales dialer SaaS domain knowledge |
 
 ## Quick Start
 
 ```bash
 # Install the CLI
-npm install -g @sniperai/cli
+npm install -g @sniper.ai/cli
 
 # Initialize SNIPER in your project
 cd your-project
@@ -99,10 +99,10 @@ sniper/
 
 ## Domain Packs
 
-Domain packs inject project-specific knowledge into SNIPER agents. They provide context files (telephony, CRM, compliance, etc.) that agents reference during planning and implementation. See [`@sniperai/pack-sales-dialer`](packages/pack-sales-dialer) for an example.
+Domain packs inject project-specific knowledge into SNIPER agents. They provide context files (telephony, CRM, compliance, etc.) that agents reference during planning and implementation. See [`@sniper.ai/pack-sales-dialer`](packages/pack-sales-dialer) for an example.
 
 ```bash
-sniper add-pack @sniperai/pack-sales-dialer
+sniper add-pack @sniper.ai/pack-sales-dialer
 ```
 
 ## License

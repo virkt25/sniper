@@ -15,7 +15,7 @@ export const listPacksCommand = defineCommand({
 
     // Show available packs from registry
     const s = p.spinner();
-    s.start("Searching npm registry for @sniperai/pack-*...");
+    s.start("Searching npm registry for @sniper.ai/pack-*...");
     const available = await searchRegistryPacks();
     s.stop(
       available.length > 0

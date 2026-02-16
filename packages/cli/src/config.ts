@@ -129,15 +129,15 @@ export async function writeConfig(
 }
 
 export function getCorePath(): string {
-  // Resolve the path to @sniperai/core's framework directory
+  // Resolve the path to @sniper.ai/core's framework directory
   // Works in both monorepo (workspace link) and published (node_modules)
   const require = createRequire(import.meta.url);
   try {
-    const corePkgPath = require.resolve("@sniperai/core/package.json");
+    const corePkgPath = require.resolve("@sniper.ai/core/package.json");
     return join(dirname(corePkgPath), "framework");
   } catch {
     throw new Error(
-      '@sniperai/core is not installed. Run "pnpm add -D @sniperai/core" first.',
+      '@sniper.ai/core is not installed. Run "pnpm add -D @sniper.ai/core" first.',
     );
   }
 }

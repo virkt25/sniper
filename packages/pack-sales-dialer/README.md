@@ -1,11 +1,11 @@
-# @sniperai/pack-sales-dialer
+# @sniper.ai/pack-sales-dialer
 
 SNIPER domain pack for AI-powered sales dialer SaaS projects. Provides domain knowledge context files that SNIPER agents reference during planning and implementation.
 
 ## Installation
 
 ```bash
-sniper add-pack @sniperai/pack-sales-dialer
+sniper add-pack @sniper.ai/pack-sales-dialer
 ```
 
 ## Domain Contexts

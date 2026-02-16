@@ -1,4 +1,4 @@
-# @sniperai/pack-sales-dialer
+# @sniper.ai/pack-sales-dialer
 
 ## 1.0.0
 

@@ -1,11 +1,11 @@
-# @sniperai/cli
+# @sniper.ai/cli
 
 CLI tool for scaffolding and managing SNIPER-enabled projects.
 
 ## Installation
 
 ```bash
-npm install -g @sniperai/cli
+npm install -g @sniper.ai/cli
 ```
 
 ## Commands
@@ -28,7 +28,7 @@ sniper status
 
 ### `sniper update`
 
-Update the scaffolded framework files to the latest version from `@sniperai/core`.
+Update the scaffolded framework files to the latest version from `@sniper.ai/core`.
 
 ```bash
 sniper update
@@ -39,7 +39,7 @@ sniper update
 Install a domain pack to inject project-specific context into agents.
 
 ```bash
-sniper add-pack @sniperai/pack-sales-dialer
+sniper add-pack @sniper.ai/pack-sales-dialer
 ```
 
 ### `sniper remove-pack <pack>`
@@ -47,7 +47,7 @@ sniper add-pack @sniperai/pack-sales-dialer
 Remove an installed domain pack.
 
 ```bash
-sniper remove-pack @sniperai/pack-sales-dialer
+sniper remove-pack @sniper.ai/pack-sales-dialer
 ```
 
 ### `sniper list-packs`
@@ -60,7 +60,7 @@ sniper list-packs
 
 ## How It Works
 
-The CLI reads framework content from `@sniperai/core` and scaffolds it into your project's `.sniper/` directory. This gives Claude Code access to personas, team definitions, templates, and slash commands that drive the SNIPER lifecycle.
+The CLI reads framework content from `@sniper.ai/core` and scaffolds it into your project's `.sniper/` directory. This gives Claude Code access to personas, team definitions, templates, and slash commands that drive the SNIPER lifecycle.
 
 ## Tech Stack
 

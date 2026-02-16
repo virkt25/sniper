@@ -4,13 +4,13 @@ SNIPER (Spawn, Navigate, Implement, Parallelize, Evaluate, Release) is a framewo
 
 ## Project Structure
 
-This is a **pnpm monorepo** (`@sniperai/monorepo`) with three packages:
+This is a **pnpm monorepo** (`@sniper.ai/monorepo`) with three packages:
 
 | Package | Description |
 |---------|-------------|
-| `packages/core` (`@sniperai/core`) | Framework core — personas, teams, templates, checklists, workflows, and spawn prompts. No build step; ships raw YAML/Markdown files via `framework/` exports. |
-| `packages/cli` (`@sniperai/cli`) | CLI tool (`sniper` binary) — scaffolds and manages SNIPER-enabled projects. Built with tsup, uses citty + @clack/prompts. |
-| `packages/pack-sales-dialer` (`@sniperai/pack-sales-dialer`) | Example domain pack — sales dialer SaaS domain knowledge (telephony, CRM, OpenAI Realtime API, Follow Up Boss). |
+| `packages/core` (`@sniper.ai/core`) | Framework core — personas, teams, templates, checklists, workflows, and spawn prompts. No build step; ships raw YAML/Markdown files via `framework/` exports. |
+| `packages/cli` (`@sniper.ai/cli`) | CLI tool (`sniper` binary) — scaffolds and manages SNIPER-enabled projects. Built with tsup, uses citty + @clack/prompts. |
+| `packages/pack-sales-dialer` (`@sniper.ai/pack-sales-dialer`) | Example domain pack — sales dialer SaaS domain knowledge (telephony, CRM, OpenAI Realtime API, Follow Up Boss). |
 
 ## Tech Stack
 
@@ -74,8 +74,8 @@ These commands drive the project lifecycle:
 - When adding new framework content, place it in `packages/core/framework/`
 - When adding CLI commands, add them in `packages/cli/src/commands/`
 - Domain packs follow the pattern in `packages/pack-sales-dialer/` — a `pack/` directory with domain-specific YAML/Markdown
-- The `@sniperai/core` package has no build step; it exports raw files. Do not add a build process to it.
-- The CLI depends on core via `"@sniperai/core": "workspace:*"`
+- The `@sniper.ai/core` package has no build step; it exports raw files. Do not add a build process to it.
+- The CLI depends on core via `"@sniper.ai/core": "workspace:*"`
 
 ## Agent Teams Rules
 

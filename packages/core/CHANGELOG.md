@@ -1,4 +1,4 @@
-# @sniperai/core
+# @sniper.ai/core
 
 ## 1.0.0
 

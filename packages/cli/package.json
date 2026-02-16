@@ -1,5 +1,5 @@
 {
-  "name": "@sniperai/cli",
+  "name": "@sniper.ai/cli",
   "version": "1.0.0",
   "description": "SNIPER CLI — scaffold and manage SNIPER-enabled projects",
   "type": "module",
@@ -16,7 +16,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@sniperai/core": "workspace:*",
+    "@sniper.ai/core": "workspace:*",
     "citty": "^0.1.6",
     "@clack/prompts": "^0.9.1",
     "yaml": "^2.7.0"
