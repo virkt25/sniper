@@ -1,6 +1,6 @@
 {
   "name": "@sniperai/core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "SNIPER framework core — personas, teams, templates, checklists, and workflows",
   "type": "module",
   "exports": {
