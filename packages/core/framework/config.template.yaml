@@ -49,6 +49,20 @@ agent_teams:
 domain_packs: []                   # [{name: "sales-dialer", package: "@sniperai/pack-sales-dialer"}]
 
 # ─────────────────────────────────────────
+# Documentation Generation (/sniper-doc)
+# ─────────────────────────────────────────
+
+documentation:
+  output_dir: "docs/"              # Where generated docs are written
+  managed_sections: true           # Use <!-- sniper:managed --> protocol for incremental updates
+  include:                         # Default doc types to generate
+    - readme
+    - setup
+    - architecture
+    - api
+  exclude: []                      # Doc types to skip
+
+# ─────────────────────────────────────────
 # File Ownership Rules
 # ─────────────────────────────────────────
 # These are injected into spawn prompts to prevent teammates from editing

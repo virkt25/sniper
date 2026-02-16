@@ -1,0 +1,76 @@
+team_name: sniper-doc
+phase: doc
+
+teammates:
+  - name: doc-analyst
+    compose:
+      process: doc-analyst
+      technical: null
+      cognitive: user-empathetic
+      domain: from-config
+    tasks:
+      - id: analyze-project
+        name: "Analyze Project Structure & Artifacts"
+        output: "docs/.sniper-doc-index.json"
+        description: >
+          Scan the codebase and SNIPER artifacts. Produce a documentation
+          index: what exists, what's missing, what's stale. Map source
+          files to documentation topics. Detect whether this is a SNIPER
+          project (has .sniper/config.yaml with completed phases) or a
+          standalone project (codebase analysis only).
+
+  - name: doc-writer
+    compose:
+      process: doc-writer
+      technical: from-config
+      cognitive: mentor-explainer
+      domain: from-config
+    tasks:
+      - id: write-readme
+        name: "Generate README.md"
+        output: "README.md"
+        template: ".sniper/templates/doc-readme.md"
+        blocked_by: [analyze-project]
+        description: >
+          Write the project README from artifacts and codebase analysis.
+          Include: overview, quick start, features, tech stack, project
+          structure, contributing link, license. Use the doc index to
+          determine what sources to read.
+
+      - id: write-guides
+        name: "Generate Documentation Guides"
+        output: "docs/"
+        template: ".sniper/templates/doc-guide.md"
+        blocked_by: [analyze-project]
+        description: >
+          Generate the documentation files requested by the user (setup,
+          architecture, API, deployment, etc.) based on the doc index.
+          Each guide follows the doc-guide template. Use the doc index
+          to determine which guides to generate and what sources to read.
+
+  - name: doc-reviewer
+    compose:
+      process: doc-reviewer
+      technical: null
+      cognitive: devils-advocate
+      domain: null
+    tasks:
+      - id: review-docs
+        name: "Review & Validate Documentation"
+        output: "docs/.sniper-doc-review.md"
+        blocked_by: [write-readme, write-guides]
+        description: >
+          Review all generated docs for accuracy, completeness, and
+          consistency. Verify code examples compile, links resolve,
+          and setup instructions actually work. Produce a review report
+          with PASS/WARN/FAIL for each file.
+
+coordination:
+  - from: doc-analyst
+    to: doc-writer
+    trigger: analyze-project.complete
+    message: "Doc index ready at docs/.sniper-doc-index.json — read it to see what to generate"
+
+review_gate:
+  checklist: ".sniper/checklists/doc-review.md"
+  mode: flexible

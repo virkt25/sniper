@@ -21,6 +21,7 @@ See `.sniper/config.yaml` for project settings.
 - `/sniper-sprint` — Phase 4: Implementation Sprint (parallel team)
 - `/sniper-review` — Run review gate for current phase
 - `/sniper-compose` — Create a spawn prompt from persona layers
+- `/sniper-doc` — Generate or update project documentation (parallel team)
 - `/sniper-status` — Show lifecycle status and artifact state
 
 ## Agent Teams Rules
