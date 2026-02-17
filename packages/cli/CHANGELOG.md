@@ -1,5 +1,13 @@
 # @sniper.ai/cli
 
+## 1.0.1
+
+### Patch Changes
+
+- fix github url
+- Updated dependencies
+  - @sniper.ai/core@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
