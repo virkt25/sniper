@@ -10,7 +10,8 @@
     "lint": "pnpm -r lint",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "ship": "bash scripts/ship.sh"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0"
