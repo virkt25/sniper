@@ -52,7 +52,7 @@ sniper init
 ### Setup
 
 ```bash
-git clone https://github.com/sniperai/sniper.git
+git clone https://github.com/virkt25/sniper.git
 cd sniper
 pnpm install
 pnpm build

@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sniperai/sniper.git",
+    "url": "https://github.com/virkt25/sniper.git",
     "directory": "packages/pack-sales-dialer"
   },
   "publishConfig": {
