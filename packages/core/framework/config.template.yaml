@@ -159,3 +159,15 @@ state:
 
   # Review tracking
   reviews: []                      # [{id, type, target, recommendation, created_at}]
+
+  # Test audit tracking
+  test_audit_counter: 1            # next TST-{NNN} ID to assign
+  test_audits: []                  # [{id, title, status, created_at, completed_at, scope_dirs, focus, stories_total, stories_complete}]
+
+  # Security audit tracking
+  security_audit_counter: 1        # next SEC-{NNN} ID to assign
+  security_audits: []              # [{id, title, status, created_at, completed_at, scope_dirs, focus, findings_critical, findings_high, findings_medium, findings_low, stories_total, stories_complete}]
+
+  # Performance audit tracking
+  perf_audit_counter: 1            # next PERF-{NNN} ID to assign
+  perf_audits: []                  # [{id, title, status, created_at, completed_at, scope_dirs, focus, stories_total, stories_complete}]

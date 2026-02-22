@@ -44,6 +44,9 @@ Extract from config.yaml:
 - `state.bugs` (array of bug tracking entries, if any)
 - `state.refactors` (array of refactor tracking entries, if any)
 - `state.reviews` (array of review entries, if any)
+- `state.test_audits` (array of test audit entries, if any)
+- `state.security_audits` (array of security audit entries, if any)
+- `state.perf_audits` (array of performance audit entries, if any)
 
 ---
 
@@ -285,6 +288,63 @@ Print the following formatted report. Use the actual values from the steps above
   No reviews tracked. Run /sniper-audit --target review to review a PR or release.
 
 --------------------------------------------
+  Test Audits
+--------------------------------------------
+
+  {If state.test_audits has entries:}
+
+  Active Test Audits:
+  | ID | Audit | Status | Progress |
+  |----|-------|--------|----------|
+  | TST-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Test Audits:
+  | ID | Audit | Completed | Stories |
+  |----|-------|-----------|---------|
+  | TST-{NNN} | {title} | {completed_at} | {stories_total} |
+
+  {If state.test_audits is empty:}
+  No test audits tracked. Run /sniper-audit --target tests to analyze test quality.
+
+--------------------------------------------
+  Security Audits
+--------------------------------------------
+
+  {If state.security_audits has entries:}
+
+  Active Security Audits:
+  | ID | Audit | Status | Findings | Progress |
+  |----|-------|--------|----------|----------|
+  | SEC-{NNN} | {title} | {status} | {critical}C {high}H {medium}M {low}L | {stories_complete}/{stories_total} stories |
+
+  Completed Security Audits:
+  | ID | Audit | Completed | Findings | Stories |
+  |----|-------|-----------|----------|---------|
+  | SEC-{NNN} | {title} | {completed_at} | {critical}C {high}H | {stories_total} |
+
+  {If state.security_audits is empty:}
+  No security audits tracked. Run /sniper-audit --target security to audit security.
+
+--------------------------------------------
+  Performance Audits
+--------------------------------------------
+
+  {If state.perf_audits has entries:}
+
+  Active Performance Audits:
+  | ID | Audit | Status | Progress |
+  |----|-------|--------|----------|
+  | PERF-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Performance Audits:
+  | ID | Audit | Completed | Stories |
+  |----|-------|-----------|---------|
+  | PERF-{NNN} | {title} | {completed_at} | {stories_total} |
+
+  {If state.perf_audits is empty:}
+  No performance audits tracked. Run /sniper-audit --target performance to profile performance.
+
+--------------------------------------------
   Review Gates
 --------------------------------------------
 
@@ -364,10 +424,22 @@ Print the following formatted report. Use the actual values from the steps above
   {If there are active features:}
   -> {count} active feature(s). Run /sniper-feature --list to see details.
 
+  {If there are active test audits:}
+  -> {count} active test audit(s). Run /sniper-audit --target tests --list to see details.
+
+  {If there are active security audits:}
+  -> {count} active security audit(s). Run /sniper-audit --target security --list to see details.
+
+  {If there are active performance audits:}
+  -> {count} active performance audit(s). Run /sniper-audit --target performance --list to see details.
+
   {Always show these as available commands:}
   -> Run /sniper-debug to investigate a production bug
   -> Run /sniper-audit --target review --pr {N} to review a pull request
   -> Run /sniper-audit --target refactor to plan a large refactoring
+  -> Run /sniper-audit --target tests to analyze test quality
+  -> Run /sniper-audit --target security to audit security
+  -> Run /sniper-audit --target performance to profile performance
 
   {If there are out-of-sync artifacts:}
   -> WARNING: Some artifacts are out of sync between config and disk. Review the artifacts table above.

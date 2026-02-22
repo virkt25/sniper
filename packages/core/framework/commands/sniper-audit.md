@@ -38,9 +38,9 @@ If `--target` is missing, print the target table and ask the user to specify one
   ──────        ───────────                    ──────
   refactor      Large-scale code changes       Available
   review        PR review / release readiness  Available
-  security      Security audit                 Phase C
-  tests         Test & coverage analysis       Phase C
-  performance   Performance analysis           Phase C
+  tests         Test & coverage analysis       Available
+  security      Security audit                 Available
+  performance   Performance analysis           Available
 
   Usage:
     /sniper-audit --target refactor "Migrate from Express to Fastify"
@@ -57,7 +57,9 @@ Then STOP.
 Based on `--target`:
 - `refactor` → Jump to **Section A: Refactoring**
 - `review` → Jump to **Section B: Review & QA**
-- `security`, `tests`, `performance` → STOP. Print: "Target '{name}' is not yet available. It will be added in Phase C."
+- `tests` → Jump to **Section C: Test & Coverage**
+- `security` → Jump to **Section D: Security**
+- `performance` → Jump to **Section E: Performance**
 - Anything else → STOP. Print: "Unknown target '{name}'. Run `/sniper-audit` to see available targets."
 
 ---
@@ -640,15 +642,908 @@ Add to `state.reviews[]`:
 
 ---
 
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Section C: Test & Coverage (`--target tests`)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## C0. Parse Tests Arguments
+
+1. **`--list`:** List all test audits with status. Print and STOP.
+2. **`--resume TST-{NNN}`:** Resume an in-progress test audit.
+3. **`--focus {area}`:** `coverage` (coverage-analyst only) or `flaky` (flake-hunter only).
+
+### C0a. Handle `--list`
+
+If `--list` was passed:
+
+```
+============================================
+  SNIPER Test Audits
+============================================
+
+  Active Test Audits:
+    TST-{NNN}  {title}        {status} ({stories_complete}/{stories_total} stories)
+    ...
+
+  Completed Test Audits:
+    TST-{NNN}  {title}        complete {date} ({stories_total} stories)
+    ...
+
+  Total: {active} active, {completed} completed
+
+============================================
+```
+
+Then STOP.
+
+### C0b. Handle `--resume`
+
+If `--resume TST-{NNN}` was passed:
+
+1. Find the test audit in `state.test_audits[]` by ID.
+2. If not found, STOP: "Test audit TST-{NNN} not found."
+3. Jump to the corresponding phase:
+   - `analyzing` → Step C1 (re-run analysis)
+   - `planning` → Step C4 (generate stories)
+   - `in-progress` → Step C6 (resume sprint)
+
+---
+
+## C1. Assign Test Audit ID
+
+### C1a. Assign ID
+
+1. Read `state.test_audit_counter` from config (default: 1).
+2. Assign: `TST-{NNN}` where NNN is zero-padded to 3 digits.
+3. Increment `test_audit_counter` and write back to config.
+
+### C1b. Record Test Audit in State
+
+Add to `state.test_audits[]`:
+
+```yaml
+- id: "TST-{NNN}"
+  title: "{description or 'Full test suite analysis'}"
+  status: analyzing
+  created_at: "{current ISO timestamp}"
+  completed_at: null
+  scope_dirs: ["{from --scope, or empty for full codebase}"]
+  focus: "{null | coverage | flaky}"
+  stories_total: 0
+  stories_complete: 0
+```
+
+### C1c. Create Audit Directory
+
+```
+docs/audits/TST-{NNN}/
+```
+
+---
+
+## C2. Analysis Phase (Team Spawn)
+
+### C2a. Determine Agents to Spawn
+
+- If `--focus coverage`: spawn only `coverage-analyst`
+- If `--focus flaky`: spawn only `flake-hunter`
+- Otherwise: spawn both in parallel
+
+### C2b. Read Context
+
+1. `docs/architecture.md` (if exists) — to map coverage to architectural components
+2. `docs/conventions.md` (if exists) — to understand testing patterns
+3. Source code in the scoped directories (`--scope` dirs, or scan full codebase)
+
+### C2c. Spawn Coverage Analyst
+
+Read persona layers:
+1. `.sniper/personas/process/coverage-analyst.md`
+2. `.sniper/personas/cognitive/systems-thinker.md`
+
+**Instructions:**
+1. Run `{test_runner} --coverage` (from `stack.test_runner` in config) to get coverage data. Common mappings:
+   - `vitest` → `npx vitest run --coverage`
+   - `jest` → `npx jest --coverage`
+   - `pytest` → `pytest --cov --cov-report=json`
+   - `go` → `go test -coverprofile=coverage.out ./...`
+2. If coverage tooling fails, fall back to static analysis: scan for source files without corresponding test files.
+3. Read `.sniper/templates/coverage-report.md`.
+4. Produce `docs/audits/TST-{NNN}/coverage-report.md` following the template.
+
+### C2d. Spawn Flake Hunter
+
+Read persona layers:
+1. `.sniper/personas/process/flake-hunter.md`
+2. `.sniper/personas/cognitive/devils-advocate.md`
+
+**Instructions:**
+1. Run the test suite twice to identify inconsistent results.
+2. If dual-run is too slow, fall back to static analysis: scan for common flake patterns (setTimeout in tests, shared mutable state, missing cleanup, hardcoded ports, Date.now() in assertions).
+3. If CI logs are available (`.github/workflows/`), cross-reference with historically failing tests.
+4. Read `.sniper/templates/flaky-report.md`.
+5. Produce `docs/audits/TST-{NNN}/flaky-report.md` following the template.
+
+### C2e. Create Team, Tasks, and Spawn
+
+```
+TeamCreate:
+  team_name: "sniper-test-audit-TST-{NNN}"
+  description: "Test & coverage audit TST-{NNN}"
+```
+
+Create tasks (parallel, no dependencies):
+1. "Coverage Analysis" — assigned to coverage-analyst (if not `--focus flaky`)
+2. "Flaky Test Investigation" — assigned to flake-hunter (if not `--focus coverage`)
+
+Spawn agents. Enter delegate mode.
+
+### C2f. Present Analysis
+
+When agents complete:
+
+```
+============================================
+  Test Analysis: TST-{NNN}
+============================================
+
+  Coverage:
+    Lines: {pct}%  |  Branches: {pct}%
+    Critical gaps: {count}
+    Integration boundaries without tests: {count}
+
+  Flaky Tests:
+    Identified: {count}
+    Systemic issues: {count}
+    Quick wins: {count}
+
+  Reports:
+    docs/audits/TST-{NNN}/coverage-report.md
+    docs/audits/TST-{NNN}/flaky-report.md
+
+  Options:
+    yes    — Generate improvement stories
+    edit   — Edit the reports, then say "continue"
+    cancel — Pause (resume later with --resume)
+
+============================================
+```
+
+Wait for user response.
+- **yes** → proceed to Step C3
+- **edit** → wait for "continue", then proceed
+- **cancel** → STOP. Audit stays in `analyzing` status.
+
+If `--dry-run` was passed, STOP here after presenting the analysis.
+
+---
+
+## C3. Transition to Planning
+
+Update `state.test_audits[]` for this audit: `status: planning`
+
+Shut down the analysis team.
+
+---
+
+## C4. Story Generation (Lead Generates Directly)
+
+### C4a. Read Context
+
+1. `docs/audits/TST-{NNN}/coverage-report.md` (if exists)
+2. `docs/audits/TST-{NNN}/flaky-report.md` (if exists)
+
+### C4b. Generate Stories
+
+1. Generate 3-15 stories under `docs/audits/TST-{NNN}/stories/`
+2. Prioritize: critical gap fixes and quick-win flake fixes first
+3. Each story handles one logical improvement
+4. Name stories: `S01-{slug}.md`, `S02-{slug}.md`, etc.
+5. Use the story template from `.sniper/templates/story.md`
+
+### C4c. Update State
+
+Update `state.test_audits[]`: `stories_total: {count}`
+
+### C4d. Present Stories
+
+```
+============================================
+  Test Improvement Stories: TST-{NNN}
+============================================
+
+  {count} stories generated:
+    S01  {title}
+    S02  {title}
+    ...
+
+  Stories: docs/audits/TST-{NNN}/stories/
+
+  Options:
+    yes    — Start test improvement sprint
+    edit   — Edit stories, then say "continue"
+    cancel — Pause
+
+============================================
+```
+
+Wait for user response.
+
+---
+
+## C5. Review Gate
+
+Run `/sniper-review` against the test audit artifacts using the checklist at `.sniper/checklists/test-review.md`.
+
+---
+
+## C6. Sprint Execution
+
+### C6a. Transition to In-Progress
+
+Update `state.test_audits[]` for this audit: `status: in-progress`
+
+### C6b. Run Sprint
+
+Execute the sprint using the standard sprint infrastructure with these adjustments:
+
+1. **Story source:** Read stories from `docs/audits/TST-{NNN}/stories/`
+2. **State tracking:** Does NOT increment `state.current_sprint`. Updates `state.test_audits[].stories_complete`.
+3. **Team naming:** Team is named `sniper-test-sprint-TST-{NNN}`.
+4. **Context:** Include coverage-report.md and flaky-report.md in spawn prompts.
+5. **phase_log:** Append to `state.phase_log` with `context: "test-sprint-TST-{NNN}"`.
+
+### C6c. On Completion
+
+If all stories complete:
+1. Update `state.test_audits[]`: `status: complete`, `completed_at: "{timestamp}"`
+
+---
+
+## C7. Present Final Results
+
+```
+============================================
+  Test Audit Complete: TST-{NNN}
+============================================
+
+  {title}
+
+  Coverage Gaps Fixed:  {count}
+  Flaky Tests Fixed:    {count}
+  Stories:              {complete}/{total}
+
+  Artifacts:
+    Coverage:  docs/audits/TST-{NNN}/coverage-report.md
+    Flaky:     docs/audits/TST-{NNN}/flaky-report.md
+    Stories:   docs/audits/TST-{NNN}/stories/
+
+============================================
+  Next Steps
+============================================
+
+  1. Run the full test suite to verify improvements
+  2. Check coverage numbers against the original baseline
+  3. Run /sniper-status to see overall project state
+
+============================================
+```
+
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Section D: Security (`--target security`)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## D0. Parse Security Arguments
+
+1. **`--list`:** List all security audits with status. Print and STOP.
+2. **`--resume SEC-{NNN}`:** Resume an in-progress security audit.
+3. **`--focus {area}`:** `threats` (threat-modeler only) or `vulns` (vuln-scanner only).
+
+### D0a. Handle `--list`
+
+If `--list` was passed:
+
+```
+============================================
+  SNIPER Security Audits
+============================================
+
+  Active Security Audits:
+    SEC-{NNN}  {title}        {status} ({stories_complete}/{stories_total} stories)
+    ...
+
+  Completed Security Audits:
+    SEC-{NNN}  {title}        complete {date} ({stories_total} stories, {critical} critical fixed)
+    ...
+
+  Total: {active} active, {completed} completed
+
+============================================
+```
+
+Then STOP.
+
+### D0b. Handle `--resume`
+
+If `--resume SEC-{NNN}` was passed:
+
+1. Find the security audit in `state.security_audits[]` by ID.
+2. If not found, STOP: "Security audit SEC-{NNN} not found."
+3. Jump to the corresponding phase:
+   - `analyzing` → Step D1 (re-run analysis)
+   - `planning` → Step D4 (generate stories)
+   - `in-progress` → Step D6 (resume sprint)
+
+---
+
+## D1. Assign Security Audit ID
+
+### D1a. Assign ID
+
+1. Read `state.security_audit_counter` from config (default: 1).
+2. Assign: `SEC-{NNN}` where NNN is zero-padded to 3 digits.
+3. Increment `security_audit_counter` and write back to config.
+
+### D1b. Record Security Audit in State
+
+Add to `state.security_audits[]`:
+
+```yaml
+- id: "SEC-{NNN}"
+  title: "{description or 'Full security audit'}"
+  status: analyzing
+  created_at: "{current ISO timestamp}"
+  completed_at: null
+  scope_dirs: ["{from --scope, or empty for full codebase}"]
+  focus: "{null | threats | vulns}"
+  findings_critical: 0
+  findings_high: 0
+  findings_medium: 0
+  findings_low: 0
+  stories_total: 0
+  stories_complete: 0
+```
+
+### D1c. Create Audit Directory
+
+```
+docs/audits/SEC-{NNN}/
+```
+
+---
+
+## D2. Analysis Phase (Team Spawn)
+
+### D2a. Determine Agents to Spawn
+
+- If `--focus threats`: spawn only `threat-modeler`
+- If `--focus vulns`: spawn only `vuln-scanner`
+- Otherwise: spawn both in parallel
+
+### D2b. Read Context
+
+1. `docs/architecture.md` (if exists) — component structure and data flows
+2. `docs/conventions.md` (if exists) — auth/authz patterns
+3. Source code in the scoped directories
+4. `package.json` / dependency manifests
+
+### D2c. Spawn Threat Modeler
+
+Read persona layers:
+1. `.sniper/personas/process/threat-modeler.md`
+2. `.sniper/personas/technical/security.md`
+3. `.sniper/personas/cognitive/systems-thinker.md`
+
+**Instructions:**
+1. Map all entry points (API endpoints, webhooks, file uploads, admin panels, WebSocket connections) with authentication requirements.
+2. Identify trust boundaries (authenticated/unauthenticated, internal/external, user/admin).
+3. Classify sensitive data (PII, credentials, tokens, financial data) and trace data flows.
+4. Apply STRIDE methodology to identify threats.
+5. Assess dependency risk from manifests.
+6. Read `.sniper/templates/threat-model.md`.
+7. Produce `docs/audits/SEC-{NNN}/threat-model.md` following the template.
+
+### D2d. Spawn Vulnerability Scanner
+
+Read persona layers:
+1. `.sniper/personas/process/vuln-scanner.md`
+2. `.sniper/personas/technical/security.md`
+3. `.sniper/personas/cognitive/devils-advocate.md`
+
+**Instructions:**
+1. Search for common vulnerability patterns: SQL concatenation, unsanitized user input, missing auth checks, hardcoded secrets, insecure crypto, CORS misconfig.
+2. Trace data flow from user input to database/response.
+3. Check auth/authz middleware coverage on all routes.
+4. Review error handling for information leakage.
+5. Check dependency manifests for known vulnerable versions.
+6. Read `.sniper/templates/vulnerability-report.md`.
+7. Produce `docs/audits/SEC-{NNN}/vulnerability-report.md` following the template.
+
+### D2e. Create Team, Tasks, and Spawn
+
+```
+TeamCreate:
+  team_name: "sniper-security-audit-SEC-{NNN}"
+  description: "Security audit SEC-{NNN}"
+```
+
+Create tasks (parallel, no dependencies):
+1. "Threat Modeling" — assigned to threat-modeler (if not `--focus vulns`)
+2. "Vulnerability Scanning" — assigned to vuln-scanner (if not `--focus threats`)
+
+Spawn agents. Enter delegate mode.
+
+### D2f. Present Analysis
+
+When agents complete:
+
+```
+============================================
+  Security Analysis: SEC-{NNN}
+============================================
+
+  Threat Model:
+    Entry points mapped: {count}
+    Trust boundaries: {count}
+    Priority threats: {count}
+
+  Vulnerabilities:
+    Critical: {count}  |  High: {count}
+    Medium: {count}    |  Low: {count}
+    Patterns of concern: {count}
+
+  Reports:
+    docs/audits/SEC-{NNN}/threat-model.md
+    docs/audits/SEC-{NNN}/vulnerability-report.md
+
+  Options:
+    yes    — Generate remediation stories
+    edit   — Edit the reports, then say "continue"
+    cancel — Pause (resume later with --resume)
+
+============================================
+```
+
+Wait for user response.
+
+If `--dry-run` was passed, STOP here after presenting the analysis.
+
+---
+
+## D3. Transition to Planning
+
+Update `state.security_audits[]` for this audit: `status: planning`
+
+Update finding counts: `findings_critical`, `findings_high`, `findings_medium`, `findings_low` from the vulnerability report.
+
+Shut down the analysis team.
+
+---
+
+## D4. Story Generation (Lead Generates Directly)
+
+### D4a. Read Context
+
+1. `docs/audits/SEC-{NNN}/threat-model.md` (if exists)
+2. `docs/audits/SEC-{NNN}/vulnerability-report.md` (if exists)
+
+### D4b. Generate Stories
+
+1. Generate 3-15 stories under `docs/audits/SEC-{NNN}/stories/`
+2. Prioritize by severity: critical findings first, then high, medium, low
+3. Systemic fixes (middleware, validation layers) before individual fixes
+4. Each story handles one remediation
+5. Name stories: `S01-{slug}.md`, `S02-{slug}.md`, etc.
+6. Use the story template from `.sniper/templates/story.md`
+
+### D4c. Update State
+
+Update `state.security_audits[]`: `stories_total: {count}`
+
+### D4d. Present Stories
+
+```
+============================================
+  Remediation Stories: SEC-{NNN}
+============================================
+
+  {count} stories generated:
+    S01  {title}  ({severity})
+    S02  {title}  ({severity})
+    ...
+
+  Stories: docs/audits/SEC-{NNN}/stories/
+
+  Options:
+    yes    — Start remediation sprint
+    edit   — Edit stories, then say "continue"
+    cancel — Pause
+
+============================================
+```
+
+Wait for user response.
+
+---
+
+## D5. Review Gate
+
+Run `/sniper-review` against the security audit artifacts using the checklist at `.sniper/checklists/security-review.md`.
+
+---
+
+## D6. Sprint Execution
+
+### D6a. Transition to In-Progress
+
+Update `state.security_audits[]` for this audit: `status: in-progress`
+
+### D6b. Run Sprint
+
+Execute the sprint using the standard sprint infrastructure with these adjustments:
+
+1. **Story source:** Read stories from `docs/audits/SEC-{NNN}/stories/`
+2. **State tracking:** Does NOT increment `state.current_sprint`. Updates `state.security_audits[].stories_complete`.
+3. **Team naming:** Team is named `sniper-security-sprint-SEC-{NNN}`.
+4. **Context:** Include threat-model.md and vulnerability-report.md in spawn prompts.
+5. **phase_log:** Append to `state.phase_log` with `context: "security-sprint-SEC-{NNN}"`.
+
+### D6c. On Completion
+
+If all stories complete:
+1. Update `state.security_audits[]`: `status: complete`, `completed_at: "{timestamp}"`
+
+---
+
+## D7. Present Final Results
+
+```
+============================================
+  Security Audit Complete: SEC-{NNN}
+============================================
+
+  {title}
+
+  Findings Remediated:
+    Critical: {count}  |  High: {count}
+    Medium: {count}    |  Low: {count}
+  Stories:  {complete}/{total}
+
+  Artifacts:
+    Threat Model:     docs/audits/SEC-{NNN}/threat-model.md
+    Vulnerabilities:  docs/audits/SEC-{NNN}/vulnerability-report.md
+    Stories:          docs/audits/SEC-{NNN}/stories/
+
+============================================
+  Next Steps
+============================================
+
+  1. Run the full test suite to verify remediations
+  2. Re-run /sniper-audit --target security to verify no regressions
+  3. Run /sniper-status to see overall project state
+
+============================================
+```
+
+---
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Section E: Performance (`--target performance`)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## E0. Parse Performance Arguments
+
+1. **Performance description** (positional): Specific concern to investigate (e.g., "Checkout API is slow"). Optional — if omitted, runs a general performance audit.
+2. **`--list`:** List all performance audits with status. Print and STOP.
+3. **`--resume PERF-{NNN}`:** Resume an in-progress performance audit.
+4. **`--focus {area}`:** `profile` (profiling only) or `benchmarks` (benchmark gap analysis only).
+
+### E0a. Handle `--list`
+
+If `--list` was passed:
+
+```
+============================================
+  SNIPER Performance Audits
+============================================
+
+  Active Performance Audits:
+    PERF-{NNN}  {title}        {status} ({stories_complete}/{stories_total} stories)
+    ...
+
+  Completed Performance Audits:
+    PERF-{NNN}  {title}        complete {date} ({stories_total} stories)
+    ...
+
+  Total: {active} active, {completed} completed
+
+============================================
+```
+
+Then STOP.
+
+### E0b. Handle `--resume`
+
+If `--resume PERF-{NNN}` was passed:
+
+1. Find the performance audit in `state.perf_audits[]` by ID.
+2. If not found, STOP: "Performance audit PERF-{NNN} not found."
+3. Jump to the corresponding phase:
+   - `analyzing` → Step E1 (re-run profiling)
+   - `planning` → Step E4 (optimization planning)
+   - `in-progress` → Step E7 (resume sprint)
+
+---
+
+## E1. Assign Performance Audit ID
+
+### E1a. Assign ID
+
+1. Read `state.perf_audit_counter` from config (default: 1).
+2. Assign: `PERF-{NNN}` where NNN is zero-padded to 3 digits.
+3. Increment `perf_audit_counter` and write back to config.
+
+### E1b. Record Performance Audit in State
+
+Add to `state.perf_audits[]`:
+
+```yaml
+- id: "PERF-{NNN}"
+  title: "{description or 'Full performance audit'}"
+  status: analyzing
+  created_at: "{current ISO timestamp}"
+  completed_at: null
+  scope_dirs: ["{from --scope, or empty for full codebase}"]
+  focus: "{null | profile | benchmarks}"
+  stories_total: 0
+  stories_complete: 0
+```
+
+### E1c. Create Audit Directory
+
+```
+docs/audits/PERF-{NNN}/
+```
+
+---
+
+## E2. Profiling Phase (Single Agent — You Do This Directly)
+
+**Note:** Unlike tests and security audits which use 2-agent teams for analysis, performance auditing uses a single profiler agent. This is because performance analysis is more sequential than parallel — the optimization plan depends heavily on a coherent profiling analysis.
+
+### E2a. Read Context
+
+1. Performance concern description (if provided by user)
+2. `docs/architecture.md` (if exists) — to identify performance-critical paths
+3. Source code in the scoped directories
+4. Database schema and query files (if identifiable)
+5. Route/endpoint definitions
+6. Any existing benchmark files
+
+### E2b. Compose Profiler Persona
+
+Read persona layers:
+1. `.sniper/personas/process/perf-profiler.md`
+2. `.sniper/personas/technical/backend.md`
+3. `.sniper/personas/cognitive/systems-thinker.md`
+
+Apply these perspectives as you produce the analysis.
+
+### E2c. Produce Profile Report
+
+Read the template at `.sniper/templates/performance-profile.md`.
+
+Write `docs/audits/PERF-{NNN}/profile-report.md` following the template:
+- **Performance Context** — what was investigated and why
+- **Critical Path Analysis** — performance-sensitive paths (request chains, data pipelines, background jobs)
+- **Bottleneck Inventory** — each bottleneck with location, category, evidence, impact, complexity
+- **Resource Usage Patterns** — memory allocation, connection pools, compute patterns
+- **Existing Optimizations** — caching, indexing, and optimization already in place
+- **Benchmark Coverage** — which critical paths have benchmarks and which don't
+
+**Profiling approach (static code analysis):**
+1. Identify all request handling paths and trace their execution
+2. Search for N+1 query patterns (loops containing database calls)
+3. Identify missing database indexes by cross-referencing queries with schema
+4. Find synchronous I/O in async contexts
+5. Detect unbounded data processing (no pagination, full-table scans)
+6. Check for missing caching on frequently-accessed, rarely-changed data
+7. Identify large object serialization/deserialization
+8. If a specific concern is provided, trace that path in detail
+
+### E2d. Present Profile
+
+```
+============================================
+  Performance Profile: PERF-{NNN}
+============================================
+
+  Context: {description or 'General performance audit'}
+  Bottlenecks Found: {count}
+    Critical: {count}  |  High: {count}
+    Medium: {count}    |  Low: {count}
+  Benchmark Coverage: {count}/{total} critical paths
+
+  Full profile: docs/audits/PERF-{NNN}/profile-report.md
+
+  Options:
+    yes    — Continue to optimization planning
+    edit   — Edit the profile, then say "continue"
+    cancel — Pause (resume later with --resume)
+
+============================================
+```
+
+Wait for user response.
+
+If `--dry-run` was passed, STOP here after presenting the profile.
+If `--focus profile` was passed, STOP here.
+
+---
+
+## E3. Transition to Planning
+
+Update `state.perf_audits[]` for this audit: `status: planning`
+
+---
+
+## E4. Optimization Planning (Single Agent — You Do This Directly)
+
+### E4a. Read Context
+
+1. `docs/audits/PERF-{NNN}/profile-report.md`
+2. `docs/architecture.md` (if exists)
+
+### E4b. Produce Optimization Plan
+
+Read the template at `.sniper/templates/optimization-plan.md`.
+
+Write `docs/audits/PERF-{NNN}/optimization-plan.md` following the template:
+- **Priority Matrix** — bottlenecks ranked by impact / effort ratio
+- **Optimization Recommendations** — what to change, expected improvement, approach, risks
+- **Benchmark Requirements** — what benchmarks to write to verify each optimization
+- **Quick Wins** — low-effort, high-impact optimizations
+- **Monitoring Recommendations** — metrics to track for regression prevention
+
+### E4c. Present Plan
+
+```
+============================================
+  Optimization Plan: PERF-{NNN}
+============================================
+
+  Quick Wins: {count}
+  Total Optimizations: {count}
+  Benchmark Stories: {count}
+
+  Full plan: docs/audits/PERF-{NNN}/optimization-plan.md
+
+  Options:
+    yes    — Generate stories
+    edit   — Edit the plan, then say "continue"
+    cancel — Pause
+
+============================================
+```
+
+Wait for user response.
+
+---
+
+## E5. Story Generation
+
+### E5a. Generate Stories
+
+1. Read the optimization plan at `docs/audits/PERF-{NNN}/optimization-plan.md`
+2. Generate 3-12 stories under `docs/audits/PERF-{NNN}/stories/`
+3. Each optimization gets a story, plus a companion benchmark story if needed
+4. Quick wins come first, then higher-effort optimizations
+5. Name stories: `S01-{slug}.md`, `S02-{slug}.md`, etc.
+6. Use the story template from `.sniper/templates/story.md`
+
+If `--focus benchmarks` was passed, generate benchmark-only stories (skip optimization stories).
+
+### E5b. Update State
+
+Update `state.perf_audits[]`: `stories_total: {count}`
+
+### E5c. Present Stories
+
+```
+============================================
+  Performance Stories: PERF-{NNN}
+============================================
+
+  {count} stories generated:
+    S01  {title}
+    S02  {title}
+    ...
+
+  Stories: docs/audits/PERF-{NNN}/stories/
+
+  Options:
+    yes    — Start optimization sprint
+    edit   — Edit stories, then say "continue"
+    cancel — Pause
+
+============================================
+```
+
+Wait for user response.
+
+---
+
+## E6. Review Gate
+
+Run `/sniper-review` against the performance audit artifacts using the checklist at `.sniper/checklists/perf-review.md`.
+
+---
+
+## E7. Sprint Execution
+
+### E7a. Transition to In-Progress
+
+Update `state.perf_audits[]` for this audit: `status: in-progress`
+
+### E7b. Run Sprint
+
+Execute the sprint using the standard sprint infrastructure with these adjustments:
+
+1. **Story source:** Read stories from `docs/audits/PERF-{NNN}/stories/`
+2. **State tracking:** Does NOT increment `state.current_sprint`. Updates `state.perf_audits[].stories_complete`.
+3. **Team naming:** Team is named `sniper-perf-sprint-PERF-{NNN}`.
+4. **Context:** Include profile-report.md and optimization-plan.md in spawn prompts.
+5. **phase_log:** Append to `state.phase_log` with `context: "perf-sprint-PERF-{NNN}"`.
+
+### E7c. On Completion
+
+If all stories complete:
+1. Update `state.perf_audits[]`: `status: complete`, `completed_at: "{timestamp}"`
+
+---
+
+## E8. Present Final Results
+
+```
+============================================
+  Performance Audit Complete: PERF-{NNN}
+============================================
+
+  {title}
+
+  Optimizations:    {count}
+  Benchmarks Added: {count}
+  Stories:          {complete}/{total}
+
+  Artifacts:
+    Profile:        docs/audits/PERF-{NNN}/profile-report.md
+    Plan:           docs/audits/PERF-{NNN}/optimization-plan.md
+    Stories:        docs/audits/PERF-{NNN}/stories/
+
+============================================
+  Next Steps
+============================================
+
+  1. Run benchmarks to verify performance improvements
+  2. Compare against the original profile baseline
+  3. Run /sniper-status to see overall project state
+
+============================================
+```
+
+---
+
 ## IMPORTANT RULES
 
 - This command does NOT write production code — it produces analysis reports and documentation only.
-- Exception: `--target refactor` Phase 3 (sprint execution) writes code through the standard sprint infrastructure.
+- Exception: `--target refactor` Phase 3, `--target tests` Phase 3, `--target security` Phase 3, and `--target performance` Phase 3 (sprint execution) write code through the standard sprint infrastructure.
 - Reviews (`--target review`) do NOT post to GitHub automatically. They produce local reports.
 - Reviews do NOT write to `state.phase_log`. They are tracked in `state.reviews[]` only.
 - Refactor scoping and planning do NOT write to `state.phase_log`. Refactor sprints DO append to `state.phase_log` with `context: "refactor-sprint-REF-{NNN}"`.
-- Cancel at any checkpoint leaves the refactor in its current status for later `--resume`.
+- Test, security, and performance audits do NOT write to `state.phase_log` during analysis/planning. Their sprints DO append to `state.phase_log` with the appropriate context.
+- Cancel at any checkpoint leaves the audit in its current status for later `--resume`.
 - Resume restarts from the beginning of the current phase (agent state is ephemeral).
 - All file paths are relative to the project root.
 - The `--dry-run` flag limits each mode to its first analysis step only.
-- Phase C targets (security, tests, performance) are NOT implemented — print a message and stop.
