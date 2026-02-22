@@ -85,12 +85,16 @@ For each specified layer, read the corresponding file. Track which layers were f
 ### 2a: Process Layer (required)
 Read: `.sniper/personas/process/{process_name}.md`
 
-If the file does not exist, print an error listing available process layers:
+If the file does not exist, check pack personas: `.sniper/packs/*/personas/process/{process_name}.md`
+
+If found in a pack, use that file. If a pack persona has the same name as a framework persona, append the pack content after the framework content (pack extends framework).
+
+If not found anywhere, print an error listing available process layers:
 ```
 ERROR: Process persona '{process_name}' not found.
 Available process layers:
 ```
-Then list all `.md` files in `.sniper/personas/process/` (without the extension). Then STOP.
+Then list all `.md` files in `.sniper/personas/process/` AND `.sniper/packs/*/personas/process/` (without the extension). Then STOP.
 
 ### 2b: Technical Layer (optional)
 If `--technical` was provided, read: `.sniper/personas/technical/{technical_name}.md`

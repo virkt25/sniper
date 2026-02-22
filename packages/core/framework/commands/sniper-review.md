@@ -43,6 +43,7 @@ Use this mapping to determine which checklist to load and what gate mode to enfo
 
 1. Read the gate mode from `config.yaml` using the appropriate key
 2. Read the checklist file
+3. Check for domain pack checklists: scan `.sniper/packs/*/checklists/` for any `.md` files. If found, these will be evaluated as additional checklist items after the framework checklist (Step 3b).
 
 If the checklist file does not exist:
 ```

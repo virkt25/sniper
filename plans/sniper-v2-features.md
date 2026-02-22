@@ -49,10 +49,10 @@ plans/
 | SNPR-0005 | Production Debugging (`/sniper-debug`) | Complete |
 | SNPR-0006 | Audit: Refactoring (`/sniper-audit --target refactor`) | Complete |
 | SNPR-0007 | Audit: Review & QA (`/sniper-audit --target review`) | Complete |
-| SNPR-0008 | Audit: Test & Coverage (`/sniper-audit --target tests`) | PRD Written |
-| SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | PRD Written |
-| SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | PRD Written |
-| SNPR-0011 | Improved Domain Packs | PRD Written |
+| SNPR-0008 | Audit: Test & Coverage (`/sniper-audit --target tests`) | Complete |
+| SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | Complete |
+| SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | Complete |
+| SNPR-0011 | Improved Domain Packs | Complete |
 | SNPR-0012 | Agent Memory & Learning | Planned |
 | SNPR-0013 | Multi-Project Orchestration | Planned |
 
