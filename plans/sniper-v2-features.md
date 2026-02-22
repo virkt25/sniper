@@ -46,9 +46,9 @@ plans/
 | SNPR-0002 | Flexible Phase Navigation | Complete |
 | SNPR-0003 | Codebase Ingestion (`/sniper-ingest`) | Complete |
 | SNPR-0004 | Incremental Feature Lifecycle (`/sniper-feature`) | Complete |
-| SNPR-0005 | Production Debugging (`/sniper-debug`) | Planned |
-| SNPR-0006 | Audit: Refactoring (`/sniper-audit --target refactor`) | Planned |
-| SNPR-0007 | Audit: Review & QA (`/sniper-audit --target review`) | Planned |
+| SNPR-0005 | Production Debugging (`/sniper-debug`) | Complete |
+| SNPR-0006 | Audit: Refactoring (`/sniper-audit --target refactor`) | Complete |
+| SNPR-0007 | Audit: Review & QA (`/sniper-audit --target review`) | Complete |
 | SNPR-0008 | Audit: Test & Coverage (`/sniper-audit --target tests`) | Planned |
 | SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | Planned |
 | SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | Planned |
