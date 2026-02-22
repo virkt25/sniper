@@ -53,8 +53,8 @@ plans/
 | SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | Complete |
 | SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | Complete |
 | SNPR-0011 | Improved Domain Packs | Complete |
-| SNPR-0012 | Agent Memory & Learning | Planned |
-| SNPR-0013 | Multi-Project Orchestration | Planned |
+| SNPR-0012 | Agent Memory & Learning | PRD Written |
+| SNPR-0013 | Multi-Project Orchestration | PRD Written |
 
 Statuses: `Planned` → `PRD Written` → `Plan Written` → `In Progress` → `Complete`
 
@@ -187,9 +187,9 @@ Extend packs beyond knowledge files to include domain-specific personas, checkli
 
 > **Phase D — Advanced**
 
-See `plans/features/SNPR-0012/prd.md` (to be written).
+See `plans/features/SNPR-0012/prd.md`.
 
-Cross-session knowledge accumulation: project memory file (`.sniper/memory.md`), convention enforcement via review gates, and anti-pattern registry that prevents recurrence of previously fixed bugs.
+Three-tier memory system operating at project, workspace, and organization levels. Structured YAML memory stores (conventions, anti-patterns, decisions, estimation calibration) injected into spawn prompts as a contextual layer. Automatic sprint retrospectives extract learnings and codify high-confidence findings. Review gates enforce convention compliance and anti-pattern detection. Memory export/import enables cross-project knowledge transfer. Integrates with SNPR-0013 for workspace-level shared memory across repositories.
 
 ---
 
@@ -197,9 +197,9 @@ Cross-session knowledge accumulation: project memory file (`.sniper/memory.md`),
 
 > **Phase D — Advanced**
 
-See `plans/features/SNPR-0013/prd.md` (to be written).
+See `plans/features/SNPR-0013/prd.md`.
 
-Coordinate agent teams across multiple repositories: cross-repo feature planning, dependency-aware sprint planning, shared architecture docs. Targets monorepos and multi-service architectures.
+Workspace abstraction coordinating agent teams across multiple repositories. Contract-first execution model: during planning, generate shared interface contracts (API schemas, types, events), then each repo sprints independently against those contracts. Wave-based sprint orchestration follows the dependency graph (library → backend → frontend). Contract validation between waves catches mismatches before downstream repos begin. Includes workspace-level feature planning (`WKSP-XXXX`), auto-detection of repo dependencies, and integration with SNPR-0012 for cross-repo memory and convention enforcement.
 
 ---
 
