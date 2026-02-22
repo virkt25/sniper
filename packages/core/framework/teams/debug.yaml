@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────
+# SNIPER Debug Team
+# Investigates production bugs with parallel investigation agents
+# ─────────────────────────────────────────
+
+team_name: sniper-debug-{bug_id}
+description: "Bug investigation for {bug_title}"
+model_override: null  # use default model
+
+# Note: Phase 1 (Triage) and Phase 3 (Fix) are run by the lead directly.
+# Only Phase 2 (Investigation) spawns this team.
+
+teammates:
+  - name: log-analyst
+    compose:
+      process: log-analyst
+      technical: null
+      cognitive: devils-advocate
+    tasks:
+      - id: log-analysis
+        name: "Analyze Error Patterns"
+        output: docs/bugs/{bug_id}/investigation.md (log findings section)
+        description: >
+          Analyze error patterns in the affected components. Search for error handling
+          code, trace request paths, look for correlations in who/what/when is affected.
+          Document findings with specific error messages, file paths, and line numbers.
+        reads:
+          - "docs/bugs/{bug_id}/report.md"
+          - "src/"
+        blocked_by: []
+
+  - name: code-investigator
+    compose:
+      process: code-investigator
+      technical: backend
+      cognitive: systems-thinker
+    tasks:
+      - id: code-investigation
+        name: "Trace Code Path to Root Cause"
+        output: docs/bugs/{bug_id}/investigation.md (code findings section)
+        description: >
+          Trace the code execution path from entry point to failure. Identify the
+          specific code, condition, or data state that causes the bug. Check recent
+          git history for relevant changes. Document the exact path with file:line
+          references.
+        reads:
+          - "docs/bugs/{bug_id}/report.md"
+          - "docs/architecture.md"
+          - "src/"
+        blocked_by: []
+
+coordination: []  # both investigators work in parallel
+
+review_gate:
+  checklist: .sniper/checklists/debug-review.md
+  mode: flexible

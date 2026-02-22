@@ -41,6 +41,9 @@ Extract from config.yaml:
 - `state.current_sprint`
 - `state.artifacts` (status and version of each artifact)
 - `state.features` (array of feature lifecycle entries, if any)
+- `state.bugs` (array of bug tracking entries, if any)
+- `state.refactors` (array of refactor tracking entries, if any)
+- `state.reviews` (array of review entries, if any)
 
 ---
 
@@ -230,6 +233,58 @@ Print the following formatted report. Use the actual values from the steps above
   No features started. Run /sniper-feature to add an incremental feature.
 
 --------------------------------------------
+  Bugs
+--------------------------------------------
+
+  {If state.bugs has entries:}
+
+  Active Bugs:
+  | ID | Bug | Severity | Status |
+  |----|-----|----------|--------|
+  | BUG-{NNN} | {title} | {severity} | {status} |
+
+  Resolved Bugs:
+  | ID | Bug | Severity | Resolved | Root Cause |
+  |----|-----|----------|----------|------------|
+  | BUG-{NNN} | {title} | {severity} | {resolved_at} | {root_cause} |
+
+  {If state.bugs is empty:}
+  No bugs tracked. Run /sniper-debug to investigate a bug.
+
+--------------------------------------------
+  Refactors
+--------------------------------------------
+
+  {If state.refactors has entries:}
+
+  Active Refactors:
+  | ID | Refactor | Status | Progress |
+  |----|----------|--------|----------|
+  | REF-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Refactors:
+  | ID | Refactor | Completed |
+  |----|----------|-----------|
+  | REF-{NNN} | {title} | {completed_at} |
+
+  {If state.refactors is empty:}
+  No refactors tracked. Run /sniper-audit --target refactor to start one.
+
+--------------------------------------------
+  Reviews
+--------------------------------------------
+
+  {If state.reviews has entries:}
+
+  Recent Reviews:
+  | ID | Type | Target | Recommendation | Date |
+  |----|------|--------|---------------|------|
+  | {id} | {pr/release} | {target} | {recommendation} | {created_at} |
+
+  {If state.reviews is empty:}
+  No reviews tracked. Run /sniper-audit --target review to review a PR or release.
+
+--------------------------------------------
   Review Gates
 --------------------------------------------
 
@@ -299,6 +354,20 @@ Print the following formatted report. Use the actual values from the steps above
   {If in sprint phase:}
   -> Sprint #{N} is in progress. {completed}/{total} stories complete.
   -> When all sprint stories are done, run /sniper-review to evaluate the sprint.
+
+  {If there are active bugs:}
+  -> {count} active bug(s). Run /sniper-debug --list to see details.
+
+  {If there are active refactors:}
+  -> {count} active refactor(s). Run /sniper-audit --target refactor --list to see details.
+
+  {If there are active features:}
+  -> {count} active feature(s). Run /sniper-feature --list to see details.
+
+  {Always show these as available commands:}
+  -> Run /sniper-debug to investigate a production bug
+  -> Run /sniper-audit --target review --pr {N} to review a pull request
+  -> Run /sniper-audit --target refactor to plan a large refactoring
 
   {If there are out-of-sync artifacts:}
   -> WARNING: Some artifacts are out of sync between config and disk. Review the artifacts table above.

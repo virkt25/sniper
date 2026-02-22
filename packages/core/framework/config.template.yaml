@@ -148,3 +148,14 @@ state:
   # Feature tracking
   feature_counter: 1               # next SNPR-{XXXX} ID to assign
   features: []                     # [{id, slug, title, phase, created_at, completed_at, arch_base_version, stories_total, stories_complete}]
+
+  # Bug tracking
+  bug_counter: 1                   # next BUG-{NNN} ID to assign
+  bugs: []                         # [{id, title, severity, status, created_at, resolved_at, root_cause, fix_stories}]
+
+  # Refactor tracking
+  refactor_counter: 1              # next REF-{NNN} ID to assign
+  refactors: []                    # [{id, title, status, created_at, completed_at, scope_dirs, stories_total, stories_complete}]
+
+  # Review tracking
+  reviews: []                      # [{id, type, target, recommendation, created_at}]
