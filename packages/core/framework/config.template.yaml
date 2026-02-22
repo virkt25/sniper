@@ -64,6 +64,25 @@ documentation:
   exclude: []                      # Doc types to skip
 
 # ─────────────────────────────────────────
+# Agent Memory & Learning
+# ─────────────────────────────────────────
+
+memory:
+  enabled: true                    # Enable memory system
+  auto_retro: true                 # Auto-run retrospective after sprint completion
+  auto_codify: true                # Auto-codify high-confidence retro findings into memory
+  token_budget: 2000               # Max tokens for memory layer in spawn prompts
+
+# ─────────────────────────────────────────
+# Workspace (Multi-Project Orchestration)
+# ─────────────────────────────────────────
+
+workspace:
+  enabled: false                   # Set true when this repo is part of a workspace
+  workspace_path: null             # Relative path to sniper-workspace/ directory
+  repo_name: null                  # This repo's name in the workspace
+
+# ─────────────────────────────────────────
 # File Ownership Rules
 # ─────────────────────────────────────────
 # These are injected into spawn prompts to prevent teammates from editing
@@ -171,3 +190,7 @@ state:
   # Performance audit tracking
   perf_audit_counter: 1            # next PERF-{NNN} ID to assign
   perf_audits: []                  # [{id, title, status, created_at, completed_at, scope_dirs, focus, stories_total, stories_complete}]
+
+  # Memory tracking
+  retro_counter: 0                 # Number of retrospectives run
+  last_retro_sprint: 0             # Last sprint that had a retrospective

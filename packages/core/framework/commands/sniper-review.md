@@ -148,6 +148,72 @@ Be thorough but fair:
 
 ---
 
+## Step 3c: Memory Compliance Checks
+
+After evaluating the phase checklist, check project memory for compliance if memory files exist.
+
+### 3c-1: Load Memory
+
+Check if `.sniper/memory/` directory exists. If not, skip this step entirely.
+
+Read:
+- `.sniper/memory/conventions.yaml` — filter for entries with `enforcement: review_gate` or `enforcement: both`
+- `.sniper/memory/anti-patterns.yaml` — all entries
+- `.sniper/memory/decisions.yaml` — active entries only
+
+If workspace memory exists (check config), also load workspace-level files.
+
+### 3c-2: Convention Compliance
+
+For each convention with review gate enforcement:
+1. Read the convention's `rule` and `detection_hint` (if present)
+2. Examine the sprint output / artifacts being reviewed
+3. Check whether the convention was followed
+4. Report as PASS (compliant) or WARN (violation with details)
+
+### 3c-3: Anti-Pattern Scanning
+
+For each anti-pattern:
+1. Read the `detection_hint`
+2. If a detection hint is present, search the changed files for matches
+3. If matches found, report as WARN with file locations
+4. If no detection hint, skip automated detection (will be caught in manual review)
+
+### 3c-4: Decision Consistency
+
+For each active decision:
+1. Check if the sprint output contradicts the decision
+2. Example: if decision says "Use PostgreSQL" but new code imports MongoDB, flag it
+3. Report any contradictions
+
+### 3c-5: Report Memory Compliance
+
+Add a "Memory Compliance" section to the review output:
+
+```
+## Memory Compliance
+
+### Convention Checks
+PASS conv-001: Zod validation — all new routes use validation middleware
+WARN conv-003: Barrel exports — 2 new directories missing index.ts
+
+### Anti-Pattern Checks
+PASS ap-001: No direct DB queries in handlers — clean
+WARN ap-002: Silent error catch found in lib/webhook-delivery.ts:42
+
+### Decision Consistency
+PASS All decisions consistent
+
+### Summary
+{N} conventions checked, {M} violations
+{N} anti-patterns checked, {M} matches found
+{N} decisions checked, {M} contradictions
+```
+
+If there are violations, these count as review findings but do NOT block the gate by themselves (memory compliance is advisory unless the gate mode is strict AND the convention enforcement is review_gate).
+
+---
+
 ## Step 4: Present Results
 
 Print a formatted review report:

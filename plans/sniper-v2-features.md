@@ -53,8 +53,8 @@ plans/
 | SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | Complete |
 | SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | Complete |
 | SNPR-0011 | Improved Domain Packs | Complete |
-| SNPR-0012 | Agent Memory & Learning | PRD Written |
-| SNPR-0013 | Multi-Project Orchestration | PRD Written |
+| SNPR-0012 | Agent Memory & Learning | Complete |
+| SNPR-0013 | Multi-Project Orchestration | Complete |
 
 Statuses: `Planned` → `PRD Written` → `Plan Written` → `In Progress` → `Complete`
 

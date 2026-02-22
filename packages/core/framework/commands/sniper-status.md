@@ -345,6 +345,27 @@ Print the following formatted report. Use the actual values from the steps above
   No performance audits tracked. Run /sniper-audit --target performance to profile performance.
 
 --------------------------------------------
+  Memory
+--------------------------------------------
+
+  {If .sniper/memory/ directory exists:}
+
+  Memory:
+    Conventions:    {N} confirmed, {M} candidates
+    Anti-Patterns:  {N} confirmed, {M} candidates
+    Decisions:      {N} active, {M} superseded
+    Retrospectives: {N} (latest: Sprint {X}, {date})
+
+  {If .sniper/memory/ does not exist:}
+  Memory: not initialized (run /sniper-memory to set up)
+
+  {If workspace memory is configured:}
+  Workspace Memory:
+    Conventions:    {N}
+    Anti-Patterns:  {N}
+    Decisions:      {N}
+
+--------------------------------------------
   Review Gates
 --------------------------------------------
 

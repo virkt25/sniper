@@ -12,6 +12,9 @@
 ## Domain Context
 {domain_layer}
 
+## Project Memory
+{memory_layer}
+
 ## Rules for This Session
 - You own these directories ONLY: {ownership}
 - Do NOT modify files outside your ownership boundaries

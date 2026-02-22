@@ -584,7 +584,85 @@ Send shutdown requests to each teammate:
 
 ---
 
-## Step 14: Present Results and Next Steps
+## Step 14: Trigger Sprint Retrospective
+
+After the review gate passes, automatically trigger a sprint retrospective if memory is enabled.
+
+### 14-1: Check Memory Configuration
+
+Read `.sniper/config.yaml`:
+- If `memory.enabled` is false or not set, skip retrospective
+- If `memory.auto_retro` is false, skip retrospective but print:
+  ```
+  Sprint retrospective skipped (auto_retro is disabled).
+  To run manually: /sniper-memory --retro
+  ```
+
+### 14-2: Compose Retro Agent
+
+1. Read `.sniper/teams/retro.yaml` for the team definition
+2. Compose the retro-analyst spawn prompt using `/sniper-compose`:
+   ```
+   /sniper-compose --process retro-analyst --cognitive systems-thinker --name "Retro Analyst"
+   ```
+
+### 14-3: Run Retrospective
+
+Spawn the retro agent with these context files:
+- All completed story files from this sprint (from `docs/stories/`)
+- The review gate output from Step 12
+- Existing memory files (`.sniper/memory/conventions.yaml`, `.sniper/memory/anti-patterns.yaml`)
+- The code changes from this sprint (git diff summary)
+
+The retro agent should produce: `.sniper/memory/retros/sprint-{N}-retro.yaml`
+
+### 14-4: Auto-Codify Findings
+
+If `memory.auto_codify` is true in config:
+1. Read the retro output
+2. For each finding with `recommendation: codify` AND `confidence: high`:
+   - If it's a convention: append to `.sniper/memory/conventions.yaml` with status `confirmed`
+   - If it's an anti-pattern: append to `.sniper/memory/anti-patterns.yaml` with status `confirmed`
+3. For findings with `confidence: medium`:
+   - Append with status `candidate`
+4. Regenerate `.sniper/memory/summary.md`
+
+### 14-5: Show Retro Summary
+
+Display the retrospective results:
+```
+============================================
+  Sprint {sprint_number} Retrospective
+============================================
+
+  Stories analyzed: {count}
+
+  New Conventions (auto-codified):
+    conv-{XXX}: {rule}
+
+  New Anti-Patterns (auto-codified):
+    ap-{XXX}: {description}
+
+  Candidates (need confirmation):
+    {rule/description}
+
+  Estimation Calibration:
+    Overestimates: {stories}
+    Underestimates: {stories}
+    Pattern: {description}
+
+  Positive Patterns:
+    {pattern}
+
+============================================
+```
+
+Print: `Review auto-codified entries with: /sniper-memory --conventions`
+Print: `Promote candidates with: /sniper-memory --promote {id}`
+
+---
+
+## Step 15: Present Results and Next Steps
 
 ```
 ============================================

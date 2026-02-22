@@ -62,6 +62,25 @@ export async function scaffoldProject(
   // Create domain-packs directory
   await ensureDir(join(sniperDir, "domain-packs"));
 
+  // Create memory directory with starter files
+  const memoryDir = join(sniperDir, "memory");
+  await ensureDir(memoryDir);
+  await ensureDir(join(memoryDir, "retros"));
+  const memoryFiles: Record<string, string> = {
+    "conventions.yaml": "conventions: []\n",
+    "anti-patterns.yaml": "anti_patterns: []\n",
+    "decisions.yaml": "decisions: []\n",
+    "estimates.yaml":
+      "calibration:\n  velocity_factor: 1.0\n  common_underestimates: []\n  last_updated: null\n  sprints_analyzed: 0\n",
+  };
+  for (const [filename, content] of Object.entries(memoryFiles)) {
+    const filePath = join(memoryDir, filename);
+    if (!isUpdate || !(await fileExists(filePath))) {
+      await writeFile(filePath, content, "utf-8");
+    }
+  }
+  log.push("Created memory/ directory");
+
   // Generate config.yaml (skipped during update — caller preserves config separately)
   if (!isUpdate) {
     const configContent = YAML.stringify(config, { lineWidth: 0 });

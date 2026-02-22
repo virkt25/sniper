@@ -1,0 +1,17 @@
+# Convention Entry Template
+# Add to: .sniper/memory/conventions.yaml
+
+# - id: conv-XXX                    # Auto-assigned sequential ID
+#   rule: ""                        # Clear, imperative statement of the convention
+#   rationale: ""                   # Why this convention exists
+#   source:
+#     type: review_gate | retro | manual | imported
+#     ref: ""                       # Source reference (sprint name, review ID, etc.)
+#     date: ""                      # ISO 8601 date
+#   applies_to: []                  # Agent roles: backend-engineer, frontend-engineer, architect, etc.
+#   enforcement: review_gate | spawn_prompt | both
+#   scope: project | workspace     # project = this repo only, workspace = all repos
+#   status: confirmed | candidate  # candidate = needs one more occurrence to confirm
+#   examples:
+#     positive: ""                  # Example of correct usage
+#     negative: ""                  # Example of incorrect usage

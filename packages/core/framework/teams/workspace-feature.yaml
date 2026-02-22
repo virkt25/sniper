@@ -1,0 +1,69 @@
+team_name: sniper-workspace-feature
+phase: workspace-feature
+
+teammates:
+  - name: orchestrator
+    compose:
+      process: workspace-orchestrator
+      technical: null
+      cognitive: systems-thinker
+      domain: null
+    tasks:
+      - id: workspace-brief
+        name: "Workspace Feature Brief"
+        output: "features/WKSP-{XXXX}/brief.md"
+        template: ".sniper/templates/workspace-brief.md"
+        reads:
+          - "workspace.yaml"
+          - "repositories/*/docs/architecture.md"
+        plan_approval: true
+        description: >
+          Analyze the workspace to determine which repositories are affected by the
+          feature. Read each repo's architecture docs. Produce a workspace feature
+          brief that identifies affected repos, required interface changes, and
+          implementation wave ordering based on the dependency graph.
+
+      - id: cross-repo-plan
+        name: "Cross-Repo Implementation Plan"
+        output: "features/WKSP-{XXXX}/plan.md"
+        template: ".sniper/templates/workspace-plan.md"
+        reads:
+          - "features/WKSP-{XXXX}/brief.md"
+          - "contracts/"
+        blocked_by: [contract-generation]
+        plan_approval: true
+        description: >
+          After contracts are designed, produce the cross-repo implementation plan.
+          Break down work per repository, define sprint wave ordering, and specify
+          integration validation criteria between waves.
+
+  - name: contract-designer
+    compose:
+      process: contract-designer
+      technical: api-design
+      cognitive: systems-thinker
+      domain: null
+    tasks:
+      - id: contract-generation
+        name: "Interface Contract Design"
+        output: "contracts/"
+        template: ".sniper/templates/contract.yaml"
+        reads:
+          - "features/WKSP-{XXXX}/brief.md"
+          - "contracts/"
+          - "repositories/*/docs/architecture.md"
+        blocked_by: [workspace-brief]
+        plan_approval: true
+        description: >
+          Based on the workspace feature brief, design interface contracts for
+          all cross-repo communication. Define API endpoints with full schemas,
+          shared type specifications, and event contracts. Version appropriately
+          and ensure each side can be implemented independently.
+
+coordination:
+  - between: [orchestrator, contract-designer]
+    topic: "Interface boundaries and contract scope — what needs formal contracts vs. what can be informal"
+
+review_gate:
+  checklist: ".sniper/checklists/workspace-review.md"
+  mode: strict
