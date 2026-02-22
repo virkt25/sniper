@@ -55,7 +55,7 @@ export interface SniperConfig {
       approved_by?: string;
     }>;
     current_sprint: number;
-    artifacts: Record<string, string | null>;
+    artifacts: Record<string, { status: string | null; version: number } | string | null>;
     retro_counter?: number;
     last_retro_sprint?: number;
   };

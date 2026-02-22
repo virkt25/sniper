@@ -405,7 +405,7 @@ export const memoryCommand = defineCommand({
         anti_patterns: antiPatterns.map(
           ({ id: _id, source: _src, ...rest }) => rest,
         ),
-        decisions: [],
+        decisions: decisions.map(({ id: _id, source: _src, ...rest }) => rest),
       };
       const exportPath = join(cwd, "sniper-memory-export.yaml");
       await writeFile(
@@ -414,7 +414,7 @@ export const memoryCommand = defineCommand({
         "utf-8",
       );
       p.log.success(
-        `Exported ${conventions.length} conventions, ${antiPatterns.length} anti-patterns to sniper-memory-export.yaml`,
+        `Exported ${conventions.length} conventions, ${antiPatterns.length} anti-patterns, ${decisions.length} decisions to sniper-memory-export.yaml`,
       );
       return;
     }
