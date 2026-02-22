@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────
+# SNIPER Ingest Team
+# Reverse-engineers project artifacts from an existing codebase
+# ─────────────────────────────────────────
+
+team_name: sniper-ingest
+description: "Reverse-engineer project artifacts from an existing codebase"
+model_override: null  # use default model
+
+teammates:
+  - name: code-archaeologist
+    compose:
+      process: code-archaeologist
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: project-brief
+        name: "Reverse-engineer Project Brief"
+        output: docs/brief.md
+        template: .sniper/templates/brief.md
+        description: >
+          Read the codebase and produce a project brief that captures what this project does,
+          what problem it solves, who uses it, and what its current scope is. Focus on the
+          business domain and product purpose, not implementation details. Read package.json,
+          README.md, entry points, route definitions, and UI components to understand the project.
+        reads:
+          - "package.json"
+          - "README.md"
+          - "src/"
+        blocked_by: []
+
+  - name: architecture-cartographer
+    compose:
+      process: architecture-cartographer
+      technical: backend
+      cognitive: systems-thinker
+    tasks:
+      - id: system-architecture
+        name: "Reverse-engineer System Architecture"
+        output: docs/architecture.md
+        template: .sniper/templates/architecture.md
+        description: >
+          Map the complete technical architecture from source code. Produce a system architecture
+          document with component diagrams, data models, API contracts, infrastructure topology,
+          and cross-cutting concerns. Document the system AS BUILT, including inconsistencies
+          and technical debt.
+        reads:
+          - "src/"
+          - "db/"
+          - "docker/"
+          - "infra/"
+          - "terraform/"
+          - ".github/"
+        blocked_by: []
+
+  - name: convention-miner
+    compose:
+      process: convention-miner
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: conventions
+        name: "Extract Coding Conventions"
+        output: docs/conventions.md
+        template: .sniper/templates/conventions.md
+        description: >
+          Analyze the codebase to extract coding conventions: naming, code organization,
+          error handling, testing patterns, API patterns, imports, config, and logging.
+          Every convention must cite a real code example. Also update the ownership section
+          in .sniper/config.yaml to match the actual project directory structure.
+        reads:
+          - "src/"
+          - "tests/"
+          - ".eslintrc*"
+          - "tsconfig*"
+          - ".prettierrc*"
+          - "ruff.toml"
+          - "pyproject.toml"
+        blocked_by: []
+
+coordination: []  # all tasks are independent — parallel execution
+
+review_gate:
+  checklist: .sniper/checklists/ingest-review.md
+  mode: flexible

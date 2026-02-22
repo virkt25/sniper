@@ -25,6 +25,7 @@ stack:
 # auto    = no gate (not recommended for architecture/implementation)
 
 review_gates:
+  after_ingest: flexible           # Low risk — reverse-engineered artifacts, auto-advance
   after_discover: flexible         # Low risk — auto-advance
   after_plan: strict               # HIGH RISK — bad architecture cascades
   after_solve: flexible            # Low risk — stories can be refined later

@@ -37,10 +37,10 @@ Extract from config.yaml:
 ## Step 2: Read Lifecycle State
 
 Extract from config.yaml:
-- `state.current_phase`
-- `state.phase_history` (array of completed phases)
+- `state.phase_log` (array of phase entries with context, started_at, completed_at)
 - `state.current_sprint`
-- `state.artifacts` (status of each artifact)
+- `state.artifacts` (status and version of each artifact)
+- `state.features` (array of feature lifecycle entries, if any)
 
 ---
 
@@ -57,8 +57,9 @@ For each artifact, check whether the actual file exists on disk and has content.
 | Security      | `security`       | `docs/security.md`                  |
 | Epics         | `epics`          | `docs/epics/*.md`                   |
 | Stories       | `stories`        | `docs/stories/*.md`                 |
-| Risks         | (not in config)  | `docs/risks.md`                     |
-| Personas      | (not in config)  | `docs/personas.md`                  |
+| Risks         | `risks`          | `docs/risks.md`                     |
+| Personas      | `personas`       | `docs/personas.md`                  |
+| Conventions   | `conventions`    | `docs/conventions.md`               |
 
 For epics and stories, count the number of `.md` files in the directory.
 
@@ -132,50 +133,59 @@ Print the following formatted report. Use the actual values from the steps above
   Lifecycle Phase
 --------------------------------------------
 
-  Current Phase:  {phase or "NOT STARTED"}
+  Current Phase:  {active phase from phase_log or "NOT STARTED"}
   Sprint:         {current_sprint or "N/A"}
   Progress:       {estimated_progress}
 
-  Phase Progression:
-    [x] discover  {completed_date or "-- pending"}     {gate_mode}
-    [x] plan      {completed_date or "-- pending"}     {gate_mode}
-    [ ] solve     {status}                              {gate_mode}
-    [ ] sprint    {status}                              {gate_mode}
+  Phase Log (most recent first):
+  {For each entry in phase_log, most recent first:}
+    {[x] if completed, [>] if active}  {phase}  ({context})  {started_at} - {completed_at or "in progress"}
 
-  Use [x] for completed phases, [>] for the active phase, [ ] for pending phases.
+  {If phase_log is empty:}
+    No phases started yet.
+
+  Standard Phase Progression:
+    [ ] ingest    -- Ingest existing codebase (optional, for existing projects)
+    [ ] discover  -- Discovery & Analysis
+    [ ] plan      -- Planning & Architecture
+    [ ] solve     -- Epic Sharding & Story Creation
+    [ ] sprint    -- Implementation Sprint
+
+  Use [x] for completed phases, [>] for the active phase, [ ] for not yet run.
+  Note: Phases can be run multiple times. The phase log shows all executions.
 
 --------------------------------------------
-  Phase History
+  Phase History (from phase_log)
 --------------------------------------------
 
-  {For each entry in phase_history:}
-  Phase: {phase}
-    Started:    {started_at}
-    Completed:  {completed_at}
-    Approved by: {approved_by}
-    Gate mode:  {gate_mode}
-    Results:    {pass_count} pass, {warn_count} warn, {fail_count} fail
+  {For each entry in phase_log:}
+  Phase: {phase}  Context: {context}
+    Started:     {started_at}
+    Completed:   {completed_at or "in progress"}
+    Approved by: {approved_by or "pending"}
 
-  {If phase_history is empty:}
-  No phases completed yet.
+  {If phase_log is empty:}
+  No phases started yet.
 
 --------------------------------------------
   Artifacts
 --------------------------------------------
 
-  | Artifact       | Config Status | On Disk        | Path                     |
-  |---------------|---------------|----------------|--------------------------|
-  | Brief          | {status}      | {disk_status}  | docs/brief.md            |
-  | Risks          | --            | {disk_status}  | docs/risks.md            |
-  | Personas       | --            | {disk_status}  | docs/personas.md         |
-  | PRD            | {status}      | {disk_status}  | docs/prd.md              |
-  | Architecture   | {status}      | {disk_status}  | docs/architecture.md     |
-  | UX Spec        | {status}      | {disk_status}  | docs/ux-spec.md          |
-  | Security       | {status}      | {disk_status}  | docs/security.md         |
-  | Epics          | {status}      | {count} files  | docs/epics/              |
-  | Stories        | {status}      | {count} files  | docs/stories/            |
+  | Artifact       | Status | Version | On Disk        | Path                     |
+  |---------------|--------|---------|----------------|--------------------------|
+  | Brief          | {s}    | v{n}    | {disk_status}  | docs/brief.md            |
+  | Risks          | {s}    | v{n}    | {disk_status}  | docs/risks.md            |
+  | Personas       | {s}    | v{n}    | {disk_status}  | docs/personas.md         |
+  | PRD            | {s}    | v{n}    | {disk_status}  | docs/prd.md              |
+  | Architecture   | {s}    | v{n}    | {disk_status}  | docs/architecture.md     |
+  | UX Spec        | {s}    | v{n}    | {disk_status}  | docs/ux-spec.md          |
+  | Security       | {s}    | v{n}    | {disk_status}  | docs/security.md         |
+  | Conventions    | {s}    | v{n}    | {disk_status}  | docs/conventions.md      |
+  | Epics          | {s}    | v{n}    | {count} files  | docs/epics/              |
+  | Stories        | {s}    | v{n}    | {count} files  | docs/stories/            |
 
-  For "Config Status" show: null, draft, approved
+  For "Status" show: null, draft, approved (from state.artifacts.{key}.status)
+  For "Version" show: v0 if never produced, v1+, from state.artifacts.{key}.version
   For "On Disk" show: missing, empty, has content, {N} files
 
 --------------------------------------------
@@ -202,6 +212,7 @@ Print the following formatted report. Use the actual values from the steps above
 
   | Gate             | Mode       | Status                    |
   |-----------------|------------|---------------------------|
+  | after_ingest     | {mode}     | {passed/pending/N/A}      |
   | after_discover   | {mode}     | {passed/pending/N/A}      |
   | after_plan       | {mode}     | {passed/pending/N/A}      |
   | after_solve      | {mode}     | {passed/pending/N/A}      |
@@ -232,7 +243,16 @@ Print the following formatted report. Use the actual values from the steps above
   {Generate contextual next-step suggestions based on current state:}
 
   {If not started:}
+  -> Run /sniper-ingest to bootstrap artifacts from an existing codebase
+  -> Run /sniper-discover to begin Phase 1: Discovery & Analysis (for new projects)
+
+  {If in ingest phase:}
+  -> Ingestion is in progress. When complete, run /sniper-review to evaluate artifacts.
+
+  {If ingest complete:}
+  -> Run /sniper-feature to add incremental features using ingested artifacts
   -> Run /sniper-discover to begin Phase 1: Discovery & Analysis
+  -> Run /sniper-audit to audit the codebase
 
   {If in discover phase:}
   -> Discovery is in progress. When complete, run /sniper-review to evaluate artifacts.
