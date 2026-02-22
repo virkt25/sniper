@@ -49,10 +49,10 @@ plans/
 | SNPR-0005 | Production Debugging (`/sniper-debug`) | Complete |
 | SNPR-0006 | Audit: Refactoring (`/sniper-audit --target refactor`) | Complete |
 | SNPR-0007 | Audit: Review & QA (`/sniper-audit --target review`) | Complete |
-| SNPR-0008 | Audit: Test & Coverage (`/sniper-audit --target tests`) | Planned |
-| SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | Planned |
-| SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | Planned |
-| SNPR-0011 | Improved Domain Packs | Planned |
+| SNPR-0008 | Audit: Test & Coverage (`/sniper-audit --target tests`) | PRD Written |
+| SNPR-0009 | Audit: Security (`/sniper-audit --target security`) | PRD Written |
+| SNPR-0010 | Audit: Performance (`/sniper-audit --target performance`) | PRD Written |
+| SNPR-0011 | Improved Domain Packs | PRD Written |
 | SNPR-0012 | Agent Memory & Learning | Planned |
 | SNPR-0013 | Multi-Project Orchestration | Planned |
 
@@ -257,11 +257,11 @@ packages/core/framework/
 │   ├── ingest.yaml            # NEW
 │   ├── debug.yaml             # NEW
 │   ├── refactor.yaml          # NEW
+│   ├── review-pr.yaml         # NEW
+│   ├── review-release.yaml    # NEW
 │   ├── test.yaml              # NEW
-│   ├── perf.yaml              # NEW
-│   ├── audit.yaml             # NEW
-│   ├── qa-pr.yaml             # NEW
-│   └── qa-release.yaml        # NEW
+│   ├── security.yaml          # NEW
+│   └── perf.yaml              # NEW
 ├── workflows/
 │   ├── feature-lifecycle.md   # NEW
 │   ├── debug-workflow.md      # NEW
@@ -276,27 +276,37 @@ packages/core/framework/
 │   ├── refactor-scope.md      # NEW
 │   ├── migration-plan.md      # NEW
 │   ├── conventions.md         # NEW
-│   └── audit-report.md        # NEW
+│   ├── pr-review.md           # NEW
+│   ├── release-readiness.md   # NEW
+│   ├── coverage-report.md     # NEW
+│   ├── flaky-report.md        # NEW
+│   ├── threat-model.md        # NEW
+│   ├── vulnerability-report.md # NEW
+│   ├── performance-profile.md # NEW
+│   └── optimization-plan.md   # NEW
 ├── checklists/
 │   ├── feature-review.md      # NEW
 │   ├── debug-review.md        # NEW
-│   └── refactor-review.md     # NEW
-├── personas/
-│   ├── code-archaeologist.yaml    # NEW
-│   ├── convention-miner.yaml      # NEW
-│   ├── triage-lead.yaml           # NEW
-│   ├── log-analyst.yaml           # NEW
-│   ├── code-investigator.yaml     # NEW
-│   ├── fix-engineer.yaml          # NEW
-│   ├── regression-guard.yaml      # NEW
-│   ├── impact-analyst.yaml        # NEW
-│   ├── migration-architect.yaml   # NEW
-│   ├── coverage-analyst.yaml      # NEW
-│   ├── test-architect.yaml        # NEW
-│   ├── flake-hunter.yaml          # NEW
-│   ├── perf-profiler.yaml         # NEW
-│   ├── threat-modeler.yaml        # NEW
-│   └── vuln-scanner.yaml          # NEW
+│   ├── refactor-review.md     # NEW
+│   ├── test-review.md         # NEW
+│   ├── security-review.md     # NEW
+│   └── perf-review.md         # NEW
+├── personas/process/
+│   ├── code-archaeologist.md      # NEW
+│   ├── architecture-cartographer.md # NEW
+│   ├── convention-miner.md        # NEW
+│   ├── triage-lead.md             # NEW
+│   ├── log-analyst.md             # NEW
+│   ├── code-investigator.md       # NEW
+│   ├── impact-analyst.md          # NEW
+│   ├── migration-architect.md     # NEW
+│   ├── code-reviewer.md           # NEW
+│   ├── release-manager.md         # NEW
+│   ├── coverage-analyst.md        # NEW
+│   ├── flake-hunter.md            # NEW
+│   ├── threat-modeler.md          # NEW
+│   ├── vuln-scanner.md            # NEW
+│   └── perf-profiler.md           # NEW
 └── config.template.yaml           # MODIFIED - expanded state model
 ```
 

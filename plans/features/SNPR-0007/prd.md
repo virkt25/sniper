@@ -201,7 +201,7 @@ teammates:
         blocked_by: []
 ```
 
-### 4. New Persona Files
+### 5. New Persona Files
 
 **`personas/process/code-reviewer.md`**
 Role: Code review specialist. Examine code for clarity, correctness, maintainability, and adherence to conventions. Think like a senior developer doing a thorough code review — not just catching bugs but ensuring the code is the best it can be.
@@ -209,13 +209,13 @@ Role: Code review specialist. Examine code for clarity, correctness, maintainabi
 **`personas/process/release-manager.md`**
 Role: Release coordinator. Assess release readiness by evaluating all changes since the last release. Categorize changes, identify risks, produce clear changelogs and migration guides. Think like a release engineer who owns the deploy button.
 
-### 5. New Templates
+### 6. New Templates
 
 **`templates/pr-review.md`** — PR review report with summary, code quality, security, test coverage, and recommendation sections.
 
 **`templates/release-readiness.md`** — Release readiness report with version recommendation, changelog, breaking changes, migration guide, documentation status, and release checklist.
 
-### 6. `/sniper-status` Integration
+### 7. `/sniper-status` Integration
 
 Status should show recent reviews:
 
