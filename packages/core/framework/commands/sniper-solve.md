@@ -374,6 +374,24 @@ Print a formatted summary:
 
 ---
 
+## Feature-Scoped Mode
+
+If `$ARGUMENTS` contains `--feature SNPR-{XXXX}`:
+
+1. **Skip Steps 0b and 0c** (no need to check for main PRD or plan approval).
+2. **Step 3:** Instead of reading main PRD/architecture/UX-spec, read:
+   - `docs/features/SNPR-{XXXX}/spec.md` (replaces PRD as primary input)
+   - `docs/features/SNPR-{XXXX}/arch-delta.md` (replaces architecture for feature scope)
+   - `docs/architecture.md` (for broader system context)
+   - `docs/conventions.md` (if exists, for coding patterns)
+3. **Step 5:** Create stories in `docs/features/SNPR-{XXXX}/stories/` instead of `docs/stories/`.
+4. **Step 6:** Skip epic creation. Feature stories don't need epics (the feature IS the epic).
+5. **Step 7:** Number stories as S01, S02, etc. within the feature directory. Target 3-8 stories.
+6. **Step 7 context embedding:** Embed context from the feature spec and arch-delta, NOT the main PRD.
+7. **Step 11:** Update `state.features[].stories_total` with the count.
+
+---
+
 ## IMPORTANT RULES
 
 - This phase runs as a SINGLE AGENT. Do NOT create a team or spawn teammates.

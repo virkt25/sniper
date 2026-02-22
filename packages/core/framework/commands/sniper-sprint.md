@@ -16,11 +16,25 @@ Perform ALL checks before proceeding. If any critical check fails, STOP.
 2. If the file does not exist or `project.name` is empty:
    - **STOP.** Print: "SNIPER is not initialized. Run `/sniper-init` first."
 
-### 0b. Verify Stories Exist
+### 0b. Check for Feature Flag
 
-1. List files in `docs/stories/`.
+1. If `$ARGUMENTS` contains `--feature SNPR-{XXXX}`:
+   - Store the feature ID.
+   - Read `state.features[]` from config to find the feature.
+   - If not found, STOP: "Feature SNPR-{XXXX} not found. Run `/sniper-feature --list` to see active features."
+   - Set story directory to `docs/features/SNPR-{XXXX}/stories/`.
+   - Set team name prefix to `sniper-feature-sprint-{feature_id}`.
+   - Note: Feature sprints do NOT increment `state.current_sprint`.
+2. If no `--feature` flag:
+   - Set story directory to `docs/stories/`.
+   - Set team name prefix to `sniper-sprint`.
+
+### 0b2. Verify Stories Exist
+
+1. List files in the story directory (set in 0b).
 2. If the directory does not exist or contains no `.md` files:
-   - **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
+   - If feature mode: **STOP.** Print: "No stories found for SNPR-{XXXX}. The feature may not have reached the solving phase yet."
+   - If normal mode: **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
 
 ### 0c. Config Migration Check
 
@@ -58,12 +72,25 @@ Report any missing files as warnings.
 
 Edit `.sniper/config.yaml`:
 
+**If normal mode (no `--feature` flag):**
 1. Increment `state.current_sprint` by 1 (e.g., 0 -> 1, 1 -> 2).
 2. Store the new sprint number as `{sprint_number}` for use throughout.
 3. Append to `state.phase_log`:
    ```yaml
    - phase: sprint
      context: "sprint-{sprint_number}"
+     started_at: "{current ISO timestamp}"
+     completed_at: null
+     approved_by: null
+   ```
+
+**If feature mode (`--feature SNPR-{XXXX}`):**
+1. Do NOT increment `state.current_sprint`.
+2. Use the feature ID as the sprint identifier.
+3. Append to `state.phase_log`:
+   ```yaml
+   - phase: sprint
+     context: "feature-sprint-SNPR-{XXXX}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -257,6 +284,8 @@ Read each story file and embed it completely.}
 ## Architecture Reference
 Read `docs/architecture.md` for the full system architecture.
 The relevant sections are embedded in each story above.
+{If feature mode: "Also read `docs/features/SNPR-{XXXX}/arch-delta.md` for architecture changes specific to this feature. The delta takes precedence for this feature's scope."}
+{If conventions doc exists: "Also read `docs/conventions.md` for the project's coding patterns and conventions."}
 
 ## Coordination
 {If this teammate has coordination pairs from sprint.yaml, list them:}
@@ -540,9 +569,12 @@ Edit `.sniper/config.yaml`:
 
 ### Mark Stories Complete
 
-For each story that was implemented and approved, add a completion marker. Either:
+For each story that was implemented and approved, add a completion marker:
 - Add `> **Status:** Complete (Sprint {sprint_number})` to the top of each story file
-- Or track in a separate sprint log if preferred
+
+**If feature mode:** Also update `state.features[]` for this feature:
+- Increment `stories_complete` by the number of completed stories
+- If `stories_complete == stories_total`, the feature is ready for merge-back
 
 ### Shut Down Teammates
 

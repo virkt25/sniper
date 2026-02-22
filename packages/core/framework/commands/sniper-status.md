@@ -207,6 +207,29 @@ Print the following formatted report. Use the actual values from the steps above
   No active sprint.
 
 --------------------------------------------
+  Features
+--------------------------------------------
+
+  {If state.features has entries:}
+
+  Active Features:
+  | ID | Feature | Phase | Progress |
+  |----|---------|-------|----------|
+  | SNPR-{XXXX} | {title} | {phase} | {stories_complete}/{stories_total} stories |
+  | ... | ... | ... | ... |
+
+  Completed Features:
+  | ID | Feature | Completed | Stories |
+  |----|---------|-----------|---------|
+  | SNPR-{XXXX} | {title} | {completed_at} | {stories_total} |
+  | ... | ... | ... | ... |
+
+  Total: {active count} active, {completed count} completed
+
+  {If state.features is empty:}
+  No features started. Run /sniper-feature to add an incremental feature.
+
+--------------------------------------------
   Review Gates
 --------------------------------------------
 
