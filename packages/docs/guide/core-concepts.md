@@ -38,36 +38,36 @@ Personas define who an agent is. They are composed from four independent layers,
 
 Defines the agent's role in the project lifecycle. Examples:
 
-- **analyst** -- researches markets, competitors, and user needs
-- **architect** -- designs system architecture and component boundaries
-- **developer** -- implements stories following architecture patterns
-- **qa-engineer** -- writes and runs tests, validates acceptance criteria
-- **product-manager** -- writes PRDs and requirement specifications
-- **scrum-master** -- shards PRDs into epics and stories
-- **ux-designer** -- defines information architecture and user flows
+- [**analyst**](/reference/personas/process/analyst) -- researches markets, competitors, and user needs
+- [**architect**](/reference/personas/process/architect) -- designs system architecture and component boundaries
+- [**developer**](/reference/personas/process/developer) -- implements stories following architecture patterns
+- [**qa-engineer**](/reference/personas/process/qa-engineer) -- writes and runs tests, validates acceptance criteria
+- [**product-manager**](/reference/personas/process/product-manager) -- writes PRDs and requirement specifications
+- [**scrum-master**](/reference/personas/process/scrum-master) -- shards PRDs into epics and stories
+- [**ux-designer**](/reference/personas/process/ux-designer) -- defines information architecture and user flows
 
 ### Technical Layer (Optional)
 
 Adds domain-specific technical expertise:
 
-- **backend** -- Node.js/TypeScript, Express, PostgreSQL, Redis, queues
-- **frontend** -- React, component hierarchy, responsive design
-- **infrastructure** -- Docker, Terraform, CI/CD, cloud providers
-- **security** -- auth models, encryption, compliance, threat modeling
-- **ai-ml** -- AI pipelines, model integration, real-time APIs
-- **database** -- schema design, migrations, query optimization
-- **api-design** -- REST contracts, versioning, validation
+- [**backend**](/reference/personas/technical/backend) -- Node.js/TypeScript, Express, PostgreSQL, Redis, queues
+- [**frontend**](/reference/personas/technical/frontend) -- React, component hierarchy, responsive design
+- [**infrastructure**](/reference/personas/technical/infrastructure) -- Docker, Terraform, CI/CD, cloud providers
+- [**security**](/reference/personas/technical/security) -- auth models, encryption, compliance, threat modeling
+- [**ai-ml**](/reference/personas/technical/ai-ml) -- AI pipelines, model integration, real-time APIs
+- [**database**](/reference/personas/technical/database) -- schema design, migrations, query optimization
+- [**api-design**](/reference/personas/technical/api-design) -- REST contracts, versioning, validation
 
 ### Cognitive Layer (Optional)
 
 Shapes how the agent thinks and prioritizes:
 
-- **systems-thinker** -- focuses on boundaries, interfaces, dependencies, and scaling
-- **devils-advocate** -- challenges assumptions, identifies what could go wrong
-- **user-empathetic** -- prioritizes user experience, friction points, accessibility
-- **security-first** -- evaluates every decision through a security lens
-- **performance-focused** -- optimizes for speed, efficiency, and resource usage
-- **mentor-explainer** -- produces clear, educational documentation
+- [**systems-thinker**](/reference/personas/cognitive/systems-thinker) -- focuses on boundaries, interfaces, dependencies, and scaling
+- [**devils-advocate**](/reference/personas/cognitive/devils-advocate) -- challenges assumptions, identifies what could go wrong
+- [**user-empathetic**](/reference/personas/cognitive/user-empathetic) -- prioritizes user experience, friction points, accessibility
+- [**security-first**](/reference/personas/cognitive/security-first) -- evaluates every decision through a security lens
+- [**performance-focused**](/reference/personas/cognitive/performance-focused) -- optimizes for speed, efficiency, and resource usage
+- [**mentor-explainer**](/reference/personas/cognitive/mentor-explainer) -- produces clear, educational documentation
 
 ### Domain Layer (Optional)
 

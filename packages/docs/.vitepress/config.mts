@@ -79,6 +79,14 @@ export default defineConfig({
             { text: 'Glossary', link: '/guide/glossary' },
           ],
         },
+        {
+          text: 'Cheatsheets',
+          items: [
+            { text: 'Commands', link: '/guide/cheatsheet-commands' },
+            { text: 'Teams', link: '/guide/cheatsheet-teams' },
+            { text: 'Personas', link: '/guide/cheatsheet-personas' },
+          ],
+        },
       ],
       '/reference/': [
         {

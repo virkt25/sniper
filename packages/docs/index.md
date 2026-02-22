@@ -3,7 +3,7 @@ layout: home
 hero:
   name: SNIPER
   text: AI-Powered Project Lifecycle Framework
-  tagline: Orchestrate Claude Code agent teams through structured project phases — from discovery to deployment.
+  tagline: Orchestrate Claude Code agent teams through structured project phases -- from discovery to deployment.
   actions:
     - theme: brand
       text: Get Started
@@ -16,23 +16,17 @@ hero:
       link: https://github.com/virkt25/sniper
 
 features:
-  - icon: "\U0001F680"
-    title: Spawn
+  - title: Spawn
     details: Initialize projects with structured configuration, domain packs, and agent personas tailored to your stack.
-  - icon: "\U0001F9ED"
-    title: Navigate
+  - title: Navigate
     details: Discover market landscape, assess risks, and research users with parallel agent teams.
-  - icon: "\U0001F3D7\uFE0F"
-    title: Implement
+  - title: Implement
     details: Plan architecture, shard into epics and stories, then sprint with coordinated implementation teams.
-  - icon: "\u26A1"
-    title: Parallelize
+  - title: Parallelize
     details: Run multi-agent teams in parallel with file ownership boundaries and cross-team coordination.
-  - icon: "\u2705"
-    title: Evaluate
+  - title: Evaluate
     details: Quality gates with STRICT, FLEXIBLE, and AUTO modes ensure artifacts meet standards before advancing.
-  - icon: "\U0001F4E6"
-    title: Release
+  - title: Release
     details: From sprint reviews to deployment, the full lifecycle is covered with memory and retrospectives.
 ---
 

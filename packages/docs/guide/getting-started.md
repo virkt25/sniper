@@ -101,17 +101,17 @@ With SNIPER initialized, start the discovery phase:
 /sniper-discover
 ```
 
-This spawns a 3-agent team that works in parallel:
+This spawns the [discover](/reference/teams/discover) team -- three agents working in parallel:
 
-| Agent | Persona | Output |
-|-------|---------|--------|
-| analyst | systems-thinker | `docs/brief.md` |
-| risk-researcher | devil's-advocate | `docs/risks.md` |
-| user-researcher | user-empathetic | `docs/personas.md` |
+| Agent | Process | Cognitive | Output |
+|-------|---------|-----------|--------|
+| analyst | [analyst](/reference/personas/process/analyst) | [systems-thinker](/reference/personas/cognitive/systems-thinker) | `docs/brief.md` |
+| risk-researcher | [analyst](/reference/personas/process/analyst) | [devils-advocate](/reference/personas/cognitive/devils-advocate) | `docs/risks.md` |
+| user-researcher | [analyst](/reference/personas/process/analyst) | [user-empathetic](/reference/personas/cognitive/user-empathetic) | `docs/personas.md` |
 
-The team lead (you) enters delegate mode. The agents research independently and produce their artifacts. When all three complete, a review gate evaluates the output against the discovery checklist.
+The team lead (you) enters delegate mode. The agents research independently and produce their artifacts. When all three complete, a review gate evaluates the output against the [discover-review](/reference/checklists/discover-review) checklist.
 
-Since the discovery gate defaults to **flexible**, it auto-advances if there are no critical failures. You can review the artifacts asynchronously.
+Since the discovery gate defaults to <span class="gate-flexible">FLEXIBLE</span>, it auto-advances if there are no critical failures. You can review the artifacts asynchronously.
 
 ## Continue the Lifecycle
 

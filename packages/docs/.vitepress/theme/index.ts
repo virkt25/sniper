@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import PersonaCard from './components/PersonaCard.vue'
 import TeamDiagram from './components/TeamDiagram.vue'
+import './style.css'
 
 export default {
   extends: DefaultTheme,
