@@ -35,16 +35,30 @@ Check that the following files exist and are non-empty. Read each file to verify
    - If no, STOP.
    - If yes, proceed with a note in the output.
 
-### 0d. Verify Phase State
+### 0d. Config Migration Check
 
-1. Read `state.current_phase`.
-2. **If `current_phase` is `plan`:** Good -- planning is done and we are advancing. Proceed.
-3. **If `current_phase` is `solve`:** Already in progress or was interrupted.
-   - Ask the user: "The solve phase appears to be in progress. Do you want to restart? This will overwrite existing epics and stories. (yes/no)"
-   - If no, STOP.
-4. **If `current_phase` is `sprint`:** Project has advanced past this phase.
-   - Ask the user: "The project is in sprint phase. Re-running solve will recreate epics and stories. Are you sure? (yes/no)"
-   - If no, STOP.
+1. Read `schema_version` from `.sniper/config.yaml`.
+2. If `schema_version` is absent or less than 2, run the v1→v2 migration. Write the updated config before proceeding.
+
+### 0e. Verify Phase State
+
+1. Determine the current active phase from `state.phase_log`.
+2. **If no active phase:** Good -- proceed.
+3. **If active phase is `solve`:** Already in progress.
+   - Ask the user: "A solve phase is already in progress ({context}). Options: (a) Resume it (b) Start a new solve with a different context"
+4. **If active phase is something else:**
+   - Ask the user: "You have an active {phase} phase ({context}). Options: (a) Pause it and start solving (b) Complete {phase} first"
+
+### 0f. Amendment Detection for Stories
+
+1. Check if `docs/epics/` and `docs/stories/` directories exist and contain files.
+2. **If story files exist:**
+   - Scan each story file for a `> **Status:** Complete (Sprint {N})` marker.
+   - **Completed stories** are NEVER overwritten. They are preserved as-is.
+   - **Draft stories** (no completion marker) can be amended: updated acceptance criteria, refreshed embedded context.
+   - **New requirements** (from amended PRD) generate new stories with the next available story number.
+   - **Removed requirements** — stories for removed PRD items are marked `> **Status:** Deprecated` rather than deleted.
+3. **If no story files exist:** Normal create mode.
 
 ---
 
@@ -52,10 +66,10 @@ Check that the following files exist and are non-empty. Read each file to verify
 
 Edit `.sniper/config.yaml`:
 
-1. Set `state.current_phase: solve`
-2. Append to `state.phase_history`:
+1. Append to `state.phase_log`:
    ```yaml
    - phase: solve
+     context: "{from --context argument, or 'initial' for first run, or 'iteration-N' for re-runs}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -293,9 +307,10 @@ If the self-review identified any issues:
 
 Edit `.sniper/config.yaml`:
 
-1. Set `state.artifacts.epics: draft`
-2. Set `state.artifacts.stories: draft`
-3. Update the solve entry in `state.phase_history`:
+1. Update artifact tracking:
+   - Set `state.artifacts.epics.status: draft` and increment `state.artifacts.epics.version`
+   - Set `state.artifacts.stories.status: draft` and increment `state.artifacts.stories.version`
+2. Update the solve entry in `state.phase_log`:
    - Set `completed_at: "{current ISO timestamp}"`
    - Set `approved_by: "auto-flexible"` (this is a flexible gate)
 

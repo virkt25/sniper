@@ -22,11 +22,15 @@ Perform ALL checks before proceeding. If any critical check fails, STOP.
 2. If the directory does not exist or contains no `.md` files:
    - **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
 
-### 0c. Verify Phase State
+### 0c. Config Migration Check
 
-1. Read `state` from config.yaml.
-2. Check that `state.artifacts.stories` is not null (stories have been created).
-3. If `state.artifacts.stories` is null but story files exist, print a warning and continue.
+1. Read `schema_version` from `.sniper/config.yaml`.
+2. If `schema_version` is absent or less than 2, run the v1→v2 migration. Write the updated config before proceeding.
+
+### 0c2. Verify Phase State
+
+1. Check that `state.artifacts.stories.status` is not null (stories have been created).
+2. If `state.artifacts.stories.status` is null but story files exist, print a warning and continue.
 
 ### 0d. Verify Framework Files
 
@@ -55,11 +59,11 @@ Report any missing files as warnings.
 Edit `.sniper/config.yaml`:
 
 1. Increment `state.current_sprint` by 1 (e.g., 0 -> 1, 1 -> 2).
-2. Set `state.current_phase: sprint`
-3. Store the new sprint number as `{sprint_number}` for use throughout.
-4. Append to `state.phase_history`:
+2. Store the new sprint number as `{sprint_number}` for use throughout.
+3. Append to `state.phase_log`:
    ```yaml
-   - phase: "sprint-{sprint_number}"
+   - phase: sprint
+     context: "sprint-{sprint_number}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -530,7 +534,7 @@ Update state and STOP.
 
 Edit `.sniper/config.yaml`:
 
-1. Update the sprint entry in `state.phase_history`:
+1. Update the sprint entry in `state.phase_log`:
    - Set `completed_at: "{current ISO timestamp}"`
    - Set `approved_by: "human"`
 

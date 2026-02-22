@@ -24,17 +24,29 @@ Check that the following files exist and are non-empty:
 2. `docs/risks.md` -- Recommended but not blocking. If missing, print a warning.
 3. `docs/personas.md` -- Recommended but not blocking. If missing, print a warning.
 
-### 0c. Verify Phase State
+### 0c. Config Migration Check
 
-1. Read `state.current_phase` from config.yaml.
-2. **If `current_phase` is `discover` or artifacts exist:** Good -- discover is complete or was completed. Proceed.
-3. **If `current_phase` is `plan`:** Already in progress or was interrupted.
-   - Ask the user: "The plan phase appears to be in progress. Do you want to restart it? This will overwrite planning artifacts. (yes/no)"
-   - If no, STOP.
-4. **If `current_phase` is `solve` or `sprint`:** Project has progressed past planning.
-   - Ask the user: "The project is in the '{current_phase}' phase. Re-running plan will reset progress. Are you sure? (yes/no)"
-   - If no, STOP.
-5. **If `current_phase` is `null`:** No phase has run. Check if artifacts exist anyway (manual creation). If `docs/brief.md` exists, proceed with a warning. Otherwise STOP.
+1. Read `schema_version` from `.sniper/config.yaml`.
+2. If `schema_version` is absent or less than 2, run the v1→v2 migration as defined in the Config Reader Protocol. Write the updated config before proceeding.
+
+### 0d. Verify Phase State
+
+1. Determine the current active phase: find the last entry in `state.phase_log` where `completed_at` is null.
+2. **If no active phase:** Good -- proceed. Re-running plan after sprint is normal iteration.
+3. **If active phase is `plan`:** Already in progress.
+   - Ask the user: "A plan phase is already in progress ({context}). Options: (a) Resume it (b) Start a new plan with a different context"
+4. **If active phase is something else:**
+   - Ask the user: "You have an active {phase} phase ({context}) that hasn't completed. Options: (a) Pause it and start planning (b) Complete {phase} first"
+
+### 0e. Amendment Detection
+
+1. Check if the target artifact files already exist and are non-empty:
+   - `docs/prd.md`
+   - `docs/architecture.md`
+   - `docs/ux-spec.md`
+   - `docs/security.md`
+2. **If ANY exist:** Enter **amendment mode**. Note which files exist and their current version numbers. Agents will be instructed to amend rather than create.
+3. **If NONE exist:** Normal create mode.
 
 ### 0d. Verify Framework Files
 
@@ -64,10 +76,10 @@ Report any missing files as warnings. Continue if the team YAML and key personas
 
 Edit `.sniper/config.yaml`:
 
-1. Set `state.current_phase: plan`
-2. Append to `state.phase_history`:
+1. Append to `state.phase_log`:
    ```yaml
    - phase: plan
+     context: "{from --context argument, or 'initial' for first run, or 'iteration-N' for re-runs}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -147,13 +159,22 @@ For each teammate, compose a spawn prompt by reading persona layer files and ass
    - **Description:** {project.description}
    - **Stack:** {summary of stack section}
 
-   ## Instructions
+   ## Instructions (Create Mode — when docs/prd.md does NOT exist)
    1. Read ALL the required reading files listed above.
    2. Read the template at `.sniper/templates/prd.md` for expected output format.
    3. Synthesize the discovery artifacts into a coherent PRD.
    4. Every P0 requirement MUST have testable acceptance criteria.
    5. User stories must reference the personas from `docs/personas.md`.
    6. Write the complete output to `docs/prd.md`.
+   7. When complete, message the team lead. Other teammates are waiting on your output.
+
+   ## Instructions (Amendment Mode — when docs/prd.md already exists)
+   1. Read the EXISTING `docs/prd.md` first. Note its current version number.
+   2. Read ALL the required reading files listed above.
+   3. AMEND the existing PRD: add new requirements, update changed sections, mark removed items as deprecated. Preserve content outside managed sections (<!-- sniper:managed --> markers).
+   4. Every P0 requirement MUST have testable acceptance criteria.
+   5. Increment the version number and add a changelog entry describing what changed.
+   6. Set Status back to "Draft".
    7. When complete, message the team lead. Other teammates are waiting on your output.
    ```
 
@@ -539,11 +560,12 @@ Update state with `approved_by: "rejected"` and STOP.
 
 Edit `.sniper/config.yaml`:
 
-1. Set `state.artifacts.prd: draft`
-2. Set `state.artifacts.architecture: draft`
-3. Set `state.artifacts.ux_spec: draft`
-4. Set `state.artifacts.security: draft` (if security doc was produced)
-5. Update the plan entry in `state.phase_history`:
+1. Update artifact tracking (increment version if amendment mode):
+   - Set `state.artifacts.prd.status: draft` and increment `state.artifacts.prd.version`
+   - Set `state.artifacts.architecture.status: draft` and increment `state.artifacts.architecture.version`
+   - Set `state.artifacts.ux_spec.status: draft` and increment `state.artifacts.ux_spec.version`
+   - Set `state.artifacts.security.status: draft` and increment `state.artifacts.security.version` (if produced)
+2. Update the plan entry in `state.phase_log`:
    - Set `completed_at: "{current ISO timestamp}"`
    - Set `approved_by: "human"` (since this is a strict gate)
 

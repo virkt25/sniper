@@ -103,15 +103,47 @@ ownership:
 # Lifecycle State (managed by SNIPER, don't edit manually)
 # ─────────────────────────────────────────
 
+schema_version: 2
+
 state:
-  current_phase: null              # discover | plan | solve | sprint
-  phase_history: []                # [{phase, started_at, completed_at, approved_by}]
+  # Phase log — tracks all phase runs with context
+  # Valid phases: discover | plan | solve | sprint | ingest
+  phase_log: []                    # [{phase, context, started_at, completed_at, approved_by}]
   current_sprint: 0
+
+  # Artifact tracking — object format with version
   artifacts:
-    brief: null                    # null | draft | approved
-    prd: null
-    architecture: null
-    ux_spec: null
-    security: null
-    epics: null
-    stories: null
+    brief:
+      status: null                 # null | draft | approved
+      version: 0
+    risks:
+      status: null
+      version: 0
+    personas:
+      status: null
+      version: 0
+    prd:
+      status: null
+      version: 0
+    architecture:
+      status: null
+      version: 0
+    ux_spec:
+      status: null
+      version: 0
+    security:
+      status: null
+      version: 0
+    conventions:
+      status: null
+      version: 0
+    epics:
+      status: null
+      version: 0
+    stories:
+      status: null
+      version: 0
+
+  # Feature tracking
+  feature_counter: 1               # next SNPR-{XXXX} ID to assign
+  features: []                     # [{id, slug, title, phase, created_at, completed_at, arch_base_version, stories_total, stories_complete}]
