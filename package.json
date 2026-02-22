@@ -11,7 +11,10 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "ship": "bash scripts/ship.sh"
+    "ship": "bash scripts/ship.sh",
+    "docs:dev": "pnpm --filter @sniper.ai/docs dev",
+    "docs:build": "pnpm --filter @sniper.ai/docs build",
+    "docs:preview": "pnpm --filter @sniper.ai/docs preview"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0"
