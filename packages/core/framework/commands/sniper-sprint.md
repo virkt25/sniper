@@ -16,19 +16,37 @@ Perform ALL checks before proceeding. If any critical check fails, STOP.
 2. If the file does not exist or `project.name` is empty:
    - **STOP.** Print: "SNIPER is not initialized. Run `/sniper-init` first."
 
-### 0b. Verify Stories Exist
+### 0b. Check for Feature Flag
 
-1. List files in `docs/stories/`.
+1. If `$ARGUMENTS` contains `--feature SNPR-{XXXX}`:
+   - Store the feature ID.
+   - Read `state.features[]` from config to find the feature.
+   - If not found, STOP: "Feature SNPR-{XXXX} not found. Run `/sniper-feature --list` to see active features."
+   - Set story directory to `docs/features/SNPR-{XXXX}/stories/`.
+   - Set team name prefix to `sniper-feature-sprint-{feature_id}`.
+   - Note: Feature sprints do NOT increment `state.current_sprint`.
+2. If no `--feature` flag:
+   - Set story directory to `docs/stories/`.
+   - Set team name prefix to `sniper-sprint`.
+
+### 0c. Verify Stories Exist
+
+1. List files in the story directory (set in 0b).
 2. If the directory does not exist or contains no `.md` files:
-   - **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
+   - If feature mode: **STOP.** Print: "No stories found for SNPR-{XXXX}. The feature may not have reached the solving phase yet."
+   - If normal mode: **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
 
-### 0c. Verify Phase State
+### 0d. Config Migration Check
 
-1. Read `state` from config.yaml.
-2. Check that `state.artifacts.stories` is not null (stories have been created).
-3. If `state.artifacts.stories` is null but story files exist, print a warning and continue.
+1. Read `schema_version` from `.sniper/config.yaml`.
+2. If `schema_version` is absent or less than 2, run the v1→v2 migration. Write the updated config before proceeding.
 
-### 0d. Verify Framework Files
+### 0e. Verify Phase State
+
+1. Check that `state.artifacts.stories.status` is not null (stories have been created).
+2. If `state.artifacts.stories.status` is null but story files exist, print a warning and continue.
+
+### 0f. Verify Framework Files
 
 Check that these files exist:
 - `.sniper/teams/sprint.yaml`
@@ -54,12 +72,25 @@ Report any missing files as warnings.
 
 Edit `.sniper/config.yaml`:
 
+**If normal mode (no `--feature` flag):**
 1. Increment `state.current_sprint` by 1 (e.g., 0 -> 1, 1 -> 2).
-2. Set `state.current_phase: sprint`
-3. Store the new sprint number as `{sprint_number}` for use throughout.
-4. Append to `state.phase_history`:
+2. Store the new sprint number as `{sprint_number}` for use throughout.
+3. Append to `state.phase_log`:
    ```yaml
-   - phase: "sprint-{sprint_number}"
+   - phase: sprint
+     context: "sprint-{sprint_number}"
+     started_at: "{current ISO timestamp}"
+     completed_at: null
+     approved_by: null
+   ```
+
+**If feature mode (`--feature SNPR-{XXXX}`):**
+1. Do NOT increment `state.current_sprint`.
+2. Use the feature ID as the sprint identifier.
+3. Append to `state.phase_log`:
+   ```yaml
+   - phase: sprint
+     context: "feature-sprint-SNPR-{XXXX}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -253,6 +284,8 @@ Read each story file and embed it completely.}
 ## Architecture Reference
 Read `docs/architecture.md` for the full system architecture.
 The relevant sections are embedded in each story above.
+{If feature mode: "Also read `docs/features/SNPR-{XXXX}/arch-delta.md` for architecture changes specific to this feature. The delta takes precedence for this feature's scope."}
+{If conventions doc exists: "Also read `docs/conventions.md` for the project's coding patterns and conventions."}
 
 ## Coordination
 {If this teammate has coordination pairs from sprint.yaml, list them:}
@@ -530,15 +563,18 @@ Update state and STOP.
 
 Edit `.sniper/config.yaml`:
 
-1. Update the sprint entry in `state.phase_history`:
+1. Update the sprint entry in `state.phase_log`:
    - Set `completed_at: "{current ISO timestamp}"`
    - Set `approved_by: "human"`
 
 ### Mark Stories Complete
 
-For each story that was implemented and approved, add a completion marker. Either:
+For each story that was implemented and approved, add a completion marker:
 - Add `> **Status:** Complete (Sprint {sprint_number})` to the top of each story file
-- Or track in a separate sprint log if preferred
+
+**If feature mode:** Also update `state.features[]` for this feature:
+- Increment `stories_complete` by the number of completed stories
+- If `stories_complete == stories_total`, the feature is ready for merge-back
 
 ### Shut Down Teammates
 
@@ -548,7 +584,86 @@ Send shutdown requests to each teammate:
 
 ---
 
-## Step 14: Present Results and Next Steps
+## Step 14: Trigger Sprint Retrospective
+
+After the review gate passes, automatically trigger a sprint retrospective if memory is enabled.
+
+### 14-1: Check Memory Configuration
+
+Read `.sniper/config.yaml`:
+- If `memory.enabled` is false or not set, skip retrospective
+- If `memory.auto_retro` is false, skip retrospective but print:
+  ```
+  Sprint retrospective skipped (auto_retro is disabled).
+  To run manually: /sniper-memory --retro
+  ```
+
+### 14-2: Read Retro Team and Compose Agent
+
+1. Read `.sniper/teams/retro.yaml` for the team definition
+2. Parse the teammate entry: `retro-analyst` with compose layers from the YAML
+3. Compose the retro-analyst spawn prompt using `/sniper-compose` with the layers from the team YAML:
+   ```
+   /sniper-compose --process {compose.process} --cognitive {compose.cognitive} --name "Retro Analyst"
+   ```
+
+### 14-3: Run Retrospective
+
+Spawn the retro agent with these context files:
+- All completed story files from this sprint (from `docs/stories/`)
+- The review gate output from Step 12
+- Existing memory files (`.sniper/memory/conventions.yaml`, `.sniper/memory/anti-patterns.yaml`)
+- The code changes from this sprint (git diff summary)
+
+The retro agent should produce: `.sniper/memory/retros/sprint-{N}-retro.yaml`
+
+### 14-4: Auto-Codify Findings
+
+If `memory.auto_codify` is true in config:
+1. Read the retro output
+2. For each finding with `recommendation: codify` AND `confidence: high`:
+   - If it's a convention: append to `.sniper/memory/conventions.yaml` with status `confirmed`
+   - If it's an anti-pattern: append to `.sniper/memory/anti-patterns.yaml` with status `confirmed`
+3. For findings with `confidence: medium`:
+   - Append with status `candidate`
+4. Regenerate `.sniper/memory/summary.md`
+
+### 14-5: Show Retro Summary
+
+Display the retrospective results:
+```
+============================================
+  Sprint {sprint_number} Retrospective
+============================================
+
+  Stories analyzed: {count}
+
+  New Conventions (auto-codified):
+    conv-{XXX}: {rule}
+
+  New Anti-Patterns (auto-codified):
+    ap-{XXX}: {description}
+
+  Candidates (need confirmation):
+    {rule/description}
+
+  Estimation Calibration:
+    Overestimates: {stories}
+    Underestimates: {stories}
+    Pattern: {description}
+
+  Positive Patterns:
+    {pattern}
+
+============================================
+```
+
+Print: `Review auto-codified entries with: /sniper-memory --conventions`
+Print: `Promote candidates with: /sniper-memory --promote {id}`
+
+---
+
+## Step 15: Present Results and Next Steps
 
 ```
 ============================================

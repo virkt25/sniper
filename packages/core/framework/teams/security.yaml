@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────
+# SNIPER Security Audit Team
+# Structured security analysis
+# ─────────────────────────────────────────
+
+# Phase 1 (Analysis) spawns 2 agents in parallel:
+#   - threat-modeler: maps attack surface and models threats via STRIDE
+#   - vuln-scanner: finds application-level vulnerabilities via code analysis
+#
+# Phase 2 (Planning) is run by the lead to generate remediation stories.
+# Phase 3 (Execution) uses the standard sprint infrastructure.
+#
+# This team YAML is used by /sniper-audit --target security.
+
+team_name: sniper-security-audit-{audit_id}
+description: "Security Audit: {audit_title}"
+model_override: null
+
+teammates:
+  - name: threat-modeler
+    compose:
+      process: threat-modeler
+      technical: security
+      cognitive: systems-thinker
+    tasks:
+      - id: threat-modeling
+        name: "Threat Modeling"
+        description: >
+          Map the application's attack surface using STRIDE methodology. Identify
+          trust boundaries, data flows, and potential threat vectors. Produce a
+          structured threat model with risk ratings and recommended mitigations.
+        output: threat-model.md
+        blocked_by: []
+        plan_approval: false
+
+  - name: vuln-scanner
+    compose:
+      process: vuln-scanner
+      technical: security
+      cognitive: devils-advocate
+    tasks:
+      - id: vulnerability-scanning
+        name: "Vulnerability Scanning"
+        description: >
+          Perform application-level vulnerability analysis via code review.
+          Check for OWASP Top 10 issues, insecure dependencies, hardcoded
+          secrets, and missing security controls. Produce a vulnerability
+          report with severity ratings and remediation guidance.
+        output: vulnerability-report.md
+        blocked_by: []
+        plan_approval: false
+
+# Phase 3 (Execution) reuses sprint teammates from sprint.yaml
+
+coordination: []
+
+review_gate:
+  checklist: .sniper/checklists/security-review.md
+  mode: flexible

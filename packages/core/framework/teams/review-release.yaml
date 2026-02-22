@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────
+# SNIPER Release Readiness Team
+# Multi-perspective release assessment
+# ─────────────────────────────────────────
+
+team_name: sniper-review-release-{version}
+description: "Release readiness assessment for {version}"
+model_override: null
+
+teammates:
+  - name: release-manager
+    compose:
+      process: release-manager
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: changelog
+        name: "Changelog & Version Recommendation"
+        output: docs/releases/{version}-readiness.md (changelog and version sections)
+        description: >
+          Read the git log since the last release. Categorize all changes as features,
+          fixes, breaking changes, internal, or docs. Determine the correct semver
+          version bump. Produce a clear, user-facing changelog.
+        reads:
+          - "git log"
+          - "package.json"
+        blocked_by: []
+
+  - name: breaking-change-analyst
+    compose:
+      process: code-reviewer
+      technical: null
+      cognitive: devils-advocate
+    tasks:
+      - id: breaking-changes
+        name: "Breaking Change Analysis"
+        output: docs/releases/{version}-readiness.md (breaking changes and migration sections)
+        description: >
+          Analyze all changes since the last release for breaking changes: API changes,
+          schema changes, configuration changes, behavior changes. For each breaking
+          change, write a migration step. Err on the side of flagging as breaking.
+        reads:
+          - "git diff"
+          - "docs/architecture.md"
+        blocked_by: []
+
+  - name: doc-reviewer
+    compose:
+      process: doc-writer
+      technical: null
+      cognitive: user-empathetic
+    tasks:
+      - id: doc-review
+        name: "Documentation Status"
+        output: docs/releases/{version}-readiness.md (documentation section)
+        description: >
+          Check if documentation is up to date with the changes in this release.
+          Compare changed source files with their corresponding documentation.
+          Flag any docs that need updating before release.
+        reads:
+          - "git log"
+          - "docs/"
+          - "README.md"
+        blocked_by: []
+
+coordination: []  # all reviewers work in parallel
+
+review_gate:
+  checklist: null  # release reviews produce a report, not a gate
+  mode: auto

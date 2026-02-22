@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────
+# SNIPER PR Review Team
+# Multi-perspective pull request review
+# ─────────────────────────────────────────
+
+team_name: sniper-review-pr-{pr_number}
+description: "PR review for #{pr_number}"
+model_override: null
+
+teammates:
+  - name: code-reviewer
+    compose:
+      process: code-reviewer
+      technical: null
+      cognitive: devils-advocate
+    tasks:
+      - id: code-review
+        name: "Code Quality Review"
+        output: docs/reviews/PR-{pr_number}-review.md (code quality section)
+        description: >
+          Review the PR diff for code quality: logic errors, naming clarity,
+          pattern adherence, error handling, complexity, DRY violations, and
+          architecture compliance. Reference docs/conventions.md for project
+          patterns. Each finding must include severity, file:line, description,
+          and suggested fix.
+        reads:
+          - "PR diff"
+          - "docs/conventions.md"
+          - "docs/architecture.md"
+        blocked_by: []
+
+  - name: security-reviewer
+    compose:
+      process: code-reviewer
+      technical: null
+      cognitive: security-first
+    tasks:
+      - id: security-review
+        name: "Security Review"
+        output: docs/reviews/PR-{pr_number}-review.md (security section)
+        description: >
+          Review the PR diff for security issues: OWASP top 10, input validation,
+          authentication checks, authorization checks, secrets handling, SQL injection,
+          XSS, CSRF, insecure dependencies. Each finding must include severity,
+          file:line, description, and suggested fix.
+        reads:
+          - "PR diff"
+          - "docs/security.md"
+        blocked_by: []
+
+  - name: test-reviewer
+    compose:
+      process: qa-engineer
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: test-review
+        name: "Test Coverage Review"
+        output: docs/reviews/PR-{pr_number}-review.md (test coverage section)
+        description: >
+          Review the PR for test quality and coverage: missing tests for new code
+          paths, uncovered edge cases, test naming, mock patterns, assertion quality.
+          Each finding must include severity and suggested test additions.
+        reads:
+          - "PR diff"
+          - "docs/conventions.md"
+        blocked_by: []
+
+coordination: []  # all reviewers work in parallel
+
+review_gate:
+  checklist: null  # reviews don't have their own review gate
+  mode: auto

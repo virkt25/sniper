@@ -37,10 +37,16 @@ Extract from config.yaml:
 ## Step 2: Read Lifecycle State
 
 Extract from config.yaml:
-- `state.current_phase`
-- `state.phase_history` (array of completed phases)
+- `state.phase_log` (array of phase entries with context, started_at, completed_at)
 - `state.current_sprint`
-- `state.artifacts` (status of each artifact)
+- `state.artifacts` (status and version of each artifact)
+- `state.features` (array of feature lifecycle entries, if any)
+- `state.bugs` (array of bug tracking entries, if any)
+- `state.refactors` (array of refactor tracking entries, if any)
+- `state.reviews` (array of review entries, if any)
+- `state.test_audits` (array of test audit entries, if any)
+- `state.security_audits` (array of security audit entries, if any)
+- `state.perf_audits` (array of performance audit entries, if any)
 
 ---
 
@@ -57,8 +63,9 @@ For each artifact, check whether the actual file exists on disk and has content.
 | Security      | `security`       | `docs/security.md`                  |
 | Epics         | `epics`          | `docs/epics/*.md`                   |
 | Stories       | `stories`        | `docs/stories/*.md`                 |
-| Risks         | (not in config)  | `docs/risks.md`                     |
-| Personas      | (not in config)  | `docs/personas.md`                  |
+| Risks         | `risks`          | `docs/risks.md`                     |
+| Personas      | `personas`       | `docs/personas.md`                  |
+| Conventions   | `conventions`    | `docs/conventions.md`               |
 
 For epics and stories, count the number of `.md` files in the directory.
 
@@ -132,50 +139,59 @@ Print the following formatted report. Use the actual values from the steps above
   Lifecycle Phase
 --------------------------------------------
 
-  Current Phase:  {phase or "NOT STARTED"}
+  Current Phase:  {active phase from phase_log or "NOT STARTED"}
   Sprint:         {current_sprint or "N/A"}
   Progress:       {estimated_progress}
 
-  Phase Progression:
-    [x] discover  {completed_date or "-- pending"}     {gate_mode}
-    [x] plan      {completed_date or "-- pending"}     {gate_mode}
-    [ ] solve     {status}                              {gate_mode}
-    [ ] sprint    {status}                              {gate_mode}
+  Phase Log (most recent first):
+  {For each entry in phase_log, most recent first:}
+    {[x] if completed, [>] if active}  {phase}  ({context})  {started_at} - {completed_at or "in progress"}
 
-  Use [x] for completed phases, [>] for the active phase, [ ] for pending phases.
+  {If phase_log is empty:}
+    No phases started yet.
+
+  Standard Phase Progression:
+    [ ] ingest    -- Ingest existing codebase (optional, for existing projects)
+    [ ] discover  -- Discovery & Analysis
+    [ ] plan      -- Planning & Architecture
+    [ ] solve     -- Epic Sharding & Story Creation
+    [ ] sprint    -- Implementation Sprint
+
+  Use [x] for completed phases, [>] for the active phase, [ ] for not yet run.
+  Note: Phases can be run multiple times. The phase log shows all executions.
 
 --------------------------------------------
-  Phase History
+  Phase History (from phase_log)
 --------------------------------------------
 
-  {For each entry in phase_history:}
-  Phase: {phase}
-    Started:    {started_at}
-    Completed:  {completed_at}
-    Approved by: {approved_by}
-    Gate mode:  {gate_mode}
-    Results:    {pass_count} pass, {warn_count} warn, {fail_count} fail
+  {For each entry in phase_log:}
+  Phase: {phase}  Context: {context}
+    Started:     {started_at}
+    Completed:   {completed_at or "in progress"}
+    Approved by: {approved_by or "pending"}
 
-  {If phase_history is empty:}
-  No phases completed yet.
+  {If phase_log is empty:}
+  No phases started yet.
 
 --------------------------------------------
   Artifacts
 --------------------------------------------
 
-  | Artifact       | Config Status | On Disk        | Path                     |
-  |---------------|---------------|----------------|--------------------------|
-  | Brief          | {status}      | {disk_status}  | docs/brief.md            |
-  | Risks          | --            | {disk_status}  | docs/risks.md            |
-  | Personas       | --            | {disk_status}  | docs/personas.md         |
-  | PRD            | {status}      | {disk_status}  | docs/prd.md              |
-  | Architecture   | {status}      | {disk_status}  | docs/architecture.md     |
-  | UX Spec        | {status}      | {disk_status}  | docs/ux-spec.md          |
-  | Security       | {status}      | {disk_status}  | docs/security.md         |
-  | Epics          | {status}      | {count} files  | docs/epics/              |
-  | Stories        | {status}      | {count} files  | docs/stories/            |
+  | Artifact       | Status | Version | On Disk        | Path                     |
+  |---------------|--------|---------|----------------|--------------------------|
+  | Brief          | {s}    | v{n}    | {disk_status}  | docs/brief.md            |
+  | Risks          | {s}    | v{n}    | {disk_status}  | docs/risks.md            |
+  | Personas       | {s}    | v{n}    | {disk_status}  | docs/personas.md         |
+  | PRD            | {s}    | v{n}    | {disk_status}  | docs/prd.md              |
+  | Architecture   | {s}    | v{n}    | {disk_status}  | docs/architecture.md     |
+  | UX Spec        | {s}    | v{n}    | {disk_status}  | docs/ux-spec.md          |
+  | Security       | {s}    | v{n}    | {disk_status}  | docs/security.md         |
+  | Conventions    | {s}    | v{n}    | {disk_status}  | docs/conventions.md      |
+  | Epics          | {s}    | v{n}    | {count} files  | docs/epics/              |
+  | Stories        | {s}    | v{n}    | {count} files  | docs/stories/            |
 
-  For "Config Status" show: null, draft, approved
+  For "Status" show: null, draft, approved (from state.artifacts.{key}.status)
+  For "Version" show: v0 if never produced, v1+, from state.artifacts.{key}.version
   For "On Disk" show: missing, empty, has content, {N} files
 
 --------------------------------------------
@@ -197,11 +213,165 @@ Print the following formatted report. Use the actual values from the steps above
   No active sprint.
 
 --------------------------------------------
+  Features
+--------------------------------------------
+
+  {If state.features has entries:}
+
+  Active Features:
+  | ID | Feature | Phase | Progress |
+  |----|---------|-------|----------|
+  | SNPR-{XXXX} | {title} | {phase} | {stories_complete}/{stories_total} stories |
+  | ... | ... | ... | ... |
+
+  Completed Features:
+  | ID | Feature | Completed | Stories |
+  |----|---------|-----------|---------|
+  | SNPR-{XXXX} | {title} | {completed_at} | {stories_total} |
+  | ... | ... | ... | ... |
+
+  Total: {active count} active, {completed count} completed
+
+  {If state.features is empty:}
+  No features started. Run /sniper-feature to add an incremental feature.
+
+--------------------------------------------
+  Bugs
+--------------------------------------------
+
+  {If state.bugs has entries:}
+
+  Active Bugs:
+  | ID | Bug | Severity | Status |
+  |----|-----|----------|--------|
+  | BUG-{NNN} | {title} | {severity} | {status} |
+
+  Resolved Bugs:
+  | ID | Bug | Severity | Resolved | Root Cause |
+  |----|-----|----------|----------|------------|
+  | BUG-{NNN} | {title} | {severity} | {resolved_at} | {root_cause} |
+
+  {If state.bugs is empty:}
+  No bugs tracked. Run /sniper-debug to investigate a bug.
+
+--------------------------------------------
+  Refactors
+--------------------------------------------
+
+  {If state.refactors has entries:}
+
+  Active Refactors:
+  | ID | Refactor | Status | Progress |
+  |----|----------|--------|----------|
+  | REF-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Refactors:
+  | ID | Refactor | Completed |
+  |----|----------|-----------|
+  | REF-{NNN} | {title} | {completed_at} |
+
+  {If state.refactors is empty:}
+  No refactors tracked. Run /sniper-audit --target refactor to start one.
+
+--------------------------------------------
+  Reviews
+--------------------------------------------
+
+  {If state.reviews has entries:}
+
+  Recent Reviews:
+  | ID | Type | Target | Recommendation | Date |
+  |----|------|--------|---------------|------|
+  | {id} | {pr/release} | {target} | {recommendation} | {created_at} |
+
+  {If state.reviews is empty:}
+  No reviews tracked. Run /sniper-audit --target review to review a PR or release.
+
+--------------------------------------------
+  Test Audits
+--------------------------------------------
+
+  {If state.test_audits has entries:}
+
+  Active Test Audits:
+  | ID | Audit | Status | Progress |
+  |----|-------|--------|----------|
+  | TST-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Test Audits:
+  | ID | Audit | Completed | Stories |
+  |----|-------|-----------|---------|
+  | TST-{NNN} | {title} | {completed_at} | {stories_total} |
+
+  {If state.test_audits is empty:}
+  No test audits tracked. Run /sniper-audit --target tests to analyze test quality.
+
+--------------------------------------------
+  Security Audits
+--------------------------------------------
+
+  {If state.security_audits has entries:}
+
+  Active Security Audits:
+  | ID | Audit | Status | Findings | Progress |
+  |----|-------|--------|----------|----------|
+  | SEC-{NNN} | {title} | {status} | {critical}C {high}H {medium}M {low}L | {stories_complete}/{stories_total} stories |
+
+  Completed Security Audits:
+  | ID | Audit | Completed | Findings | Stories |
+  |----|-------|-----------|----------|---------|
+  | SEC-{NNN} | {title} | {completed_at} | {critical}C {high}H | {stories_total} |
+
+  {If state.security_audits is empty:}
+  No security audits tracked. Run /sniper-audit --target security to audit security.
+
+--------------------------------------------
+  Performance Audits
+--------------------------------------------
+
+  {If state.perf_audits has entries:}
+
+  Active Performance Audits:
+  | ID | Audit | Status | Progress |
+  |----|-------|--------|----------|
+  | PERF-{NNN} | {title} | {status} | {stories_complete}/{stories_total} stories |
+
+  Completed Performance Audits:
+  | ID | Audit | Completed | Stories |
+  |----|-------|-----------|---------|
+  | PERF-{NNN} | {title} | {completed_at} | {stories_total} |
+
+  {If state.perf_audits is empty:}
+  No performance audits tracked. Run /sniper-audit --target performance to profile performance.
+
+--------------------------------------------
+  Memory
+--------------------------------------------
+
+  {If .sniper/memory/ directory exists:}
+
+  Memory:
+    Conventions:    {N} confirmed, {M} candidates
+    Anti-Patterns:  {N} confirmed, {M} candidates
+    Decisions:      {N} active, {M} superseded
+    Retrospectives: {N} (latest: Sprint {X}, {date})
+
+  {If .sniper/memory/ does not exist:}
+  Memory: not initialized (run /sniper-memory to set up)
+
+  {If workspace memory is configured:}
+  Workspace Memory:
+    Conventions:    {N}
+    Anti-Patterns:  {N}
+    Decisions:      {N}
+
+--------------------------------------------
   Review Gates
 --------------------------------------------
 
   | Gate             | Mode       | Status                    |
   |-----------------|------------|---------------------------|
+  | after_ingest     | {mode}     | {passed/pending/N/A}      |
   | after_discover   | {mode}     | {passed/pending/N/A}      |
   | after_plan       | {mode}     | {passed/pending/N/A}      |
   | after_solve      | {mode}     | {passed/pending/N/A}      |
@@ -232,7 +402,16 @@ Print the following formatted report. Use the actual values from the steps above
   {Generate contextual next-step suggestions based on current state:}
 
   {If not started:}
+  -> Run /sniper-ingest to bootstrap artifacts from an existing codebase
+  -> Run /sniper-discover to begin Phase 1: Discovery & Analysis (for new projects)
+
+  {If in ingest phase:}
+  -> Ingestion is in progress. When complete, run /sniper-review to evaluate artifacts.
+
+  {If ingest complete:}
+  -> Run /sniper-feature to add incremental features using ingested artifacts
   -> Run /sniper-discover to begin Phase 1: Discovery & Analysis
+  -> Run /sniper-audit to audit the codebase
 
   {If in discover phase:}
   -> Discovery is in progress. When complete, run /sniper-review to evaluate artifacts.
@@ -256,6 +435,32 @@ Print the following formatted report. Use the actual values from the steps above
   {If in sprint phase:}
   -> Sprint #{N} is in progress. {completed}/{total} stories complete.
   -> When all sprint stories are done, run /sniper-review to evaluate the sprint.
+
+  {If there are active bugs:}
+  -> {count} active bug(s). Run /sniper-debug --list to see details.
+
+  {If there are active refactors:}
+  -> {count} active refactor(s). Run /sniper-audit --target refactor --list to see details.
+
+  {If there are active features:}
+  -> {count} active feature(s). Run /sniper-feature --list to see details.
+
+  {If there are active test audits:}
+  -> {count} active test audit(s). Run /sniper-audit --target tests --list to see details.
+
+  {If there are active security audits:}
+  -> {count} active security audit(s). Run /sniper-audit --target security --list to see details.
+
+  {If there are active performance audits:}
+  -> {count} active performance audit(s). Run /sniper-audit --target performance --list to see details.
+
+  {Always show these as available commands:}
+  -> Run /sniper-debug to investigate a production bug
+  -> Run /sniper-audit --target review --pr {N} to review a pull request
+  -> Run /sniper-audit --target refactor to plan a large refactoring
+  -> Run /sniper-audit --target tests to analyze test quality
+  -> Run /sniper-audit --target security to audit security
+  -> Run /sniper-audit --target performance to profile performance
 
   {If there are out-of-sync artifacts:}
   -> WARNING: Some artifacts are out of sync between config and disk. Review the artifacts table above.

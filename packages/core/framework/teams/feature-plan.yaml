@@ -1,0 +1,61 @@
+# ─────────────────────────────────────────
+# SNIPER Feature Planning Team
+# Produces Feature Spec + Architecture Delta for an incremental feature
+# ─────────────────────────────────────────
+
+team_name: sniper-feature-plan-{feature_id}
+description: "Feature planning for {feature_title}"
+model_override: opus  # use Opus for architecture decisions
+
+teammates:
+  - name: feature-pm
+    compose:
+      process: product-manager
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: feature-spec
+        name: "Feature Requirements Spec"
+        output: docs/features/{feature_id}/spec.md
+        template: .sniper/templates/feature-spec.md
+        description: >
+          Read the feature brief and produce a Feature Spec with functional requirements,
+          non-functional requirements, user stories, API changes, data model changes,
+          UI changes, and rollout strategy. Reference the existing architecture doc to
+          understand the current system context.
+        reads:
+          - "docs/features/{feature_id}/brief.md"
+          - "docs/architecture.md"
+          - "docs/conventions.md"
+        blocked_by: []
+
+  - name: feature-architect
+    compose:
+      process: architect
+      technical: backend
+      cognitive: systems-thinker
+    tasks:
+      - id: arch-delta
+        name: "Architecture Delta"
+        output: docs/features/{feature_id}/arch-delta.md
+        template: .sniper/templates/arch-delta.md
+        description: >
+          Read the feature spec and produce an Architecture Delta documenting what changes
+          to the system architecture this feature requires. Include new components, modified
+          components, new data models, new/modified API endpoints, infrastructure changes,
+          and patterns to follow from existing conventions. The delta will later be merged
+          back into the main architecture doc.
+        reads:
+          - "docs/features/{feature_id}/spec.md"
+          - "docs/architecture.md"
+          - "docs/conventions.md"
+        blocked_by: [feature-spec]
+        plan_approval: true
+
+coordination:
+  - between: [feature-pm, feature-architect]
+    topic: "Feature spec review — architect waits for PM's spec before starting architecture delta"
+
+review_gate:
+  checklist: .sniper/checklists/feature-review.md
+  mode: flexible

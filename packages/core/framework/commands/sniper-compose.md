@@ -85,12 +85,16 @@ For each specified layer, read the corresponding file. Track which layers were f
 ### 2a: Process Layer (required)
 Read: `.sniper/personas/process/{process_name}.md`
 
-If the file does not exist, print an error listing available process layers:
+If the file does not exist, check pack personas: `.sniper/packs/*/personas/process/{process_name}.md`
+
+If found in a pack, use that file. If a pack persona has the same name as a framework persona, append the pack content after the framework content (pack extends framework).
+
+If not found anywhere, print an error listing available process layers:
 ```
 ERROR: Process persona '{process_name}' not found.
 Available process layers:
 ```
-Then list all `.md` files in `.sniper/personas/process/` (without the extension). Then STOP.
+Then list all `.md` files in `.sniper/personas/process/` AND `.sniper/packs/*/personas/process/` (without the extension). Then STOP.
 
 ### 2b: Technical Layer (optional)
 If `--technical` was provided, read: `.sniper/personas/technical/{technical_name}.md`
@@ -170,9 +174,91 @@ Take the template content from Step 1 and perform these replacements:
 | `{technical_layer}`| Full content of the technical persona file (or default text) |
 | `{cognitive_layer}`| Full content of the cognitive persona file (or default text) |
 | `{domain_layer}`  | Full content of the domain context file (or default text) |
+| `{memory_layer}`  | Memory layer content from Step 4b (or default text) |
 | `{ownership}`     | Formatted ownership directories from Step 3   |
 
 The merged result is the complete spawn prompt.
+
+---
+
+## Step 4b: Read Memory Layer
+
+Read the project memory to inject relevant conventions, anti-patterns, and decisions into the spawn prompt.
+
+### 4b-1: Check for Memory Files
+
+Check if these files exist:
+- `.sniper/memory/conventions.yaml`
+- `.sniper/memory/anti-patterns.yaml`
+- `.sniper/memory/decisions.yaml`
+
+If none exist, set the memory layer content to:
+```
+No project memory available. This is either a new project or memory has not been initialized.
+```
+Skip to Step 5.
+
+### 4b-2: Check for Workspace Memory
+
+Read `.sniper/config.yaml` and check if `workspace.enabled` is true and `workspace.workspace_path` is set.
+
+If workspace memory exists, also read:
+- `{workspace_path}/memory/conventions.yaml`
+- `{workspace_path}/memory/anti-patterns.yaml`
+- `{workspace_path}/memory/decisions.yaml`
+
+### 4b-3: Filter by Role
+
+Determine the target agent's role from the `--process` flag value. Map process personas to agent roles:
+- `developer` -> includes backend-engineer, frontend-engineer (based on `--technical`)
+- `architect` -> includes architect
+- `analyst` -> includes analyst
+- `qa-engineer` -> includes qa-engineer
+- `retro-analyst` -> includes retro-analyst
+
+Filter all memory entries where `applies_to` includes the mapped role(s).
+
+### 4b-4: Format Memory Layer
+
+Format the filtered entries as a readable markdown section:
+
+```markdown
+## Project Memory — Conventions You Must Follow
+
+- **conv-001:** {rule}
+  Example: {positive_example}
+  NOT: {negative_example}
+
+## Anti-Patterns — Do NOT Do These
+
+- **ap-001 ({severity}):** {description}. Instead: {fix_pattern}
+
+## Key Decisions
+
+- **dec-001:** {title} — {decision}
+```
+
+If workspace conventions exist, label them with `[WORKSPACE]`:
+```markdown
+- **conv-005 [WORKSPACE]:** {rule}
+```
+
+### 4b-5: Apply Token Budget
+
+Read `memory.token_budget` from config (default: 2000).
+
+If the formatted memory layer exceeds the token budget, truncate by priority:
+1. High-severity anti-patterns (always include)
+2. Conventions with `enforcement: both` or `enforcement: review_gate`
+3. Active decisions
+4. Medium-severity anti-patterns
+5. Conventions with `enforcement: spawn_prompt` only
+6. Low-severity anti-patterns
+
+Add a note at the end if truncated:
+```
+Note: Memory layer truncated to fit token budget. Full memory available at .sniper/memory/
+```
 
 ---
 

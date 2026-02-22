@@ -25,6 +25,7 @@ stack:
 # auto    = no gate (not recommended for architecture/implementation)
 
 review_gates:
+  after_ingest: flexible           # Low risk — reverse-engineered artifacts, auto-advance
   after_discover: flexible         # Low risk — auto-advance
   after_plan: strict               # HIGH RISK — bad architecture cascades
   after_solve: flexible            # Low risk — stories can be refined later
@@ -61,6 +62,25 @@ documentation:
     - architecture
     - api
   exclude: []                      # Doc types to skip
+
+# ─────────────────────────────────────────
+# Agent Memory & Learning
+# ─────────────────────────────────────────
+
+memory:
+  enabled: true                    # Enable memory system
+  auto_retro: true                 # Auto-run retrospective after sprint completion
+  auto_codify: true                # Auto-codify high-confidence retro findings into memory
+  token_budget: 2000               # Max tokens for memory layer in spawn prompts
+
+# ─────────────────────────────────────────
+# Workspace (Multi-Project Orchestration)
+# ─────────────────────────────────────────
+
+workspace:
+  enabled: false                   # Set true when this repo is part of a workspace
+  workspace_path: null             # Relative path to sniper-workspace/ directory
+  repo_name: null                  # This repo's name in the workspace
 
 # ─────────────────────────────────────────
 # File Ownership Rules
@@ -103,15 +123,74 @@ ownership:
 # Lifecycle State (managed by SNIPER, don't edit manually)
 # ─────────────────────────────────────────
 
+schema_version: 2
+
 state:
-  current_phase: null              # discover | plan | solve | sprint
-  phase_history: []                # [{phase, started_at, completed_at, approved_by}]
+  # Phase log — tracks all phase runs with context
+  # Valid phases: discover | plan | solve | sprint | ingest
+  phase_log: []                    # [{phase, context, started_at, completed_at, approved_by}]
   current_sprint: 0
+
+  # Artifact tracking — object format with version
   artifacts:
-    brief: null                    # null | draft | approved
-    prd: null
-    architecture: null
-    ux_spec: null
-    security: null
-    epics: null
-    stories: null
+    brief:
+      status: null                 # null | draft | approved
+      version: 0
+    risks:
+      status: null
+      version: 0
+    personas:
+      status: null
+      version: 0
+    prd:
+      status: null
+      version: 0
+    architecture:
+      status: null
+      version: 0
+    ux_spec:
+      status: null
+      version: 0
+    security:
+      status: null
+      version: 0
+    conventions:
+      status: null
+      version: 0
+    epics:
+      status: null
+      version: 0
+    stories:
+      status: null
+      version: 0
+
+  # Feature tracking
+  feature_counter: 1               # next SNPR-{XXXX} ID to assign
+  features: []                     # [{id, slug, title, phase, created_at, completed_at, arch_base_version, stories_total, stories_complete}]
+
+  # Bug tracking
+  bug_counter: 1                   # next BUG-{NNN} ID to assign
+  bugs: []                         # [{id, title, severity, status, created_at, resolved_at, root_cause, fix_stories}]
+
+  # Refactor tracking
+  refactor_counter: 1              # next REF-{NNN} ID to assign
+  refactors: []                    # [{id, title, status, created_at, completed_at, scope_dirs, stories_total, stories_complete}]
+
+  # Review tracking
+  reviews: []                      # [{id, type, target, recommendation, created_at}]
+
+  # Test audit tracking
+  test_audit_counter: 1            # next TST-{NNN} ID to assign
+  test_audits: []                  # [{id, title, status, created_at, completed_at, scope_dirs, focus, stories_total, stories_complete}]
+
+  # Security audit tracking
+  security_audit_counter: 1        # next SEC-{NNN} ID to assign
+  security_audits: []              # [{id, title, status, created_at, completed_at, scope_dirs, focus, findings_critical, findings_high, findings_medium, findings_low, stories_total, stories_complete}]
+
+  # Performance audit tracking
+  perf_audit_counter: 1            # next PERF-{NNN} ID to assign
+  perf_audits: []                  # [{id, title, status, created_at, completed_at, scope_dirs, focus, stories_total, stories_complete}]
+
+  # Memory tracking
+  retro_counter: 0                 # Number of retrospectives run
+  last_retro_sprint: 0             # Last sprint that had a retrospective

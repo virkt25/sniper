@@ -222,14 +222,30 @@ For any MISSING files, report them to the user as warnings. These are framework 
 
 ---
 
-## Step 5: Install Domain Pack (if specified)
+## Step 5: Install Domain Pack(s) (if specified)
 
-If the user chose a domain pack:
+If the user chose one or more domain packs:
+
+For each domain pack:
 
 1. Check that `.sniper/domain-packs/{pack-name}/` exists
-2. Check for a `context/` subdirectory with `.md` files
-3. If contexts exist, copy/link them into `.sniper/personas/domain/`
-4. Report what domain context files were installed
+2. Check for `pack.yaml` manifest in the pack directory
+3. **If `pack.yaml` exists (v2 pack):**
+   a. Read the manifest to discover all content types
+   b. Copy knowledge files to `.sniper/packs/{pack-name}/knowledge/`
+   c. Copy personas to `.sniper/packs/{pack-name}/personas/`
+   d. Copy checklists to `.sniper/packs/{pack-name}/checklists/`
+   e. Copy templates to `.sniper/packs/{pack-name}/templates/`
+   f. Copy workflows to `.sniper/packs/{pack-name}/workflows/` (if any)
+   g. Apply `config_defaults` from the manifest (warn on conflicts with user choices)
+   h. Check `conflicts_with` against other loaded packs (warn if conflicts found)
+   i. Report all installed content with counts
+4. **If `pack.yaml` does not exist (legacy pack):**
+   a. Check for a `context/` subdirectory with `.md` files
+   b. If contexts exist, copy/link them into `.sniper/packs/{pack-name}/knowledge/`
+   c. Report what domain context files were installed
+
+**Config migration:** If `domain_pack` is a string (legacy format), auto-convert to `domain_packs: [{name: "{value}"}]` array format.
 
 If no domain pack was chosen, skip this step.
 

@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────
+# SNIPER Test & Coverage Audit Team
+# Structured test quality analysis
+# ─────────────────────────────────────────
+
+# Phase 1 (Analysis) spawns 2 agents in parallel:
+#   - coverage-analyst: identifies coverage gaps ranked by risk
+#   - flake-hunter: investigates flaky tests and diagnoses root causes
+#
+# Phase 2 (Planning) is run by the lead to generate improvement stories.
+# Phase 3 (Execution) uses the standard sprint infrastructure.
+#
+# This team YAML is used by /sniper-audit --target tests.
+
+team_name: sniper-test-audit-{audit_id}
+description: "Test & Coverage Audit: {audit_title}"
+model_override: null
+
+teammates:
+  - name: coverage-analyst
+    compose:
+      process: coverage-analyst
+      technical: null
+      cognitive: systems-thinker
+    tasks:
+      - id: coverage-analysis
+        name: "Coverage Gap Analysis"
+        description: >
+          Analyze test coverage across the codebase. Identify untested code paths,
+          rank coverage gaps by risk (business-critical paths first), and produce
+          a coverage report with prioritized recommendations for new tests.
+        output: coverage-report.md
+        blocked_by: []
+        plan_approval: false
+
+  - name: flake-hunter
+    compose:
+      process: flake-hunter
+      technical: null
+      cognitive: devils-advocate
+    tasks:
+      - id: flake-investigation
+        name: "Flaky Test Investigation"
+        description: >
+          Investigate flaky tests in the test suite. Identify tests with
+          non-deterministic behavior, diagnose root causes (timing, shared state,
+          external dependencies), and produce a report with specific fixes for
+          each flaky test.
+        output: flaky-report.md
+        blocked_by: []
+        plan_approval: false
+
+# Phase 3 (Execution) reuses sprint teammates from sprint.yaml
+
+coordination: []
+
+review_gate:
+  checklist: .sniper/checklists/test-review.md
+  mode: flexible

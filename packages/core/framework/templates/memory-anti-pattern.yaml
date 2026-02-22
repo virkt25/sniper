@@ -1,0 +1,16 @@
+# Anti-Pattern Entry Template
+# Add to: .sniper/memory/anti-patterns.yaml
+
+# - id: ap-XXX                     # Auto-assigned sequential ID
+#   description: ""                 # What the anti-pattern is
+#   why_bad: ""                     # Why it's problematic
+#   fix_pattern: ""                 # What to do instead
+#   source:
+#     type: review_gate | retro | manual | imported
+#     ref: ""                       # Source reference
+#     story: ""                     # Story where it was found (optional)
+#     date: ""                      # ISO 8601 date
+#   detection_hint: ""              # Grep/search pattern to detect this
+#   applies_to: []                  # Agent roles
+#   severity: high | medium | low
+#   status: confirmed | candidate

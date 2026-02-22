@@ -34,6 +34,17 @@ export interface SniperConfig {
     coordination_timeout: number;
   };
   domain_packs: Array<{ name: string; package: string }>;
+  memory?: {
+    enabled: boolean;
+    auto_retro: boolean;
+    auto_codify: boolean;
+    token_budget: number;
+  };
+  workspace?: {
+    enabled: boolean;
+    workspace_path: string | null;
+    repo_name: string | null;
+  };
   ownership: Record<string, string[]>;
   state: {
     current_phase: string | null;
@@ -44,7 +55,9 @@ export interface SniperConfig {
       approved_by?: string;
     }>;
     current_sprint: number;
-    artifacts: Record<string, string | null>;
+    artifacts: Record<string, { status: string | null; version: number } | string | null>;
+    retro_counter?: number;
+    last_retro_sprint?: number;
   };
 }
 

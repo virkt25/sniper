@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────
+# SNIPER Performance Audit Team
+# Structured performance analysis
+# ─────────────────────────────────────────
+
+# Phase 1 (Profiling) is run by the lead directly as a single-agent phase.
+# Unlike tests and security which use 2-agent teams, performance analysis
+# is more sequential — the optimization plan depends on a coherent profiling
+# analysis, so a single profiler keeps the analysis consistent.
+#
+# Phase 2 (Optimization Planning) is run by the lead directly.
+# Phase 3 (Execution) uses the standard sprint infrastructure.
+#
+# This team YAML is used by /sniper-audit --target performance.
+
+team_name: sniper-perf-audit-{audit_id}
+description: "Performance Audit: {audit_title}"
+model_override: null
+
+# Personas used by the single-agent phases:
+personas:
+  profiling:
+    process: perf-profiler
+    technical: backend
+    cognitive: systems-thinker
+
+# Phase 3 (Execution) reuses sprint teammates from sprint.yaml
+
+coordination: []
+
+review_gate:
+  checklist: .sniper/checklists/perf-review.md
+  mode: flexible

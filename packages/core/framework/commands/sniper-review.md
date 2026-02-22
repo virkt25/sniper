@@ -7,16 +7,17 @@ You are executing the `/sniper-review` command. Your job is to evaluate the curr
 ## Step 0: Pre-Flight -- Determine Current Phase
 
 1. Read `.sniper/config.yaml`
-2. Extract `state.current_phase`
-3. If `current_phase` is `null`:
+2. Determine the current active phase: find the last entry in `state.phase_log` where `completed_at` is null.
+3. If no active phase (all completed or empty log):
    ```
-   ERROR: No active phase. The SNIPER lifecycle has not been started.
+   ERROR: No active phase. The SNIPER lifecycle has not been started or all phases are complete.
 
    Current state:
      Phase:   not started
      Sprint:  0
 
    To begin, run one of these phase commands:
+     /sniper-ingest    -- Ingest an existing codebase
      /sniper-discover  -- Start Phase 1: Discovery & Analysis
      /sniper-plan      -- Start Phase 2: Planning & Architecture
      /sniper-solve     -- Start Phase 3: Epic Sharding & Story Creation
@@ -24,7 +25,7 @@ You are executing the `/sniper-review` command. Your job is to evaluate the curr
    ```
    Then STOP.
 
-4. Store the current phase name. It must be one of: `discover`, `plan`, `solve`, `sprint`
+4. Store the current phase name. It must be one of: `ingest`, `discover`, `plan`, `solve`, `sprint`
 
 ---
 
@@ -34,6 +35,7 @@ Use this mapping to determine which checklist to load and what gate mode to enfo
 
 | Phase      | Checklist File                            | Config Gate Key       |
 |-----------|-------------------------------------------|-----------------------|
+| `ingest`   | `.sniper/checklists/ingest-review.md`     | `review_gates.after_ingest`  |
 | `discover` | `.sniper/checklists/discover-review.md`   | `review_gates.after_discover` |
 | `plan`     | `.sniper/checklists/plan-review.md`       | `review_gates.after_plan`     |
 | `solve`    | `.sniper/checklists/story-review.md`      | `review_gates.after_solve`    |
@@ -41,6 +43,7 @@ Use this mapping to determine which checklist to load and what gate mode to enfo
 
 1. Read the gate mode from `config.yaml` using the appropriate key
 2. Read the checklist file
+3. Check for domain pack checklists: scan `.sniper/packs/*/checklists/` for any `.md` files. If found, these will be evaluated as additional checklist items after the framework checklist (Step 3b).
 
 If the checklist file does not exist:
 ```
@@ -54,6 +57,13 @@ Then STOP.
 ## Step 2: Identify Artifacts to Review
 
 Based on the current phase, identify which artifact files need to be reviewed:
+
+### Phase: ingest
+| Artifact             | Expected Path            |
+|---------------------|-------------------------|
+| Project Brief        | `docs/brief.md`          |
+| System Architecture  | `docs/architecture.md`   |
+| Coding Conventions   | `docs/conventions.md`    |
 
 ### Phase: discover
 | Artifact             | Expected Path        |
@@ -135,6 +145,72 @@ Be thorough but fair:
 - Do NOT fail items just because they could be better -- that is a WARN
 - Do NOT pass items that only have placeholder text (template markers like `<!-- -->` or `TODO`)
 - For cross-document consistency checks, read ALL referenced documents and compare
+
+---
+
+## Step 3c: Memory Compliance Checks
+
+After evaluating the phase checklist, check project memory for compliance if memory files exist.
+
+### 3c-1: Load Memory
+
+Check if `.sniper/memory/` directory exists. If not, skip this step entirely.
+
+Read:
+- `.sniper/memory/conventions.yaml` — filter for entries with `enforcement: review_gate` or `enforcement: both`
+- `.sniper/memory/anti-patterns.yaml` — all entries
+- `.sniper/memory/decisions.yaml` — active entries only
+
+If workspace memory exists (check config), also load workspace-level files.
+
+### 3c-2: Convention Compliance
+
+For each convention with review gate enforcement:
+1. Read the convention's `rule` and `detection_hint` (if present)
+2. Examine the sprint output / artifacts being reviewed
+3. Check whether the convention was followed
+4. Report as PASS (compliant) or WARN (violation with details)
+
+### 3c-3: Anti-Pattern Scanning
+
+For each anti-pattern:
+1. Read the `detection_hint`
+2. If a detection hint is present, search the changed files for matches
+3. If matches found, report as WARN with file locations
+4. If no detection hint, skip automated detection (will be caught in manual review)
+
+### 3c-4: Decision Consistency
+
+For each active decision:
+1. Check if the sprint output contradicts the decision
+2. Example: if decision says "Use PostgreSQL" but new code imports MongoDB, flag it
+3. Report any contradictions
+
+### 3c-5: Report Memory Compliance
+
+Add a "Memory Compliance" section to the review output:
+
+```
+## Memory Compliance
+
+### Convention Checks
+PASS conv-001: Zod validation — all new routes use validation middleware
+WARN conv-003: Barrel exports — 2 new directories missing index.ts
+
+### Anti-Pattern Checks
+PASS ap-001: No direct DB queries in handlers — clean
+WARN ap-002: Silent error catch found in lib/webhook-delivery.ts:42
+
+### Decision Consistency
+PASS All decisions consistent
+
+### Summary
+{N} conventions checked, {M} violations
+{N} anti-patterns checked, {M} matches found
+{N} decisions checked, {M} contradictions
+```
+
+If there are violations, these count as review findings but do NOT block the gate by themselves (memory compliance is advisory unless the gate mode is strict AND the convention enforcement is review_gate).
 
 ---
 
@@ -240,55 +316,43 @@ Based on the gate mode and results, take the appropriate action:
 When a phase is approved for advancement:
 
 1. Read the current `.sniper/config.yaml`
-2. Determine the next phase using this progression:
-   - `discover` -> `plan`
-   - `plan` -> `solve`
-   - `solve` -> `sprint`
-   - `sprint` -> `sprint` (remains in sprint phase, increment sprint number)
-
-3. Update the `state` section:
+2. Find the active phase_log entry (the one where `completed_at` is null) and update it:
    ```yaml
-   state:
-     current_phase: {next_phase}
-     phase_history:
-       - phase: {completed_phase}
-         started_at: {start_date_if_known_or_today}
-         completed_at: {today's date in YYYY-MM-DD format}
-         approved_by: {human or auto}
-         gate_mode: {strict|flexible|auto}
-         pass_count: {number}
-         warn_count: {number}
-         fail_count: {number}
-       # ... (preserve existing history entries)
-     current_sprint: {increment by 1 if completing a sprint, else keep}
-     artifacts:
-       # Update artifact statuses based on what was reviewed:
-       # If all items for an artifact passed -> "approved"
-       # If any items warn but no fails -> "draft"
-       # If the artifact exists but has fails -> "draft"
-       # Keep existing values for artifacts not reviewed in this phase
+   completed_at: "{current ISO timestamp}"
+   approved_by: "{human or auto-flexible or auto}"
    ```
 
-4. Write the updated config back to `.sniper/config.yaml`
+3. Update artifact statuses based on what was reviewed:
+   - If all items for an artifact passed -> set status to `approved`
+   - If any items warn but no fails -> keep status as `draft`
+   - If the artifact exists but has fails -> keep status as `draft`
+   - Keep existing values for artifacts not reviewed in this phase
 
-5. Print the advancement confirmation:
+4. If the completed phase is `sprint`, increment `state.current_sprint` by 1.
+
+5. Write the updated config back to `.sniper/config.yaml`
+
+6. Suggest the next command based on what was just completed:
+
+   | Completed Phase | Suggested Next Commands |
+   |----------------|------------------------|
+   | `ingest`        | `/sniper-feature`, `/sniper-discover`, `/sniper-audit` |
+   | `discover`      | `/sniper-plan` |
+   | `plan`          | `/sniper-solve` |
+   | `solve`         | `/sniper-sprint` |
+   | `sprint`        | `/sniper-sprint` (next sprint), `/sniper-review` |
+
+7. Print the completion confirmation:
    ```
    ============================================
-     Phase Advanced
+     Phase Review Complete
    ============================================
 
-     Completed: {phase}
-     Advanced to: {next_phase}
+     Completed: {phase} ({context})
      Artifacts updated in config.yaml
 
-     Next step: Run {next_command}
+     Suggested next: {next_command}
    ```
-
-   Where `next_command` maps to:
-   - `plan` -> `/sniper-plan`
-   - `solve` -> `/sniper-solve`
-   - `sprint` -> `/sniper-sprint`
-   - staying in `sprint` -> `/sniper-sprint` (next sprint cycle)
 
 ---
 

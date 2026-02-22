@@ -1,0 +1,16 @@
+# Decision Entry Template
+# Add to: .sniper/memory/decisions.yaml
+
+# - id: dec-XXX                    # Auto-assigned sequential ID
+#   title: ""                       # Short title for the decision
+#   context: ""                     # What problem or question prompted this decision
+#   decision: ""                    # What was decided
+#   alternatives_considered:        # What other options were evaluated
+#     - ""
+#   source:
+#     type: review_gate | retro | manual | imported
+#     ref: ""                       # Source reference
+#     date: ""                      # ISO 8601 date
+#   applies_to: []                  # Agent roles
+#   status: active | superseded | deprecated
+#   superseded_by: null             # ID of the decision that replaced this one

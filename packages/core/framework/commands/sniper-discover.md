@@ -17,18 +17,32 @@ Perform ALL of the following checks before proceeding. If any check fails, STOP 
    - **STOP.** Print: "SNIPER is not initialized. Run `/sniper-init` first."
    - Do not proceed further.
 
-### 0b. Verify Phase State
+### 0b. Config Migration Check
 
-1. Read the `state.current_phase` value from `.sniper/config.yaml`.
-2. **If `current_phase` is `null`:** Good -- this is a fresh project. Proceed.
-3. **If `current_phase` is `discover`:** The discover phase is already in progress or was interrupted.
-   - Ask the user: "The discover phase appears to be in progress or was previously started. Do you want to restart it? This will overwrite any existing discovery artifacts. (yes/no)"
-   - If no, STOP.
-4. **If `current_phase` is anything else** (plan, solve, sprint):
-   - Ask the user: "The project is currently in the '{current_phase}' phase. Running discover again will reset progress. Are you sure? (yes/no)"
-   - If no, STOP.
+1. Read `schema_version` from `.sniper/config.yaml`.
+2. If `schema_version` is absent or less than 2, run the v1→v2 migration as defined in the Config Reader Protocol (see `plans/features/phase-a-config-schema.md`). Write the updated config before proceeding.
 
-### 0c. Verify Framework Files
+### 0c. Verify Phase State
+
+1. Determine the current active phase: find the last entry in `state.phase_log` where `completed_at` is null.
+2. **If no active phase (all completed or empty log):** Good -- proceed. Re-running discover after other phases is normal iteration.
+3. **If active phase is `discover`:** The discover phase is already in progress.
+   - Ask the user: "A discover phase is already in progress ({context}). Options: (a) Resume it (b) Start a new discover with a different context"
+   - If resume, STOP (they should continue in the existing session).
+4. **If active phase is something else** (plan, solve, sprint, ingest):
+   - Ask the user: "You have an active {phase} phase ({context}) that hasn't completed. Options: (a) Pause it and start discover (b) Complete {phase} first"
+   - If (b), STOP.
+
+### 0d. Amendment Detection
+
+1. Check if the target artifact files already exist and are non-empty:
+   - `docs/brief.md`
+   - `docs/risks.md`
+   - `docs/personas.md`
+2. **If ANY exist:** Enter **amendment mode**. Note which files exist and their current version numbers (from the version header). Agents will be instructed to amend rather than create from scratch (see Step 4 amendment instructions below).
+3. **If NONE exist:** Normal create mode. Proceed with standard behavior.
+
+### 0e. Verify Framework Files
 
 Check that these files exist (they are needed by the team):
 - `.sniper/teams/discover.yaml`
@@ -47,10 +61,10 @@ If any are missing, print a warning listing the missing files but continue if at
 
 Edit `.sniper/config.yaml` to update the state section:
 
-1. Set `state.current_phase: discover`
-2. Append to `state.phase_history`:
+1. Append to `state.phase_log`:
    ```yaml
    - phase: discover
+     context: "{from --context argument, or 'initial' for first run, or 'iteration-N' for re-runs}"
      started_at: "{current ISO timestamp}"
      completed_at: null
      approved_by: null
@@ -118,12 +132,21 @@ For each teammate in the team YAML, compose a spawn prompt by assembling persona
    - **Description:** {project.description}
    - **Stack:** {summary of stack section}
 
-   ## Instructions
+   ## Instructions (Create Mode — when docs/brief.md does NOT exist)
    1. Read the template at `.sniper/templates/brief.md` to understand the expected output format.
    2. If a domain pack is configured, read the domain context files for industry knowledge.
    3. Research and produce the artifact at `docs/brief.md` following the template exactly.
    4. Every section in the template MUST be filled -- no empty sections.
    5. When complete, message the team lead that your task is done.
+
+   ## Instructions (Amendment Mode — when docs/brief.md already exists)
+   1. Read the EXISTING artifact at `docs/brief.md` first. Note its current version number.
+   2. Read the template at `.sniper/templates/brief.md` to understand the expected format.
+   3. AMEND the existing brief: update sections that need changes, add new information, preserve content outside managed sections (<!-- sniper:managed --> markers).
+   4. Increment the version number in the header (e.g., v1 → v2).
+   5. Add a changelog entry describing what changed.
+   6. Set Status back to "Draft" (even if it was previously "Approved").
+   7. When complete, message the team lead that your task is done.
    ```
 
 5. Save this composed prompt as a variable for spawning.
@@ -337,8 +360,11 @@ The discover gate mode is **flexible**:
 
 Edit `.sniper/config.yaml`:
 
-1. Set `state.artifacts.brief: draft`
-2. Update the discover entry in `state.phase_history` to add `completed_at: "{current ISO timestamp}"`
+1. Update artifact tracking (increment version if amendment mode):
+   - Set `state.artifacts.brief.status: draft` and increment `state.artifacts.brief.version`
+   - Set `state.artifacts.risks.status: draft` and increment `state.artifacts.risks.version` (if risks.md was produced)
+   - Set `state.artifacts.personas.status: draft` and increment `state.artifacts.personas.version` (if personas.md was produced)
+2. Update the discover entry in `state.phase_log` to add `completed_at: "{current ISO timestamp}"`
 3. If auto-advanced (flexible gate passed), set `approved_by: "auto-flexible"`
 
 ### Shut Down Teammates
