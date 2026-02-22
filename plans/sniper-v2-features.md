@@ -42,10 +42,10 @@ plans/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| SNPR-0001 | Artifact Versioning & Amendment | Planned |
-| SNPR-0002 | Flexible Phase Navigation | Planned |
-| SNPR-0003 | Codebase Ingestion (`/sniper-ingest`) | Planned |
-| SNPR-0004 | Incremental Feature Lifecycle (`/sniper-feature`) | Planned |
+| SNPR-0001 | Artifact Versioning & Amendment | Complete |
+| SNPR-0002 | Flexible Phase Navigation | Complete |
+| SNPR-0003 | Codebase Ingestion (`/sniper-ingest`) | Complete |
+| SNPR-0004 | Incremental Feature Lifecycle (`/sniper-feature`) | Complete |
 | SNPR-0005 | Production Debugging (`/sniper-debug`) | Planned |
 | SNPR-0006 | Audit: Refactoring (`/sniper-audit --target refactor`) | Planned |
 | SNPR-0007 | Audit: Review & QA (`/sniper-audit --target review`) | Planned |
