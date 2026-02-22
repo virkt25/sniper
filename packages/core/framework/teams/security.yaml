@@ -24,9 +24,14 @@ teammates:
       cognitive: systems-thinker
     tasks:
       - id: threat-modeling
+        name: "Threat Modeling"
+        description: >
+          Map the application's attack surface using STRIDE methodology. Identify
+          trust boundaries, data flows, and potential threat vectors. Produce a
+          structured threat model with risk ratings and recommended mitigations.
         output: threat-model.md
         blocked_by: []
-    plan_approval: false
+        plan_approval: false
 
   - name: vuln-scanner
     compose:
@@ -35,9 +40,15 @@ teammates:
       cognitive: devils-advocate
     tasks:
       - id: vulnerability-scanning
+        name: "Vulnerability Scanning"
+        description: >
+          Perform application-level vulnerability analysis via code review.
+          Check for OWASP Top 10 issues, insecure dependencies, hardcoded
+          secrets, and missing security controls. Produce a vulnerability
+          report with severity ratings and remediation guidance.
         output: vulnerability-report.md
         blocked_by: []
-    plan_approval: false
+        plan_approval: false
 
 # Phase 3 (Execution) reuses sprint teammates from sprint.yaml
 

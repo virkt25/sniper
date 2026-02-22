@@ -406,9 +406,9 @@ decisions: []   # decisions are typically project-specific, excluded by default
 | `packages/core/framework/commands/sniper-review.md` | UPDATE — add memory compliance checks to review gates |
 | `packages/core/framework/commands/sniper-sprint.md` | UPDATE — trigger retro agent after sprint completion |
 | `packages/core/framework/commands/sniper-status.md` | UPDATE — show memory stats |
-| `packages/core/framework/personas/role/retro-analyst.md` | NEW — retro agent persona |
+| `packages/core/framework/personas/process/retro-analyst.md` | NEW — retro agent persona |
 | `packages/core/framework/teams/retro.yaml` | NEW — retro team composition (single agent) |
-| `packages/core/framework/templates/retro.md` | NEW — retro output template |
+| `packages/core/framework/templates/retro.yaml` | NEW — retro output template |
 | `packages/core/framework/templates/memory-convention.yaml` | NEW — convention entry template |
 | `packages/core/framework/templates/memory-anti-pattern.yaml` | NEW — anti-pattern entry template |
 | `packages/core/framework/templates/memory-decision.yaml` | NEW — decision entry template |

@@ -48,7 +48,7 @@ Check that the following files exist and are non-empty:
 2. **If ANY exist:** Enter **amendment mode**. Note which files exist and their current version numbers. Agents will be instructed to amend rather than create.
 3. **If NONE exist:** Normal create mode.
 
-### 0d. Verify Framework Files
+### 0f. Verify Framework Files
 
 Check that these files exist:
 - `.sniper/teams/plan.yaml`

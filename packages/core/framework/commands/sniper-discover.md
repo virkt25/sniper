@@ -42,7 +42,7 @@ Perform ALL of the following checks before proceeding. If any check fails, STOP 
 2. **If ANY exist:** Enter **amendment mode**. Note which files exist and their current version numbers (from the version header). Agents will be instructed to amend rather than create from scratch (see Step 4 amendment instructions below).
 3. **If NONE exist:** Normal create mode. Proceed with standard behavior.
 
-### 0c. Verify Framework Files
+### 0e. Verify Framework Files
 
 Check that these files exist (they are needed by the team):
 - `.sniper/teams/discover.yaml`

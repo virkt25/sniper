@@ -1,22 +1,10 @@
-import { readFile, writeFile, readdir, mkdir, access } from "node:fs/promises";
+import { readFile, writeFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
 import YAML from "yaml";
 import { readConfig, sniperConfigExists } from "../config.js";
-
-async function ensureDir(dir: string): Promise<void> {
-  await mkdir(dir, { recursive: true });
-}
-
-async function pathExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import { ensureDir, pathExists } from "../fs-utils.js";
 
 interface MemoryEntry {
   id: string;

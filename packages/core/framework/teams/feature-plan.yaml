@@ -53,7 +53,8 @@ teammates:
         plan_approval: true
 
 coordination:
-  - [feature-pm, feature-architect]  # architect waits for PM's spec
+  - between: [feature-pm, feature-architect]
+    topic: "Feature spec review — architect waits for PM's spec before starting architecture delta"
 
 review_gate:
   checklist: .sniper/checklists/feature-review.md

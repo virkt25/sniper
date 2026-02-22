@@ -325,7 +325,7 @@ state:
   refactors: [...]           # refactor tracking
   artifacts:
     brief:
-      status: draft | approved | amended
+      status: draft | approved
       version: 1
       path: docs/brief.md
     # ... same pattern for all artifacts

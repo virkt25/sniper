@@ -24,9 +24,14 @@ teammates:
       cognitive: systems-thinker
     tasks:
       - id: coverage-analysis
+        name: "Coverage Gap Analysis"
+        description: >
+          Analyze test coverage across the codebase. Identify untested code paths,
+          rank coverage gaps by risk (business-critical paths first), and produce
+          a coverage report with prioritized recommendations for new tests.
         output: coverage-report.md
         blocked_by: []
-    plan_approval: false
+        plan_approval: false
 
   - name: flake-hunter
     compose:
@@ -35,9 +40,15 @@ teammates:
       cognitive: devils-advocate
     tasks:
       - id: flake-investigation
+        name: "Flaky Test Investigation"
+        description: >
+          Investigate flaky tests in the test suite. Identify tests with
+          non-deterministic behavior, diagnose root causes (timing, shared state,
+          external dependencies), and produce a report with specific fixes for
+          each flaky test.
         output: flaky-report.md
         blocked_by: []
-    plan_approval: false
+        plan_approval: false
 
 # Phase 3 (Execution) reuses sprint teammates from sprint.yaml
 

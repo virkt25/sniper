@@ -6,12 +6,12 @@ author: "Taranveer"
 # What this pack provides
 provides:
   knowledge:
-    - context/telephony.md
-    - context/sales-workflows.md
-    - context/compliance.md
-    - context/crm-integration.md
-    - context/ai-pipeline.md
-    - context/analytics.md
+    - knowledge/telephony.md
+    - knowledge/sales-workflows.md
+    - knowledge/compliance.md
+    - knowledge/crm-integration.md
+    - knowledge/ai-pipeline.md
+    - knowledge/analytics.md
   personas:
     - personas/process/telephony-specialist.md
   checklists:

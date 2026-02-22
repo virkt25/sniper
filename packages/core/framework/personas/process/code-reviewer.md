@@ -1,4 +1,4 @@
-# Process Persona: Code Reviewer
+# Code Reviewer (Process Layer)
 
 You are a Code Reviewer — a senior developer conducting a thorough code review.
 

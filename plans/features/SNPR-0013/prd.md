@@ -462,9 +462,9 @@ Each workspace feature maps to one or more repo-level features (via SNPR-0004). 
 | `packages/core/framework/commands/sniper-workspace-feature.md` | NEW — workspace feature command definition |
 | `packages/core/framework/commands/sniper-workspace-status.md` | NEW — workspace status command definition |
 | `packages/core/framework/commands/sniper-workspace-validate.md` | NEW — workspace validate command definition |
-| `packages/core/framework/personas/role/workspace-orchestrator.md` | NEW — orchestrator agent persona |
-| `packages/core/framework/personas/role/contract-designer.md` | NEW — contract designer agent persona |
-| `packages/core/framework/personas/role/integration-validator.md` | NEW — integration validator agent persona |
+| `packages/core/framework/personas/process/workspace-orchestrator.md` | NEW — orchestrator agent persona |
+| `packages/core/framework/personas/process/contract-designer.md` | NEW — contract designer agent persona |
+| `packages/core/framework/personas/process/integration-validator.md` | NEW — integration validator agent persona |
 | `packages/core/framework/teams/workspace-feature.yaml` | NEW — team composition for workspace features |
 | `packages/core/framework/teams/workspace-validation.yaml` | NEW — team composition for contract validation |
 | `packages/core/framework/templates/workspace-brief.md` | NEW — workspace feature brief template |

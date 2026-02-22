@@ -29,24 +29,24 @@ Perform ALL checks before proceeding. If any critical check fails, STOP.
    - Set story directory to `docs/stories/`.
    - Set team name prefix to `sniper-sprint`.
 
-### 0b2. Verify Stories Exist
+### 0c. Verify Stories Exist
 
 1. List files in the story directory (set in 0b).
 2. If the directory does not exist or contains no `.md` files:
    - If feature mode: **STOP.** Print: "No stories found for SNPR-{XXXX}. The feature may not have reached the solving phase yet."
    - If normal mode: **STOP.** Print: "No stories found in `docs/stories/`. Run `/sniper-solve` first to create stories."
 
-### 0c. Config Migration Check
+### 0d. Config Migration Check
 
 1. Read `schema_version` from `.sniper/config.yaml`.
 2. If `schema_version` is absent or less than 2, run the v1→v2 migration. Write the updated config before proceeding.
 
-### 0c2. Verify Phase State
+### 0e. Verify Phase State
 
 1. Check that `state.artifacts.stories.status` is not null (stories have been created).
 2. If `state.artifacts.stories.status` is null but story files exist, print a warning and continue.
 
-### 0d. Verify Framework Files
+### 0f. Verify Framework Files
 
 Check that these files exist:
 - `.sniper/teams/sprint.yaml`
@@ -598,12 +598,13 @@ Read `.sniper/config.yaml`:
   To run manually: /sniper-memory --retro
   ```
 
-### 14-2: Compose Retro Agent
+### 14-2: Read Retro Team and Compose Agent
 
 1. Read `.sniper/teams/retro.yaml` for the team definition
-2. Compose the retro-analyst spawn prompt using `/sniper-compose`:
+2. Parse the teammate entry: `retro-analyst` with compose layers from the YAML
+3. Compose the retro-analyst spawn prompt using `/sniper-compose` with the layers from the team YAML:
    ```
-   /sniper-compose --process retro-analyst --cognitive systems-thinker --name "Retro Analyst"
+   /sniper-compose --process {compose.process} --cognitive {compose.cognitive} --name "Retro Analyst"
    ```
 
 ### 14-3: Run Retrospective

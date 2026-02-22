@@ -2,8 +2,6 @@ import {
   readFile,
   writeFile,
   readdir,
-  mkdir,
-  access,
   stat,
   symlink,
 } from "node:fs/promises";
@@ -12,19 +10,7 @@ import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
 import YAML from "yaml";
 import { sniperConfigExists, readConfig, writeConfig } from "../config.js";
-
-async function ensureDir(dir: string): Promise<void> {
-  await mkdir(dir, { recursive: true });
-}
-
-async function pathExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import { ensureDir, pathExists } from "../fs-utils.js";
 
 interface WorkspaceRepo {
   name: string;
