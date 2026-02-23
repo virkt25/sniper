@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm -r --filter '!@sniper.ai/docs' build",
     "dev": "pnpm -r --parallel dev",
     "clean": "pnpm -r clean",
     "lint": "pnpm -r lint",
