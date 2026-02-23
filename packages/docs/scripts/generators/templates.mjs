@@ -41,6 +41,10 @@ export async function generateTemplates(frameworkDir, outputDir) {
       const lines = [
         '---',
         `title: "${title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        'pageLayout: reference',
+        'pageType: template',
+        `sourceFile: "${file}"`,
+        `format: ${isYaml ? 'yaml' : 'markdown'}`,
         '---',
         '',
       ];

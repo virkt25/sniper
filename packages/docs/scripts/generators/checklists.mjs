@@ -32,6 +32,9 @@ export async function generateChecklists(frameworkDir, outputDir) {
       const lines = [
         '---',
         `title: "${title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        'pageLayout: reference',
+        'pageType: checklist',
+        ...(gateMode ? [`gateMode: ${gateMode.toLowerCase()}`] : []),
         '---',
         '',
       ];

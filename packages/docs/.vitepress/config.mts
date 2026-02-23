@@ -1,6 +1,9 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { codeBlocksPlugin } from './plugins/codeBlocks'
+import { containersPlugin } from './plugins/containers'
 
 function loadSidebarData() {
   const sidebarPath = resolve(__dirname, '../generated/sidebar-data.json')
@@ -13,11 +16,20 @@ function loadSidebarData() {
 
 const generated = loadSidebarData()
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: 'SNIPER',
   description: 'AI-Powered Project Lifecycle Framework for Claude Code',
   base: '/',
   cleanUrls: true,
+
+  vite: {
+    optimizeDeps: {
+      include: ['mermaid'],
+    },
+    ssr: {
+      noExternal: ['mermaid'],
+    },
+  },
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
@@ -33,6 +45,13 @@ export default defineConfig({
     'generated/checklists/:slug.md': 'reference/checklists/:slug.md',
     'generated/templates/:slug.md': 'reference/templates/:slug.md',
     'generated/workflows/:slug.md': 'reference/workflows/:slug.md',
+  },
+
+  markdown: {
+    config: (md) => {
+      md.use(codeBlocksPlugin)
+      md.use(containersPlugin)
+    },
   },
 
   themeConfig: {
@@ -157,4 +176,20 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/virkt25/sniper' },
     ],
   },
-})
+
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#6366f1',
+      primaryTextColor: '#fff',
+      primaryBorderColor: '#4f46e5',
+      lineColor: '#818cf8',
+      secondaryColor: '#f97316',
+      tertiaryColor: '#10b981',
+      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    },
+  },
+  mermaidPlugin: {
+    class: 'mermaid',
+  },
+}))
