@@ -16,11 +16,11 @@ const generated = loadSidebarData()
 export default defineConfig({
   title: 'SNIPER',
   description: 'AI-Powered Project Lifecycle Framework for Claude Code',
-  base: '/sniper/',
+  base: '/',
   cleanUrls: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/sniper/logo.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
   ],
 
   rewrites: {
