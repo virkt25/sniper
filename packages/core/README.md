@@ -1,6 +1,15 @@
 # @sniper.ai/core
 
-Framework core for SNIPER — provides personas, team compositions, templates, checklists, workflows, and spawn prompts as raw YAML and Markdown files.
+[![npm version](https://img.shields.io/npm/v/@sniper.ai/core)](https://www.npmjs.com/package/@sniper.ai/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+Framework core for [SNIPER](https://virkt25.github.io/sniper/) -- provides personas, team compositions, templates, checklists, workflows, and spawn prompts as raw YAML and Markdown files.
+
+## What is SNIPER?
+
+SNIPER (**S**pawn, **N**avigate, **I**mplement, **P**arallelize, **E**valuate, **R**elease) is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
+
+A full lifecycle runs through four phases: **Discover** (research and analysis), **Plan** (architecture and design), **Solve** (epic and story sharding), and **Sprint** (parallel implementation). Each phase spawns a coordinated team of specialized agents composed from layered personas.
 
 ## Overview
 
@@ -16,30 +25,120 @@ npm install @sniper.ai/core
 
 ```
 framework/
-├── personas/           # Agent persona layers
-│   ├── cognitive/      # Thinking styles (analytical, creative, security-first, etc.)
-│   ├── domain/         # Domain knowledge (from packs or built-in)
-│   ├── process/        # Process roles (architect, implementer, reviewer, etc.)
-│   └── technical/      # Technical expertise (frontend, backend, infra, etc.)
-├── teams/              # Team compositions per phase
-│   ├── discover.yaml   # Discovery phase team
-│   ├── plan.yaml       # Planning phase team
-│   ├── solve.yaml      # Story sharding (sequential)
-│   ├── sprint.yaml     # Implementation sprint team
-│   └── doc.yaml        # Documentation team
-├── workflows/          # Phase workflow definitions
-│   ├── full-lifecycle.md
-│   ├── discover-only.md
-│   ├── quick-feature.md
-│   └── sprint-cycle.md
-├── templates/          # Artifact templates (PRD, architecture, stories, etc.)
-├── checklists/         # Quality gate checklists for review
-├── spawn-prompts/      # Pre-composed spawn prompts for agent roles
-├── commands/           # Slash command definitions
+├── personas/           # Agent persona layers (42 total)
+├── teams/              # Team compositions (17 teams)
+├── workflows/          # Phase workflow definitions (4 workflows)
+├── templates/          # Artifact templates (38 templates)
+├── checklists/         # Quality gate checklists (15 checklists)
+├── spawn-prompts/      # Pre-composed spawn prompts
+├── commands/           # Slash command definitions (18 commands)
 ├── config.template.yaml
 ├── claude-md.template
 └── settings.template.json
 ```
+
+## Persona Layers
+
+Agents are composed from four persona layers, combined via the `/sniper-compose` command into complete spawn prompts:
+
+| Layer | Count | Purpose | Examples |
+|-------|-------|---------|----------|
+| **Cognitive** | 6 | Thinking style and approach | `analytical`, `security-first`, `systems-thinker`, `devils-advocate`, `user-empathetic`, `performance-focused` |
+| **Process** | 29 | Role in the workflow | `architect`, `developer`, `code-reviewer`, `product-manager`, `scrum-master`, `qa-engineer`, `release-manager` |
+| **Technical** | 7 | Technical expertise area | `frontend`, `backend`, `database`, `infrastructure`, `security`, `api-design`, `ai-ml` |
+| **Domain** | -- | Project-specific knowledge | Provided by domain packs (e.g., `@sniper.ai/pack-sales-dialer`) |
+
+## Teams
+
+SNIPER defines 17 team compositions for different workflows:
+
+| Team | File | Description |
+|------|------|-------------|
+| **Discover** | `discover.yaml` | Discovery phase -- analyst, risk-researcher, user-researcher |
+| **Plan** | `plan.yaml` | Planning phase -- PM, architect, UX, security (uses Opus model) |
+| **Solve** | `solve.yaml` | Story sharding -- single scrum-master agent |
+| **Sprint** | `sprint.yaml` | Implementation -- backend-dev, frontend-dev, and other specialists |
+| **Doc** | `doc.yaml` | Documentation generation -- doc-analyst, doc-writer, doc-reviewer |
+| **Ingest** | `ingest.yaml` | Codebase ingestion -- reverse-engineers project artifacts |
+| **Feature Plan** | `feature-plan.yaml` | Incremental feature spec and architecture delta |
+| **Debug** | `debug.yaml` | Production debugging -- parallel investigation agents |
+| **Review PR** | `review-pr.yaml` | Multi-perspective pull request review |
+| **Review Release** | `review-release.yaml` | Multi-perspective release readiness assessment |
+| **Refactor** | `refactor.yaml` | Structured large-scale code refactoring |
+| **Security** | `security.yaml` | Structured security analysis |
+| **Perf** | `perf.yaml` | Structured performance analysis |
+| **Test** | `test.yaml` | Test and coverage audit |
+| **Retro** | `retro.yaml` | Sprint retrospective analysis |
+| **Workspace Feature** | `workspace-feature.yaml` | Cross-repo feature orchestration |
+| **Workspace Validation** | `workspace-validation.yaml` | Interface contract validation |
+
+## Commands
+
+18 slash commands organized by category:
+
+### Lifecycle
+
+| Command | Description |
+|---------|-------------|
+| `/sniper-init` | Initialize SNIPER in a new or existing project |
+| `/sniper-discover` | Phase 1: Discovery and analysis (parallel team) |
+| `/sniper-plan` | Phase 2: Planning and architecture (parallel team) |
+| `/sniper-solve` | Phase 3: Epic sharding and story creation (single agent) |
+| `/sniper-sprint` | Phase 4: Implementation sprint (parallel team) |
+| `/sniper-review` | Run review gate for the current phase |
+| `/sniper-status` | Show lifecycle status and artifact state |
+
+### Extended
+
+| Command | Description |
+|---------|-------------|
+| `/sniper-feature` | Incremental feature lifecycle |
+| `/sniper-ingest` | Codebase ingestion (parallel team) |
+| `/sniper-doc` | Generate or update project documentation (parallel team) |
+| `/sniper-debug` | Production debugging (phased investigation) |
+| `/sniper-audit` | Audit: refactoring, review, and QA |
+
+### Workspace
+
+| Command | Description |
+|---------|-------------|
+| `/sniper-workspace init` | Initialize a SNIPER workspace |
+| `/sniper-workspace feature` | Plan and execute a cross-repo feature |
+| `/sniper-workspace status` | Show workspace status |
+| `/sniper-workspace validate` | Validate interface contracts |
+
+### Utility
+
+| Command | Description |
+|---------|-------------|
+| `/sniper-compose` | Compose a spawn prompt from persona layers |
+| `/sniper-memory` | Manage agent memory (conventions, anti-patterns, decisions) |
+
+## Templates
+
+38 artifact templates covering:
+
+| Category | Templates |
+|----------|-----------|
+| **Discovery** | `brief.md`, `risks.md`, `personas.md` |
+| **Planning** | `prd.md`, `architecture.md`, `ux-spec.md`, `security.md`, `conventions.md` |
+| **Stories** | `epic.md`, `story.md` |
+| **Features** | `feature-brief.md`, `feature-spec.md`, `arch-delta.md` |
+| **Reviews** | `pr-review.md`, `sprint-review.md`, `release-readiness.md` |
+| **Documentation** | `doc-api.md`, `doc-guide.md`, `doc-readme.md` |
+| **Debugging** | `investigation.md`, `postmortem.md`, `bug-report.md` |
+| **Security** | `threat-model.md`, `vulnerability-report.md` |
+| **Performance** | `performance-profile.md`, `optimization-plan.md` |
+| **Refactoring** | `refactor-scope.md`, `migration-plan.md` |
+| **Memory** | `memory-convention.yaml`, `memory-anti-pattern.yaml`, `memory-decision.yaml`, `retro.yaml` |
+| **Workspace** | `workspace-brief.md`, `workspace-plan.md`, `contract.yaml`, `contract-validation-report.md` |
+| **Testing** | `coverage-report.md`, `flaky-report.md` |
+
+## Checklists
+
+15 quality gate checklists for review workflows:
+
+`code-review`, `debug-review`, `discover-review`, `doc-review`, `feature-review`, `ingest-review`, `memory-review`, `perf-review`, `plan-review`, `refactor-review`, `security-review`, `sprint-review`, `story-review`, `test-review`, `workspace-review`
 
 ## Usage
 
@@ -55,18 +154,9 @@ const teamPath = require.resolve('@sniper.ai/core/framework/teams/sprint.yaml');
 const teamYaml = readFileSync(teamPath, 'utf-8');
 ```
 
-## Persona Layers
+## Documentation
 
-Agents are composed from four persona layers:
-
-| Layer | Purpose | Example |
-|-------|---------|---------|
-| **Cognitive** | Thinking style and approach | `analytical`, `security-first` |
-| **Process** | Role in the workflow | `architect`, `implementer`, `reviewer` |
-| **Technical** | Technical expertise area | `frontend`, `backend`, `infra` |
-| **Domain** | Project-specific knowledge | Provided by domain packs |
-
-The `/sniper-compose` command combines these layers into a complete spawn prompt for an agent.
+Full documentation is available at [virkt25.github.io/sniper](https://virkt25.github.io/sniper/).
 
 ## License
 

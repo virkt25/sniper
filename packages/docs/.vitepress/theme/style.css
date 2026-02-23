@@ -1,0 +1,138 @@
+/*
+ * SNIPER Documentation -- Custom Styles
+ * Inverted table cards, smooth scrolling, and typography refinements.
+ */
+
+/* ── Smooth scrolling with offset for fixed header ── */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+/* ── Center the home page content container ── */
+.VPHome .vp-doc.container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* ── Inverted table cards ── */
+
+/* Two-column layout: narrow label, wide value */
+.vp-doc table.inverted {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1.5rem;
+}
+
+.vp-doc table.inverted th,
+.vp-doc table.inverted td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--vp-c-divider);
+  vertical-align: top;
+}
+
+.vp-doc table.inverted th {
+  width: 9rem;
+  font-weight: 600;
+  text-align: right;
+  background: var(--vp-c-bg-soft);
+  white-space: nowrap;
+}
+
+.vp-doc table.inverted td {
+  text-align: left;
+}
+
+/* ── Section dividers between command/team cards ── */
+.vp-doc hr {
+  margin: 2rem 0;
+  border: none;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+/* ── Inline code in tables ── */
+.vp-doc table code {
+  font-size: 0.85em;
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  background: var(--vp-c-bg-soft);
+}
+
+/* ── Badge-style gate labels ── */
+.gate-strict,
+.gate-flexible,
+.gate-auto,
+.gate-none {
+  display: inline-block;
+  padding: 0.1em 0.5em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.gate-strict {
+  background: var(--vp-c-danger-soft);
+  color: var(--vp-c-danger-1);
+}
+
+.gate-flexible {
+  background: var(--vp-c-warning-soft);
+  color: var(--vp-c-warning-1);
+}
+
+.gate-auto {
+  background: var(--vp-c-tip-soft);
+  color: var(--vp-c-tip-1);
+}
+
+.gate-none {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+}
+
+/* ── Member tables inside inverted cards ── */
+.vp-doc table.members {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.vp-doc table.members th {
+  text-align: left;
+  background: var(--vp-c-bg-soft);
+  font-weight: 600;
+  padding: 0.35rem 0.5rem;
+  white-space: normal;
+  width: auto;
+}
+
+.vp-doc table.members td {
+  padding: 0.35rem 0.5rem;
+}
+
+/* ── Quick-lookup TOC table ── */
+.vp-doc table.toc-table {
+  font-size: 0.9em;
+}
+
+.vp-doc table.toc-table td:first-child {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ── Composition example boxes ── */
+.composition-example {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+  background: var(--vp-c-bg-soft);
+}
+
+.composition-example strong {
+  font-size: 1.05em;
+}
