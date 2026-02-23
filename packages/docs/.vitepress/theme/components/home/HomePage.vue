@@ -31,6 +31,25 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
     </section>
 
     <section class="home-section">
+      <h2 class="section-heading">Two Paths, One Framework</h2>
+      <p class="section-subtitle">Whether you're starting from scratch or working with an existing codebase, SNIPER has a workflow for you.</p>
+      <div class="two-paths">
+        <div class="path-card">
+          <span class="path-tag">Full Lifecycle</span>
+          <h3>Greenfield Projects</h3>
+          <p>Start with an idea. Discovery agents research the market and assess risks. Planning agents produce a PRD, architecture, UX spec, and security analysis. The solve phase shards everything into stories. Sprint teams implement with tests and PRs.</p>
+          <code class="path-cmds">/sniper-discover &rarr; /sniper-plan &rarr; /sniper-solve &rarr; /sniper-sprint</code>
+        </div>
+        <div class="path-card">
+          <span class="path-tag">Ingest + Iterate</span>
+          <h3>Existing Codebases</h3>
+          <p>Already have code? SNIPER's ingest team reverse-engineers your architecture and extracts conventions. Then use scoped commands for additions, bug investigation, or security and performance audits.</p>
+          <code class="path-cmds">/sniper-ingest &rarr; /sniper-feature &rarr; /sniper-debug &rarr; /sniper-audit</code>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section">
       <h2 class="section-heading">See It In Action</h2>
       <p class="section-subtitle">Watch SNIPER orchestrate agent teams through each phase.</p>
       <TerminalDemo />
@@ -79,6 +98,71 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
   margin: 0 0 40px;
   font-size: 1.05rem;
   line-height: 1.6;
+}
+
+/* Two Paths */
+.two-paths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: var(--section-max-width);
+  margin: 0 auto;
+}
+
+.path-card {
+  padding: 28px;
+  border-radius: var(--sniper-radius-lg);
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  transition: transform var(--sniper-duration) var(--sniper-ease),
+              box-shadow var(--sniper-duration) var(--sniper-ease),
+              border-color var(--sniper-duration) var(--sniper-ease);
+}
+.path-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sniper-shadow-lg);
+  border-color: var(--sniper-brand);
+}
+
+.path-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--vp-c-brand-soft), rgba(139, 92, 246, 0.15));
+  color: var(--sniper-brand);
+  margin-bottom: 12px;
+}
+
+.path-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.path-card p {
+  margin: 0 0 16px;
+  color: var(--vp-c-text-2);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.path-cmds {
+  display: block;
+  padding: 8px 14px;
+  border-radius: var(--sniper-radius-sm);
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  font-family: var(--sniper-font-mono);
+  font-size: 0.85rem;
+  color: var(--sniper-brand);
+}
+
+@media (max-width: 768px) {
+  .two-paths {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* CTA section */

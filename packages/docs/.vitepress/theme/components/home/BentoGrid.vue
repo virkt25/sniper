@@ -7,6 +7,18 @@ function toggleCell(i: number) {
   activeCell.value = activeCell.value === i ? null : i
 }
 
+const pentagonColors = ['#6366f1', '#818cf8', '#a78bfa', '#c084fc', '#f97316']
+const pentagonNodes = Array.from({ length: 5 }, (_, j) => {
+  const angle = (2 * Math.PI * (j + 1)) / 5 - Math.PI / 2
+  return { cx: 40 + 24 * Math.cos(angle), cy: 40 + 24 * Math.sin(angle) }
+})
+const pentagonEdges = pentagonNodes.map((node, j) => ({
+  x1: node.cx,
+  y1: node.cy,
+  x2: pentagonNodes[(j + 1) % 5].cx,
+  y2: pentagonNodes[(j + 1) % 5].cy,
+}))
+
 const cells = [
   {
     id: 0,
@@ -63,17 +75,13 @@ const cells = [
       <div class="cell-animation" :class="`anim-${cell.area}`">
         <template v-if="cell.area === 'parallel'">
           <svg viewBox="0 0 80 80" class="mini-svg">
-            <circle v-for="j in 5" :key="j"
-              :cx="40 + 24 * Math.cos(2 * Math.PI * j / 5 - Math.PI / 2)"
-              :cy="40 + 24 * Math.sin(2 * Math.PI * j / 5 - Math.PI / 2)"
-              r="6" :fill="['#6366f1','#818cf8','#a78bfa','#c084fc','#f97316'][j-1]"
-              class="pulse-dot" :style="{ animationDelay: `${j * 0.3}s` }"
+            <circle v-for="(node, j) in pentagonNodes" :key="j"
+              :cx="node.cx" :cy="node.cy"
+              r="6" :fill="pentagonColors[j]"
+              class="pulse-dot" :style="{ animationDelay: `${(j + 1) * 0.3}s` }"
             />
-            <line v-for="j in 5" :key="'l'+j"
-              :x1="40 + 24 * Math.cos(2 * Math.PI * j / 5 - Math.PI / 2)"
-              :y1="40 + 24 * Math.sin(2 * Math.PI * j / 5 - Math.PI / 2)"
-              :x2="40 + 24 * Math.cos(2 * Math.PI * ((j % 5) + 1) / 5 - Math.PI / 2)"
-              :y2="40 + 24 * Math.sin(2 * Math.PI * ((j % 5) + 1) / 5 - Math.PI / 2)"
+            <line v-for="(edge, j) in pentagonEdges" :key="'l'+j"
+              :x1="edge.x1" :y1="edge.y1" :x2="edge.x2" :y2="edge.y2"
               stroke="var(--vp-c-divider)" stroke-width="1" stroke-dasharray="3 3"
             />
           </svg>

@@ -44,6 +44,12 @@
   --vp-c-brand-3: var(--sniper-brand-dark);
   --vp-c-brand-soft: rgba(99, 102, 241, 0.12);
   --vp-font-family-mono: var(--sniper-font-mono);
+
+  /* Home page layout */
+  --hero-height: 100svh;
+  --section-padding: 80px 24px;
+  --section-max-width: 1152px;
+  --bento-gap: 16px;
 }
 
 .dark {
@@ -290,21 +296,16 @@ div[class*="language-"] .copy.copied {
   inherits: false;
   initial-value: 80%;
 }
-@property --gradient-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
 /* ═══════════════════════════════════════════════════
-   HOME PAGE — section tokens
+   HOME PAGE — dark mode hero mesh (unscoped for .dark on <html>)
    ═══════════════════════════════════════════════════ */
 
-:root {
-  --hero-height: 100svh;
-  --section-padding: 80px 24px;
-  --section-max-width: 1152px;
-  --bento-gap: 16px;
+.dark .hero-mesh {
+  background:
+    radial-gradient(ellipse 60% 50% at var(--mesh-x) var(--mesh-y), rgba(99, 102, 241, 0.2), transparent),
+    radial-gradient(ellipse 50% 60% at var(--mesh-x2) var(--mesh-y2), rgba(139, 92, 246, 0.16), transparent),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(249, 115, 22, 0.08), transparent);
+  animation: mesh-drift 18s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -337,11 +338,6 @@ div[class*="language-"] .copy.copied {
 @keyframes typewriter-cursor {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
-}
-
-@keyframes counter-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes bento-dot-pulse {

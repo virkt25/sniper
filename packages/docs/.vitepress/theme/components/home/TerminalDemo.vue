@@ -116,9 +116,11 @@ onUnmounted(() => clearTimeouts())
         <span class="dot yellow" />
         <span class="dot green" />
       </div>
-      <div class="terminal-tabs">
+      <div class="terminal-tabs" role="tablist" aria-label="Terminal demo scenes">
         <button
           v-for="name in sceneNames" :key="name"
+          role="tab"
+          :aria-selected="activeScene === name"
           class="tab"
           :class="{ active: activeScene === name }"
           @click="activeScene = name"

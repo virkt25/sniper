@@ -20,6 +20,8 @@ onMounted(() => {
       displayed.value = tagline.slice(0, i + 1)
       i++
       setTimeout(type, 25 + Math.random() * 15)
+    } else {
+      setTimeout(() => { showCursor.value = false }, 2000)
     }
   }
   setTimeout(type, 600)
@@ -79,14 +81,6 @@ onMounted(() => {
     radial-gradient(ellipse 60% 50% at var(--mesh-x) var(--mesh-y), rgba(99, 102, 241, 0.12), transparent),
     radial-gradient(ellipse 50% 60% at var(--mesh-x2) var(--mesh-y2), rgba(139, 92, 246, 0.1), transparent),
     radial-gradient(ellipse 40% 40% at 50% 50%, rgba(249, 115, 22, 0.06), transparent);
-  animation: mesh-drift 18s ease-in-out infinite;
-}
-
-.dark .hero-mesh {
-  background:
-    radial-gradient(ellipse 60% 50% at var(--mesh-x) var(--mesh-y), rgba(99, 102, 241, 0.2), transparent),
-    radial-gradient(ellipse 50% 60% at var(--mesh-x2) var(--mesh-y2), rgba(139, 92, 246, 0.16), transparent),
-    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(249, 115, 22, 0.08), transparent);
   animation: mesh-drift 18s ease-in-out infinite;
 }
 
