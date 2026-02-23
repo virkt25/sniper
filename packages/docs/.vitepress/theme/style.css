@@ -1,23 +1,309 @@
 /*
- * SNIPER Documentation -- Custom Styles
- * Inverted table cards, smooth scrolling, and typography refinements.
+ * SNIPER Documentation -- Design System & Custom Styles
+ * Brand tokens, animations, micro-interactions, and layout refinements.
  */
 
-/* ── Smooth scrolling with offset for fixed header ── */
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM TOKENS
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Brand colors */
+  --sniper-brand: #6366f1;
+  --sniper-brand-light: #818cf8;
+  --sniper-brand-dark: #4f46e5;
+  --sniper-accent: #f97316;
+  --sniper-accent-light: #fb923c;
+
+  /* Glow / shadow tokens */
+  --sniper-glow: rgba(99, 102, 241, 0.15);
+  --sniper-glow-strong: rgba(99, 102, 241, 0.3);
+  --sniper-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --sniper-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --sniper-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.08);
+  --sniper-shadow-glow: 0 0 20px var(--sniper-glow);
+
+  /* Typography */
+  --sniper-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Radius */
+  --sniper-radius-sm: 8px;
+  --sniper-radius-md: 12px;
+  --sniper-radius-lg: 16px;
+  --sniper-radius-xl: 24px;
+
+  /* Transitions */
+  --sniper-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --sniper-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sniper-duration: 0.3s;
+  --sniper-duration-slow: 0.5s;
+
+  /* VitePress brand overrides */
+  --vp-c-brand-1: var(--sniper-brand);
+  --vp-c-brand-2: var(--sniper-brand-light);
+  --vp-c-brand-3: var(--sniper-brand-dark);
+  --vp-c-brand-soft: rgba(99, 102, 241, 0.12);
+  --vp-font-family-mono: var(--sniper-font-mono);
+}
+
+.dark {
+  --sniper-glow: rgba(99, 102, 241, 0.2);
+  --sniper-glow-strong: rgba(99, 102, 241, 0.4);
+  --sniper-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --sniper-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --sniper-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
+
+  /* Deeper dark backgrounds */
+  --vp-c-bg: #0f0f12;
+  --vp-c-bg-soft: #18181c;
+  --vp-c-bg-mute: #222228;
+}
+
+/* ═══════════════════════════════════════════════════
+   VIEW TRANSITIONS (dark mode toggle)
+   ═══════════════════════════════════════════════════ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root),
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+::view-transition-new(root),
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+
+/* ═══════════════════════════════════════════════════
+   SMOOTH SCROLLING
+   ═══════════════════════════════════════════════════ */
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 4rem;
 }
 
-/* ── Center the home page content container ── */
+/* ═══════════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vp-c-divider);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sniper-brand);
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER — glassmorphism blur
+   ═══════════════════════════════════════════════════ */
+
+.VPNav {
+  backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.dark .VPNav {
+  background: rgba(15, 15, 18, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════
+   NAV LINK UNDERLINE DRAW
+   ═══════════════════════════════════════════════════ */
+
+.VPNavBarMenuLink .text {
+  position: relative;
+}
+.VPNavBarMenuLink .text::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--sniper-brand);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--sniper-duration) var(--sniper-ease);
+}
+.VPNavBarMenuLink .text:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ═══════════════════════════════════════════════════
+   SIDEBAR ACTIVE INDICATOR
+   ═══════════════════════════════════════════════════ */
+
+.VPSidebarItem.is-active > .item > .link {
+  position: relative;
+}
+.VPSidebarItem.is-active > .item > .link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--sniper-brand);
+  border-radius: 0 2px 2px 0;
+  animation: slide-in 0.3s var(--sniper-ease-bounce);
+}
+@keyframes slide-in {
+  from { transform: translateY(-50%) scaleY(0); }
+  to { transform: translateY(-50%) scaleY(1); }
+}
+
+/* ═══════════════════════════════════════════════════
+   FEATURE CARD HOVER ELEVATION
+   ═══════════════════════════════════════════════════ */
+
+.VPFeature {
+  transition: transform var(--sniper-duration) var(--sniper-ease),
+              box-shadow var(--sniper-duration) var(--sniper-ease),
+              border-color var(--sniper-duration) var(--sniper-ease);
+}
+.VPFeature:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sniper-shadow-lg);
+  border-color: var(--sniper-brand);
+}
+
+/* ═══════════════════════════════════════════════════
+   CODE BLOCK COPY BUTTON ENHANCEMENT
+   ═══════════════════════════════════════════════════ */
+
+.vp-code-group .tabs label,
+div[class*="language-"] .copy {
+  transition: all var(--sniper-duration) var(--sniper-ease);
+}
+div[class*="language-"] .copy.copied {
+  animation: copy-success 0.4s var(--sniper-ease-bounce);
+}
+@keyframes copy-success {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLL-REVEAL ANIMATIONS (CSS scroll-driven)
+   ═══════════════════════════════════════════════════ */
+
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc .custom-block,
+.vp-doc table,
+.vp-doc div[class*="language-"] {
+  animation: reveal-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .vp-doc h2,
+  .vp-doc h3,
+  .vp-doc .custom-block,
+  .vp-doc table,
+  .vp-doc div[class*="language-"] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   DARK MODE — hero glow
+   ═══════════════════════════════════════════════════ */
+
+.dark .VPHero .image-container {
+  position: relative;
+}
+.dark .VPHero .image-container::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ═══════════════════════════════════════════════════
+   REDUCED MOTION — disable all animations
+   ═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   HOME PAGE — shared keyframes
+   ═══════════════════════════════════════════════════ */
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.08); }
+  50% { box-shadow: 0 0 32px rgba(99, 102, 241, 0.18); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ═══════════════════════════════════════════════════
+   CENTER HOME CONTENT
+   ═══════════════════════════════════════════════════ */
+
 .VPHome .vp-doc.container {
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
-/* ── Inverted table cards ── */
+/* ═══════════════════════════════════════════════════
+   INVERTED TABLE CARDS
+   ═══════════════════════════════════════════════════ */
 
-/* Two-column layout: narrow label, wide value */
 .vp-doc table.inverted {
   display: table;
   width: 100%;
@@ -45,14 +331,22 @@ html {
   text-align: left;
 }
 
-/* ── Section dividers between command/team cards ── */
+/* ═══════════════════════════════════════════════════
+   SECTION DIVIDERS — glowing gradient
+   ═══════════════════════════════════════════════════ */
+
 .vp-doc hr {
-  margin: 2rem 0;
   border: none;
-  border-top: 1px solid var(--vp-c-divider);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vp-c-brand-1), transparent);
+  opacity: 0.4;
+  margin: 2.5rem 0;
 }
 
-/* ── Inline code in tables ── */
+/* ═══════════════════════════════════════════════════
+   INLINE CODE IN TABLES
+   ═══════════════════════════════════════════════════ */
+
 .vp-doc table code {
   font-size: 0.85em;
   padding: 0.15em 0.35em;
@@ -60,7 +354,10 @@ html {
   background: var(--vp-c-bg-soft);
 }
 
-/* ── Badge-style gate labels ── */
+/* ═══════════════════════════════════════════════════
+   BADGE-STYLE GATE LABELS
+   ═══════════════════════════════════════════════════ */
+
 .gate-strict,
 .gate-flexible,
 .gate-auto,
@@ -93,7 +390,10 @@ html {
   color: var(--vp-c-text-2);
 }
 
-/* ── Member tables inside inverted cards ── */
+/* ═══════════════════════════════════════════════════
+   MEMBER TABLES INSIDE INVERTED CARDS
+   ═══════════════════════════════════════════════════ */
+
 .vp-doc table.members {
   width: 100%;
   margin: 0;
@@ -114,7 +414,10 @@ html {
   padding: 0.35rem 0.5rem;
 }
 
-/* ── Quick-lookup TOC table ── */
+/* ═══════════════════════════════════════════════════
+   QUICK-LOOKUP TOC TABLE
+   ═══════════════════════════════════════════════════ */
+
 .vp-doc table.toc-table {
   font-size: 0.9em;
 }
@@ -124,10 +427,13 @@ html {
   font-weight: 500;
 }
 
-/* ── Composition example boxes ── */
+/* ═══════════════════════════════════════════════════
+   COMPOSITION EXAMPLE BOXES
+   ═══════════════════════════════════════════════════ */
+
 .composition-example {
   border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
+  border-radius: var(--sniper-radius-sm);
   padding: 1rem 1.25rem;
   margin: 0.75rem 0;
   background: var(--vp-c-bg-soft);

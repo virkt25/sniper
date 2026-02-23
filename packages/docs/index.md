@@ -35,37 +35,8 @@ features:
 
 <style>
 /* ═══════════════════════════════════════════════════
-   ANIMATIONS
-   ═══════════════════════════════════════════════════ */
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.08); }
-  50% { box-shadow: 0 0 32px rgba(99, 102, 241, 0.18); }
-}
-
-@keyframes border-glow {
-  0%, 100% { border-color: var(--vp-c-divider); }
-  50% { border-color: var(--vp-c-brand-1); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-/* ═══════════════════════════════════════════════════
-   STATS BAR
+   HOME PAGE — page-specific styles
+   (shared keyframes live in style.css)
    ═══════════════════════════════════════════════════ */
 
 .stats-bar {
@@ -83,10 +54,12 @@ features:
   flex: 1;
   min-width: 120px;
   padding: 28px 16px;
-  border-radius: 16px;
+  border-radius: var(--sniper-radius-lg);
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-divider);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform var(--sniper-duration) var(--sniper-ease),
+              box-shadow var(--sniper-duration) var(--sniper-ease),
+              border-color var(--sniper-duration) var(--sniper-ease);
   animation: glow-pulse 4s ease-in-out infinite;
 }
 .stat:nth-child(2) { animation-delay: 0.8s; }
@@ -95,8 +68,8 @@ features:
 .stat:nth-child(5) { animation-delay: 3.2s; }
 .stat:hover {
   transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
-  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 12px 40px var(--sniper-glow-strong);
+  border-color: var(--sniper-brand);
 }
 .stat-number {
   font-size: 3em;
@@ -185,11 +158,13 @@ features:
   min-width: 0;
   position: relative;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 16px;
+  border-radius: var(--sniper-radius-lg);
   padding: 28px;
   background: var(--vp-c-bg-soft);
   backdrop-filter: blur(8px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform var(--sniper-duration) var(--sniper-ease),
+              box-shadow var(--sniper-duration) var(--sniper-ease),
+              border-color var(--sniper-duration) var(--sniper-ease);
   overflow: hidden;
 }
 .workflow-card::before {
@@ -212,7 +187,7 @@ features:
 }
 .workflow-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 48px rgba(99, 102, 241, 0.12);
+  box-shadow: var(--sniper-shadow-lg);
   border-color: transparent;
 }
 .workflow-card h3 {
@@ -277,14 +252,16 @@ features:
 }
 .screenshot-grid img {
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--sniper-radius-md);
   border: 1px solid var(--vp-c-divider);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform var(--sniper-duration) var(--sniper-ease),
+              box-shadow var(--sniper-duration) var(--sniper-ease),
+              border-color var(--sniper-duration) var(--sniper-ease);
 }
 .screenshot-grid img:hover {
   transform: scale(1.02);
-  box-shadow: 0 12px 48px rgba(99, 102, 241, 0.2);
-  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 12px 48px var(--sniper-glow-strong);
+  border-color: var(--sniper-brand);
 }
 .screenshot-grid figcaption {
   text-align: center;
