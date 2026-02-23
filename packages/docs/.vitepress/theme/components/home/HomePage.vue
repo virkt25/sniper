@@ -170,6 +170,7 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
   text-align: center;
   max-width: var(--section-max-width);
   margin: 0 auto;
+  padding-bottom: 80px;
 }
 
 .cta-divider {
