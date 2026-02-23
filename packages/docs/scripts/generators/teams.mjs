@@ -40,7 +40,7 @@ export async function generateTeams(frameworkDir, outputDir) {
       const lines = [
         '---',
         `title: "${teamName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
-        'layout: reference',
+        'pageLayout: reference',
         'pageType: team',
         ...(phase ? [`phase: "${phase}"`] : []),
         `memberCount: ${teammates.length}`,

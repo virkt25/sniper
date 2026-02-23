@@ -22,6 +22,15 @@ export default withMermaid(defineConfig({
   base: '/',
   cleanUrls: true,
 
+  vite: {
+    optimizeDeps: {
+      include: ['mermaid'],
+    },
+    ssr: {
+      noExternal: ['mermaid'],
+    },
+  },
+
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],

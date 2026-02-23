@@ -30,7 +30,7 @@ export async function generateCommands(frameworkDir, outputDir) {
       const page = [
         '---',
         `title: "${commandName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
-        'layout: reference',
+        'pageLayout: reference',
         'pageType: command',
         ...(description ? [`description: "${description.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`] : []),
         '---',

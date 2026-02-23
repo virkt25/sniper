@@ -11,7 +11,7 @@ const { frontmatter } = useData()
 </script>
 
 <template>
-  <ReferenceLayout v-if="frontmatter.layout === 'reference'">
+  <ReferenceLayout v-if="frontmatter.pageLayout === 'reference'">
     <template #layout-top>
       <ScrollProgress />
     </template>
