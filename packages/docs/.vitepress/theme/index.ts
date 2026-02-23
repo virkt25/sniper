@@ -4,6 +4,7 @@ import { useData } from 'vitepress'
 import { nextTick, provide } from 'vue'
 import PersonaCard from './components/PersonaCard.vue'
 import TeamDiagram from './components/TeamDiagram.vue'
+import HomePage from './components/home/HomePage.vue'
 import Layout from './components/Layout.vue'
 import './style.css'
 
@@ -13,6 +14,7 @@ export default {
   enhanceApp({ app }) {
     app.component('PersonaCard', PersonaCard)
     app.component('TeamDiagram', TeamDiagram)
+    app.component('HomePage', HomePage)
   },
   setup() {
     const { isDark } = useData()
