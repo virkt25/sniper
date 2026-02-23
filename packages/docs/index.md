@@ -80,6 +80,7 @@ features:
 .workflow-section {
   max-width: 100%;
   margin: 0 auto;
+  overflow: hidden;
 }
 .workflow-section h2 {
   text-align: center;
@@ -111,11 +112,13 @@ features:
 .workflow-card {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   padding: 28px;
   background: var(--vp-c-bg-soft);
   transition: border-color 0.2s;
+  overflow: hidden;
 }
 .workflow-card:hover {
   border-color: var(--vp-c-brand-1);
@@ -144,7 +147,7 @@ features:
 }
 .workflow-card .language-text,
 .workflow-card div[class*="language-"] {
-  margin-top: auto;
+  margin-top: 16px;
 }
 
 /* --- Screenshots --- */
@@ -247,7 +250,10 @@ features:
 Start with an idea. SNIPER's discovery team researches the market, assesses risks, and defines user personas. Then the planning team produces a PRD, architecture, UX spec, and security analysis. The solve phase shards everything into epics and stories. Finally, sprint teams implement story by story — with tests, PRs, and code review at every step.
 
 ```
-/sniper-discover → /sniper-plan → /sniper-solve → /sniper-sprint
+→ /sniper-discover
+→ /sniper-plan
+→ /sniper-solve
+→ /sniper-sprint
 ```
 
 </div>
@@ -260,7 +266,10 @@ Start with an idea. SNIPER's discovery team researches the market, assesses risk
 Already have code? SNIPER's ingest team reverse-engineers your architecture, extracts coding conventions, and produces a project brief from your source. From there, use `/sniper-feature` for scoped additions, `/sniper-debug` for structured bug investigation, or `/sniper-audit` for security, performance, and test coverage analysis.
 
 ```
-/sniper-ingest → /sniper-feature | /sniper-debug | /sniper-audit
+→ /sniper-ingest
+→ /sniper-feature
+→ /sniper-debug
+→ /sniper-audit
 ```
 
 </div>
