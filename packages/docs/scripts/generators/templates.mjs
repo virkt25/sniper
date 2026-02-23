@@ -17,51 +17,55 @@ export async function generateTemplates(frameworkDir, outputDir) {
   const sidebarItems = [];
 
   for (const file of files) {
-    const content = await readFile(join(templatesDir, file), 'utf-8');
-    const slug = file.replace(/\.(md|yaml|yml)$/, '');
-    const ext = file.split('.').pop();
-    const isYaml = ext === 'yaml' || ext === 'yml';
+    try {
+      const content = await readFile(join(templatesDir, file), 'utf-8');
+      const slug = file.replace(/\.(md|yaml|yml)$/, '');
+      const ext = file.split('.').pop();
+      const isYaml = ext === 'yaml' || ext === 'yml';
 
-    // Derive title
-    let title;
-    if (isYaml) {
-      // YAML templates: use first comment line or slug
-      const commentMatch = content.match(/^#\s+(.+)/m);
-      title = commentMatch ? commentMatch[1].trim() : slug;
-    } else {
-      // Markdown templates: parse first heading
-      const headingMatch = content.match(/^#\s+(.+)/m);
-      title = headingMatch ? headingMatch[1].trim() : slug;
+      // Derive title
+      let title;
+      if (isYaml) {
+        // YAML templates: use first comment line or slug
+        const commentMatch = content.match(/^#\s+(.+)/m);
+        title = commentMatch ? commentMatch[1].trim() : slug;
+      } else {
+        // Markdown templates: parse first heading
+        const headingMatch = content.match(/^#\s+(.+)/m);
+        title = headingMatch ? headingMatch[1].trim() : slug;
+      }
+
+      // Clean up template placeholders in title
+      title = title.replace(/\{[^}]+\}/g, (m) => `\`${m}\``);
+
+      const lines = [
+        '---',
+        `title: "${title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        '---',
+        '',
+      ];
+
+      if (isYaml) {
+        lines.push(`# ${title}`, '');
+        lines.push(`> Source: \`${file}\``, '');
+        lines.push('```yaml', content.trimEnd(), '```', '');
+      } else {
+        // Wrap markdown templates in a fenced code block to prevent
+        // VitePress from parsing HTML comments and curly braces
+        lines.push(`# ${title}`, '');
+        lines.push(`> Source: \`${file}\``, '');
+        lines.push('```markdown', content.trimEnd(), '```', '');
+      }
+
+      await writeFile(join(outDir, `${slug}.md`), lines.join('\n'), 'utf-8');
+
+      sidebarItems.push({
+        text: title,
+        link: `/reference/templates/${slug}`,
+      });
+    } catch (err) {
+      console.error(`  Error processing template ${file}: ${err.message}`);
     }
-
-    // Clean up template placeholders in title
-    title = title.replace(/\{[^}]+\}/g, (m) => `\`${m}\``);
-
-    const lines = [
-      '---',
-      `title: "${title.replace(/"/g, '\\"')}"`,
-      '---',
-      '',
-    ];
-
-    if (isYaml) {
-      lines.push(`# ${title}`, '');
-      lines.push(`> Source: \`${file}\``, '');
-      lines.push('```yaml', content.trimEnd(), '```', '');
-    } else {
-      // Wrap markdown templates in a fenced code block to prevent
-      // VitePress from parsing HTML comments and curly braces
-      lines.push(`# ${title}`, '');
-      lines.push(`> Source: \`${file}\``, '');
-      lines.push('```markdown', content.trimEnd(), '```', '');
-    }
-
-    await writeFile(join(outDir, `${slug}.md`), lines.join('\n'), 'utf-8');
-
-    sidebarItems.push({
-      text: title,
-      link: `/reference/templates/${slug}`,
-    });
   }
 
   sidebarItems.sort((a, b) => a.text.localeCompare(b.text));

@@ -15,32 +15,36 @@ export async function generateWorkflows(frameworkDir, outputDir) {
   const sidebarItems = [];
 
   for (const file of files) {
-    const content = await readFile(join(workflowsDir, file), 'utf-8');
-    const slug = file.replace(/\.md$/, '');
+    try {
+      const content = await readFile(join(workflowsDir, file), 'utf-8');
+      const slug = file.replace(/\.md$/, '');
 
-    // Parse title from first heading
-    const firstLine = content.split('\n')[0] || '';
-    const match = firstLine.match(/^#\s+(.+)$/);
-    const title = match ? match[1].trim() : slug;
+      // Parse title from first heading
+      const firstLine = content.split('\n')[0] || '';
+      const match = firstLine.match(/^#\s+(.+)$/);
+      const title = match ? match[1].trim() : slug;
 
-    const page = [
-      '---',
-      `title: "${title}"`,
-      '---',
-      '',
-      '<div v-pre>',
-      '',
-      content,
-      '',
-      '</div>',
-    ].join('\n');
+      const page = [
+        '---',
+        `title: "${title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        '---',
+        '',
+        '<div v-pre>',
+        '',
+        content,
+        '',
+        '</div>',
+      ].join('\n');
 
-    await writeFile(join(outDir, `${slug}.md`), page, 'utf-8');
+      await writeFile(join(outDir, `${slug}.md`), page, 'utf-8');
 
-    sidebarItems.push({
-      text: title,
-      link: `/reference/workflows/${slug}`,
-    });
+      sidebarItems.push({
+        text: title,
+        link: `/reference/workflows/${slug}`,
+      });
+    } catch (err) {
+      console.error(`  Error processing workflow ${file}: ${err.message}`);
+    }
   }
 
   sidebarItems.sort((a, b) => a.text.localeCompare(b.text));

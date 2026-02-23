@@ -44,7 +44,7 @@ export async function generatePersonas(frameworkDir, outputDir) {
 
       const page = [
         '---',
-        `title: "${personaName}"`,
+        `title: "${personaName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
         '---',
         '',
         '<div v-pre>',

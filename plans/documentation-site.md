@@ -49,10 +49,10 @@ Scripts in `packages/docs/scripts/` that read `packages/core/framework/` and wri
 **Files to create:**
 - `scripts/generate.mjs` — orchestrator that resolves framework path and runs generators
 - `scripts/generators/commands.mjs` — transforms 18 command MD files into reference pages
-- `scripts/generators/personas.mjs` — groups 31 persona files into 3 layer pages (process, technical, cognitive)
-- `scripts/generators/teams.mjs` — parses 16 team YAML files into composition pages with persona cross-links
+- `scripts/generators/personas.mjs` — groups 42 persona files into 3 layer pages (process, technical, cognitive)
+- `scripts/generators/teams.mjs` — parses 17 team YAML files into composition pages with persona cross-links
 - `scripts/generators/checklists.mjs` — transforms 15 checklist files with gate mode badges
-- `scripts/generators/templates.mjs` — catalogs 40+ template files grouped by category
+- `scripts/generators/templates.mjs` — catalogs 38 template files grouped by category
 - `scripts/generators/workflows.mjs` — transforms 5 workflow files with command cross-links
 - `scripts/generators/sidebar.mjs` — collects all generated pages into `sidebar-data.json` for dynamic sidebar
 

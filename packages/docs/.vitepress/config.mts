@@ -7,6 +7,7 @@ function loadSidebarData() {
   if (existsSync(sidebarPath)) {
     return JSON.parse(readFileSync(sidebarPath, 'utf-8'))
   }
+  console.warn('⚠ sidebar-data.json not found. Run "pnpm generate" first.')
   return {}
 }
 
