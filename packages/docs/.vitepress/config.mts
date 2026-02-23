@@ -177,13 +177,6 @@ export default withMermaid(defineConfig({
     ],
   },
 
-  transformPageData(pageData) {
-    const content = pageData.content ?? ''
-    const text = content.replace(/<[^>]*>/g, '').replace(/[#*`\[\]()]/g, '')
-    const words = text.split(/\s+/).filter(Boolean).length
-    pageData.frontmatter.readingTime = Math.max(1, Math.round(words / 200))
-  },
-
   mermaid: {
     theme: 'base',
     themeVariables: {

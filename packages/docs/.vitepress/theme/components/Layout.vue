@@ -2,7 +2,6 @@
 import DefaultTheme from 'vitepress/theme'
 import { useData } from 'vitepress'
 import ScrollProgress from './ScrollProgress.vue'
-import ReadingTime from './ReadingTime.vue'
 import PrevNextCards from './PrevNextCards.vue'
 import ReferenceLayout from './reference/ReferenceLayout.vue'
 
@@ -19,9 +18,6 @@ const { frontmatter } = useData()
   <Layout v-else>
     <template #layout-top>
       <ScrollProgress />
-    </template>
-    <template #doc-before>
-      <ReadingTime />
     </template>
     <template #doc-after>
       <PrevNextCards />
