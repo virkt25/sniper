@@ -3,5 +3,5 @@ dist/
 *.tsbuildinfo
 .DS_Store
 packages/docs/generated/
-.vitepress/dist/
-.vitepress/cache/
+**/.vitepress/dist/
+**/.vitepress/cache/
