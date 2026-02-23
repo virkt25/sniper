@@ -533,3 +533,243 @@ div[class*="language-"] .copy.copied {
 .composition-example strong {
   font-size: 1.05em;
 }
+
+/* ═══════════════════════════════════════════════════
+   SNIPER SYNTAX THEME — code block enhancements
+   ═══════════════════════════════════════════════════ */
+
+div[class*="language-"] {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: var(--sniper-radius-md) !important;
+}
+
+div[class*="language-"] code {
+  font-family: var(--sniper-font-mono);
+}
+
+/* Line count badge */
+.sniper-code-wrapper {
+  position: relative;
+}
+
+.sniper-line-badge {
+  position: absolute;
+  top: 8px;
+  right: 48px;
+  z-index: 2;
+  font-size: 0.7rem;
+  font-family: var(--sniper-font-mono);
+  color: var(--vp-c-text-3);
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  padding: 1px 8px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Collapsible code blocks */
+.sniper-code-collapsible .sniper-code-content {
+  max-height: 480px;
+  overflow: hidden;
+  position: relative;
+  transition: max-height var(--sniper-duration-slow) var(--sniper-ease);
+}
+
+.sniper-code-collapsible .sniper-code-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--vp-c-bg));
+  pointer-events: none;
+  transition: opacity var(--sniper-duration) var(--sniper-ease);
+}
+
+.dark .sniper-code-collapsible .sniper-code-content::after {
+  background: linear-gradient(to bottom, transparent, var(--vp-c-bg));
+}
+
+.sniper-code-collapsible.is-expanded .sniper-code-content {
+  max-height: none;
+}
+
+.sniper-code-collapsible.is-expanded .sniper-code-content::after {
+  opacity: 0;
+}
+
+/* Show more / Show less toggle */
+.sniper-code-toggle {
+  display: block;
+  width: 100%;
+  padding: 8px 0;
+  margin-top: -4px;
+  border: none;
+  background: var(--vp-c-bg-soft);
+  color: var(--sniper-brand);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--sniper-font-mono);
+  cursor: pointer;
+  border-radius: 0 0 var(--sniper-radius-md) var(--sniper-radius-md);
+  border: 1px solid var(--vp-c-divider);
+  border-top: none;
+  transition: color var(--sniper-duration) var(--sniper-ease),
+              background var(--sniper-duration) var(--sniper-ease);
+}
+
+.sniper-code-toggle:hover {
+  color: var(--sniper-brand-light);
+  background: var(--vp-c-bg-mute);
+}
+
+/* ═══════════════════════════════════════════════════
+   CUSTOM CALLOUT CONTAINERS
+   ═══════════════════════════════════════════════════ */
+
+.sniper-callout {
+  margin: 16px 0;
+  padding: 16px 20px;
+  border-radius: var(--sniper-radius-md);
+  border-left: 4px solid;
+}
+
+.sniper-callout-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sniper-callout-title::before {
+  display: inline-block;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Pro Tip */
+.sniper-pro-tip {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: var(--sniper-brand);
+}
+
+.sniper-pro-tip .sniper-callout-title {
+  color: var(--sniper-brand);
+}
+
+.sniper-pro-tip .sniper-callout-title::before {
+  content: '\1F680';
+}
+
+.dark .sniper-pro-tip {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* Phase Note */
+.sniper-phase-note {
+  background: rgba(249, 115, 22, 0.06);
+  border-color: var(--sniper-accent);
+}
+
+.sniper-phase-note .sniper-callout-title {
+  color: var(--sniper-accent);
+}
+
+.sniper-phase-note .sniper-callout-title::before {
+  content: '\1F9ED';
+}
+
+.dark .sniper-phase-note {
+  background: rgba(249, 115, 22, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════
+   EDIT LINK — pencil icon hover
+   ═══════════════════════════════════════════════════ */
+
+.VPDocFooter .edit-link-button {
+  transition: color var(--sniper-duration) var(--sniper-ease);
+}
+
+.VPDocFooter .edit-link-button:hover {
+  color: var(--sniper-brand);
+}
+
+.VPDocFooter .edit-link-button .vpi-square-pen {
+  transition: transform var(--sniper-duration) var(--sniper-ease-bounce);
+}
+
+.VPDocFooter .edit-link-button:hover .vpi-square-pen {
+  transform: rotate(-12deg) scale(1.1);
+}
+
+/* ═══════════════════════════════════════════════════
+   MERMAID DIAGRAMS
+   ═══════════════════════════════════════════════════ */
+
+.vp-doc .mermaid {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+}
+
+.vp-doc .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.dark .mermaid .node rect,
+.dark .mermaid .node circle,
+.dark .mermaid .node polygon {
+  stroke: var(--sniper-brand-light);
+}
+
+.dark .mermaid .edgePath .path {
+  stroke: var(--sniper-brand-light);
+}
+
+.dark .mermaid .edgeLabel {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+}
+
+.dark .mermaid text {
+  fill: var(--vp-c-text-1);
+}
+
+.dark .mermaid .label {
+  color: var(--vp-c-text-1);
+}
+
+/* ═══════════════════════════════════════════════════
+   REFERENCE PAGE LAYOUT — three-column responsive
+   ═══════════════════════════════════════════════════ */
+
+/* Ensure reference pages show the aside column for metadata */
+.reference-header + .vp-doc {
+  min-height: auto;
+}
+
+/* Reference page aside column enhancements */
+.has-reference-layout .VPDocAside {
+  position: sticky;
+  top: calc(var(--vp-nav-height) + 16px);
+}
+
+/* Responsive: 3-col → 2-col at 1440px */
+@media (max-width: 1440px) {
+  .reference-header .header-badges {
+    flex-wrap: wrap;
+  }
+}
+
+/* Responsive: 2-col → 1-col at 960px */
+@media (max-width: 960px) {
+  .reference-header .breadcrumbs {
+    font-size: 12px;
+  }
+}

@@ -27,6 +27,8 @@ export async function generateWorkflows(frameworkDir, outputDir) {
       const page = [
         '---',
         `title: "${title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        'layout: reference',
+        'pageType: workflow',
         '---',
         '',
         '<div v-pre>',

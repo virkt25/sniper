@@ -1,8 +1,16 @@
 <script setup lang="ts">
-defineProps<{
+import { ref, onMounted, nextTick } from 'vue'
+
+const props = defineProps<{
   name: string
   phase: string
   members: Array<{ name: string; layers: string[] }>
+  gateMode?: string
+  dependencies?: Array<{ from: string; to: string }>
+}>()
+
+const emit = defineEmits<{
+  'member-click': [member: { name: string; layers: string[] }]
 }>()
 
 const layerColors: Record<string, string> = {
@@ -12,19 +20,104 @@ const layerColors: Record<string, string> = {
   domain: '#f59e0b',
 }
 
+const phaseColors: Record<string, string> = {
+  S: '#6366f1', Spawn: '#6366f1',
+  N: '#8b5cf6', Navigate: '#8b5cf6',
+  I: '#10b981', Implement: '#10b981',
+  P: '#f59e0b', Parallelize: '#f59e0b',
+  E: '#f97316', Evaluate: '#f97316',
+  R: '#ef4444', Release: '#ef4444',
+}
+
+const phaseColor = phaseColors[props.phase] ?? 'var(--sniper-brand)'
+
 function getLayerColor(layer: string): string {
   return layerColors[layer] ?? '#6b7280'
+}
+
+function getPrimaryBorder(layers: string[]): string {
+  return layers.length > 0 ? getLayerColor(layers[0]) : '#6b7280'
+}
+
+const gateModeClass = props.gateMode ? `gate-${props.gateMode}` : ''
+
+const svgLines = ref<Array<{ x1: number; y1: number; x2: number; y2: number }>>([])
+const diagramRef = ref<HTMLElement | null>(null)
+
+onMounted(async () => {
+  if (!props.dependencies?.length || !diagramRef.value) return
+  await nextTick()
+  computeLines()
+})
+
+function computeLines() {
+  if (!diagramRef.value || !props.dependencies?.length) return
+  const container = diagramRef.value
+  const boxes = container.querySelectorAll<HTMLElement>('.member-box')
+  const boxMap = new Map<string, HTMLElement>()
+  boxes.forEach((box) => {
+    const name = box.dataset.member
+    if (name) boxMap.set(name, box)
+  })
+
+  const containerRect = container.getBoundingClientRect()
+  const lines: typeof svgLines.value = []
+
+  for (const dep of props.dependencies) {
+    const fromEl = boxMap.get(dep.from)
+    const toEl = boxMap.get(dep.to)
+    if (!fromEl || !toEl) continue
+    const fromRect = fromEl.getBoundingClientRect()
+    const toRect = toEl.getBoundingClientRect()
+    lines.push({
+      x1: fromRect.left + fromRect.width / 2 - containerRect.left,
+      y1: fromRect.top + fromRect.height / 2 - containerRect.top,
+      x2: toRect.left + toRect.width / 2 - containerRect.left,
+      y2: toRect.top + toRect.height / 2 - containerRect.top,
+    })
+  }
+  svgLines.value = lines
 }
 </script>
 
 <template>
-  <div class="team-diagram">
+  <div class="team-diagram" ref="diagramRef">
     <div class="team-header">
       <h3 class="team-name">{{ name }}</h3>
-      <span class="team-phase">{{ phase }}</span>
+      <span class="team-phase" :style="{ backgroundColor: phaseColor }">
+        {{ phase }}
+      </span>
+      <span v-if="gateMode" :class="['gate-badge', gateModeClass]">
+        {{ gateMode }}
+      </span>
     </div>
+
     <div class="team-members">
-      <div v-for="member in members" :key="member.name" class="member-box">
+      <svg
+        v-if="svgLines.length"
+        class="dep-lines"
+        aria-hidden="true"
+      >
+        <line
+          v-for="(line, i) in svgLines"
+          :key="i"
+          :x1="line.x1"
+          :y1="line.y1"
+          :x2="line.x2"
+          :y2="line.y2"
+        />
+      </svg>
+      <div
+        v-for="member in members"
+        :key="member.name"
+        class="member-box"
+        :data-member="member.name"
+        :style="{ borderColor: getPrimaryBorder(member.layers) }"
+        tabindex="0"
+        role="button"
+        @click="emit('member-click', member)"
+        @keydown.enter="emit('member-click', member)"
+      >
         <div class="member-name">{{ member.name }}</div>
         <div class="member-layers">
           <span
@@ -44,10 +137,11 @@ function getLayerColor(layer: string): string {
 <style scoped>
 .team-diagram {
   border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
+  border-radius: var(--sniper-radius-md);
   padding: 20px;
   margin: 16px 0;
-  background-color: var(--vp-c-bg-soft);
+  background: var(--vp-c-bg-soft);
+  position: relative;
 }
 
 .team-header {
@@ -67,28 +161,66 @@ function getLayerColor(layer: string): string {
 }
 
 .team-phase {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--vp-c-text-2);
-  background-color: var(--vp-c-bg-mute);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
   padding: 2px 10px;
   border-radius: 9999px;
+}
+
+.gate-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
 }
 
 .team-members {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  position: relative;
+}
+
+.dep-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dep-lines line {
+  stroke: var(--vp-c-divider);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
 }
 
 .member-box {
   flex: 1 1 140px;
   min-width: 140px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 6px;
+  border: 2px solid var(--vp-c-divider);
+  border-radius: var(--sniper-radius-sm);
   padding: 12px;
-  background-color: var(--vp-c-bg);
+  background: var(--vp-c-bg);
   text-align: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: box-shadow var(--sniper-duration) var(--sniper-ease),
+              transform var(--sniper-duration) var(--sniper-ease);
+}
+
+.member-box:hover {
+  box-shadow: 0 0 16px color-mix(in srgb, currentColor 15%, transparent);
+  transform: translateY(-2px);
+}
+
+.member-box:focus-visible {
+  outline: 2px solid var(--sniper-brand);
+  outline-offset: 2px;
 }
 
 .member-name {
@@ -113,5 +245,11 @@ function getLayerColor(layer: string): string {
   padding: 1px 6px;
   border-radius: 9999px;
   text-transform: capitalize;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-box {
+    transition: none;
+  }
 }
 </style>

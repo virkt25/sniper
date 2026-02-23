@@ -45,6 +45,9 @@ export async function generatePersonas(frameworkDir, outputDir) {
       const page = [
         '---',
         `title: "${personaName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        'layout: reference',
+        'pageType: persona',
+        `layer: ${layer}`,
         '---',
         '',
         '<div v-pre>',

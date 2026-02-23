@@ -29,10 +29,23 @@ export async function generateTeams(frameworkDir, outputDir) {
       // Escape pipe characters for markdown table cells
       const esc = (v) => (v || '--').replace(/\|/g, '\\|');
 
+      // Collect related items
+      const relatedItems = [];
+      if (reviewGate?.checklist) {
+        const checklistSlug = reviewGate.checklist.replace(/\.(md|yaml|yml)$/, '').split('/').pop();
+        relatedItems.push(`  - { type: checklist, link: "/reference/checklists/${checklistSlug}" }`);
+      }
+
       // Build markdown page
       const lines = [
         '---',
         `title: "${teamName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
+        'layout: reference',
+        'pageType: team',
+        ...(phase ? [`phase: "${phase}"`] : []),
+        `memberCount: ${teammates.length}`,
+        ...(reviewGate?.mode ? [`gateMode: ${reviewGate.mode}`] : []),
+        ...(relatedItems.length > 0 ? ['relatedItems:', ...relatedItems] : []),
         '---',
         '',
         `# ${teamName}`,

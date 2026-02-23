@@ -4,7 +4,15 @@ import { useData } from 'vitepress'
 import { nextTick, provide } from 'vue'
 import PersonaCard from './components/PersonaCard.vue'
 import TeamDiagram from './components/TeamDiagram.vue'
+import PhaseTimeline from './components/PhaseTimeline.vue'
+import ChecklistWidget from './components/ChecklistWidget.vue'
+import CommandPalette from './components/CommandPalette.vue'
+import ArtifactViewer from './components/ArtifactViewer.vue'
+import ComparisonTable from './components/ComparisonTable.vue'
 import HomePage from './components/home/HomePage.vue'
+import ReadingTime from './components/ReadingTime.vue'
+import PrevNextCards from './components/PrevNextCards.vue'
+import MermaidViewer from './components/MermaidViewer.vue'
 import Layout from './components/Layout.vue'
 import './style.css'
 
@@ -14,7 +22,15 @@ export default {
   enhanceApp({ app }) {
     app.component('PersonaCard', PersonaCard)
     app.component('TeamDiagram', TeamDiagram)
+    app.component('PhaseTimeline', PhaseTimeline)
+    app.component('ChecklistWidget', ChecklistWidget)
+    app.component('CommandPalette', CommandPalette)
+    app.component('ArtifactViewer', ArtifactViewer)
+    app.component('ComparisonTable', ComparisonTable)
     app.component('HomePage', HomePage)
+    app.component('ReadingTime', ReadingTime)
+    app.component('PrevNextCards', PrevNextCards)
+    app.component('MermaidViewer', MermaidViewer)
   },
   setup() {
     const { isDark } = useData()
