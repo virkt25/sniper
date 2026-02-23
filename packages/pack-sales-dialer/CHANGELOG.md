@@ -1,5 +1,11 @@
 # @sniper.ai/pack-sales-dialer
 
+## 2.0.0
+
+### Major Changes
+
+- Sniper V2
+
 ## 1.0.1
 
 ### Patch Changes

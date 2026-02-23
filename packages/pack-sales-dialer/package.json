@@ -1,6 +1,6 @@
 {
   "name": "@sniper.ai/pack-sales-dialer",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "SNIPER domain pack — Sales dialer SaaS domain knowledge",
   "type": "module",
   "main": "pack",

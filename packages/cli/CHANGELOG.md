@@ -1,5 +1,16 @@
 # @sniper.ai/cli
 
+## 2.0.0
+
+### Major Changes
+
+- Sniper V2
+
+### Patch Changes
+
+- Updated dependencies
+  - @sniper.ai/core@2.0.0
+
 ## 1.0.1
 
 ### Patch Changes
