@@ -7,6 +7,7 @@ import TeamDiagram from './components/TeamDiagram.vue'
 import PhaseTimeline from './components/PhaseTimeline.vue'
 import ChecklistWidget from './components/ChecklistWidget.vue'
 import CommandPalette from './components/CommandPalette.vue'
+import SearchModal from './components/SearchModal.vue'
 import ArtifactViewer from './components/ArtifactViewer.vue'
 import ComparisonTable from './components/ComparisonTable.vue'
 import HomePage from './components/home/HomePage.vue'
@@ -24,6 +25,7 @@ export default {
     app.component('PhaseTimeline', PhaseTimeline)
     app.component('ChecklistWidget', ChecklistWidget)
     app.component('CommandPalette', CommandPalette)
+    app.component('SearchModal', SearchModal)
     app.component('ArtifactViewer', ArtifactViewer)
     app.component('ComparisonTable', ComparisonTable)
     app.component('HomePage', HomePage)

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { existsSync, readFileSync } from 'node:fs'
+import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { codeBlocksPlugin } from './plugins/codeBlocks'
 import { containersPlugin } from './plugins/containers'
@@ -21,6 +22,14 @@ export default withMermaid(defineConfig({
   description: 'AI-Powered Project Lifecycle Framework for Claude Code',
   base: '/',
   cleanUrls: true,
+  sitemap: { hostname: 'https://sniperai.dev' },
+
+  buildEnd(siteConfig) {
+    execSync(
+      `npx pagefind --site "${siteConfig.outDir}" --exclude-selectors "div.aside,a.header-anchor,.VPNav,.VPFooter"`,
+      { stdio: 'inherit' }
+    )
+  },
 
   vite: {
     optimizeDeps: {
@@ -28,6 +37,11 @@ export default withMermaid(defineConfig({
     },
     ssr: {
       noExternal: ['mermaid'],
+    },
+    build: {
+      rollupOptions: {
+        external: [/\/pagefind\//],
+      },
     },
   },
 
@@ -161,10 +175,6 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
-    },
-
-    search: {
-      provider: 'local',
     },
 
     editLink: {
