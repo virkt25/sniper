@@ -14,7 +14,6 @@ export function codeBlocksPlugin(md: MarkdownIt) {
   md.renderer.rules.fence = (tokens, idx, options, env, self) => {
     const token = tokens[idx]
     const content = token.content
-    const lineCount = content.split('\n').filter((l) => l !== '' || content.endsWith('\n')).length
     // Count actual newlines for a more accurate count
     const lines = content.endsWith('\n') ? content.split('\n').length - 1 : content.split('\n').length
 

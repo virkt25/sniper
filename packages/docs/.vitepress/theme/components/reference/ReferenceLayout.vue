@@ -11,6 +11,7 @@ const { frontmatter } = useData()
 
 <template>
   <Layout>
+    <template #layout-top><slot name="layout-top" /></template>
     <template #doc-before>
       <ReferenceHeader
         :page-type="frontmatter.pageType"

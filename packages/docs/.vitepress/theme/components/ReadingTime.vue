@@ -2,23 +2,12 @@
 import { computed } from 'vue'
 import { useData, useRoute } from 'vitepress'
 
-const WORDS_PER_MIN = 200
-
-const { page, frontmatter } = useData()
+const { frontmatter } = useData()
 const route = useRoute()
 
 const isGuidePage = computed(() => route.path.startsWith('/guide/'))
 
-const readingTime = computed(() => {
-  // VitePress exposes the raw content via page.value
-  // We approximate word count from the page content length
-  const content = page.value?.content ?? page.value?.description ?? ''
-  // Strip HTML/markdown artifacts for a rough word count
-  const text = content.replace(/<[^>]*>/g, '').replace(/[#*`\[\]()]/g, '')
-  const words = text.split(/\s+/).filter(Boolean).length
-  // Minimum 1 minute
-  return Math.max(1, Math.round(words / WORDS_PER_MIN))
-})
+const readingTime = computed(() => frontmatter.value.readingTime ?? 1)
 
 const show = computed(() => isGuidePage.value && readingTime.value > 0)
 </script>

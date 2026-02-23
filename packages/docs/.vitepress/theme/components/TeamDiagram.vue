@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { phaseColors, layerColors } from '../colors'
 
 const props = defineProps<{
   name: string
@@ -12,22 +13,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'member-click': [member: { name: string; layers: string[] }]
 }>()
-
-const layerColors: Record<string, string> = {
-  process: '#3b82f6',
-  technical: '#10b981',
-  cognitive: '#8b5cf6',
-  domain: '#f59e0b',
-}
-
-const phaseColors: Record<string, string> = {
-  S: '#6366f1', Spawn: '#6366f1',
-  N: '#8b5cf6', Navigate: '#8b5cf6',
-  I: '#10b981', Implement: '#10b981',
-  P: '#f59e0b', Parallelize: '#f59e0b',
-  E: '#f97316', Evaluate: '#f97316',
-  R: '#ef4444', Release: '#ef4444',
-}
 
 const phaseColor = phaseColors[props.phase] ?? 'var(--sniper-brand)'
 
@@ -44,10 +29,19 @@ const gateModeClass = props.gateMode ? `gate-${props.gateMode}` : ''
 const svgLines = ref<Array<{ x1: number; y1: number; x2: number; y2: number }>>([])
 const diagramRef = ref<HTMLElement | null>(null)
 
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(async () => {
   if (!props.dependencies?.length || !diagramRef.value) return
   await nextTick()
   computeLines()
+
+  resizeObserver = new ResizeObserver(() => computeLines())
+  resizeObserver.observe(diagramRef.value)
+})
+
+onUnmounted(() => {
+  resizeObserver?.disconnect()
 })
 
 function computeLines() {

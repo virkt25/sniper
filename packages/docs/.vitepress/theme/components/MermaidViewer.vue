@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useData } from 'vitepress'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{
   graph: string
 }>()
 
-const { isDark } = useData()
 const container = ref<HTMLElement>()
 const modalOpen = ref(false)
 const scale = ref(1)
@@ -175,7 +173,7 @@ onUnmounted(() => {
 .mermaid-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 200;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   display: flex;

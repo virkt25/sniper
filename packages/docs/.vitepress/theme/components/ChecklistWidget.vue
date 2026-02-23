@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   items: Array<{ id: string; text: string; section?: string }>
   gateMode?: string
   storageKey?: string
-}>(), {})
+}>()
 
 const checked = ref<Set<string>>(new Set())
 
@@ -30,7 +30,7 @@ watch(checked, (val) => {
       )
     } catch { /* ignore */ }
   }
-}, { deep: true })
+})
 
 function toggle(id: string) {
   const next = new Set(checked.value)
@@ -97,6 +97,7 @@ const gateModeClass = props.gateMode ? `gate-${props.gateMode}` : ''
         v-if="section"
         class="section-toggle"
         :aria-expanded="!collapsedSections.has(section)"
+        :aria-label="`Toggle ${section} section`"
         @click="toggleSection(section)"
       >
         <svg

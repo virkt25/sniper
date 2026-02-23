@@ -4,12 +4,12 @@ defineProps<{
 }>()
 
 const typeIcons: Record<string, string> = {
-  checklist: '&#9745;',
-  team: '&#9881;',
-  persona: '&#128100;',
-  template: '&#128196;',
-  workflow: '&#9654;',
-  command: '&#8250;',
+  checklist: '\u2611',
+  team: '\u2699',
+  persona: '\uD83D\uDC64',
+  template: '\uD83D\uDCC4',
+  workflow: '\u25B6',
+  command: '\u203A',
 }
 
 function labelFromLink(link: string, type: string): string {
@@ -30,7 +30,7 @@ function labelFromLink(link: string, type: string): string {
         :href="item.link"
         class="related-card"
       >
-        <span class="related-icon" v-html="typeIcons[item.type] || '&#128279;'" />
+        <span class="related-icon">{{ typeIcons[item.type] || '\uD83D\uDD17' }}</span>
         <div class="related-info">
           <span class="related-label">{{ item.label || labelFromLink(item.link, item.type) }}</span>
           <span class="related-type">{{ item.type }}</span>

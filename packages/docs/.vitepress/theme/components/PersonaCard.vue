@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { layerColors } from '../colors'
 
 const props = withDefaults(defineProps<{
   name: string
@@ -10,13 +11,6 @@ const props = withDefaults(defineProps<{
 }>(), {
   expandable: false,
 })
-
-const layerColors: Record<string, string> = {
-  process: '#3b82f6',
-  technical: '#10b981',
-  cognitive: '#8b5cf6',
-  domain: '#f59e0b',
-}
 
 const color = layerColors[props.layer] ?? '#6b7280'
 const expanded = ref(false)

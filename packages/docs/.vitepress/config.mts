@@ -177,6 +177,13 @@ export default withMermaid(defineConfig({
     ],
   },
 
+  transformPageData(pageData) {
+    const content = pageData.content ?? ''
+    const text = content.replace(/<[^>]*>/g, '').replace(/[#*`\[\]()]/g, '')
+    const words = text.split(/\s+/).filter(Boolean).length
+    pageData.frontmatter.readingTime = Math.max(1, Math.round(words / 200))
+  },
+
   mermaid: {
     theme: 'base',
     themeVariables: {
@@ -186,7 +193,7 @@ export default withMermaid(defineConfig({
       lineColor: '#818cf8',
       secondaryColor: '#f97316',
       tertiaryColor: '#10b981',
-      fontFamily: 'var(--vp-font-family-base)',
+      fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
     },
   },
   mermaidPlugin: {

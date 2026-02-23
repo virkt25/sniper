@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { phaseColors } from '../colors'
 
 const props = defineProps<{
   commands: Array<{ name: string; description: string; phase?: string; link: string }>
@@ -13,15 +14,6 @@ const isOpen = ref(false)
 const query = ref('')
 const activeIndex = ref(0)
 const inputRef = ref<HTMLInputElement | null>(null)
-
-const phaseColors: Record<string, string> = {
-  S: '#6366f1', Spawn: '#6366f1',
-  N: '#8b5cf6', Navigate: '#8b5cf6',
-  I: '#10b981', Implement: '#10b981',
-  P: '#f59e0b', Parallelize: '#f59e0b',
-  E: '#f97316', Evaluate: '#f97316',
-  R: '#ef4444', Release: '#ef4444',
-}
 
 const filtered = computed(() => {
   const q = query.value.toLowerCase()
@@ -78,7 +70,7 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 function handleGlobalKeydown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'k') {
     e.preventDefault()
     if (isOpen.value) {
       close()
@@ -88,14 +80,23 @@ function handleGlobalKeydown(e: KeyboardEvent) {
   }
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 function highlightMatch(text: string): string {
   const q = query.value.toLowerCase()
-  if (!q) return text
+  if (!q) return escapeHtml(text)
   const idx = text.toLowerCase().indexOf(q)
-  if (idx === -1) return text
-  const before = text.slice(0, idx)
-  const match = text.slice(idx, idx + q.length)
-  const after = text.slice(idx + q.length)
+  if (idx === -1) return escapeHtml(text)
+  const before = escapeHtml(text.slice(0, idx))
+  const match = escapeHtml(text.slice(idx, idx + q.length))
+  const after = escapeHtml(text.slice(idx + q.length))
   return `${before}<mark>${match}</mark>${after}`
 }
 

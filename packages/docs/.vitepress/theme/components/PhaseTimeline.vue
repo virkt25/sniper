@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { phaseColors } from '../colors'
 
 const props = withDefaults(defineProps<{
   activePhase?: string
@@ -13,12 +14,12 @@ const emit = defineEmits<{
 }>()
 
 const phases = [
-  { key: 'S', name: 'Spawn', color: '#6366f1' },
-  { key: 'N', name: 'Navigate', color: '#8b5cf6' },
-  { key: 'I', name: 'Implement', color: '#10b981' },
-  { key: 'P', name: 'Parallelize', color: '#f59e0b' },
-  { key: 'E', name: 'Evaluate', color: '#f97316' },
-  { key: 'R', name: 'Release', color: '#ef4444' },
+  { key: 'S', name: 'Spawn', color: phaseColors.S },
+  { key: 'N', name: 'Navigate', color: phaseColors.N },
+  { key: 'I', name: 'Implement', color: phaseColors.I },
+  { key: 'P', name: 'Parallelize', color: phaseColors.P },
+  { key: 'E', name: 'Evaluate', color: phaseColors.E },
+  { key: 'R', name: 'Release', color: phaseColors.R },
 ]
 
 const animated = ref(false)

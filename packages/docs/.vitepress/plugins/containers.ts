@@ -74,7 +74,7 @@ function createContainerRule(container: ContainerDef) {
 
     // Add title token
     const titleToken = state.push('html_block', '', 0)
-    titleToken.content = `<p class="sniper-callout-title">${customTitle}</p>\n`
+    titleToken.content = `<p class="sniper-callout-title">${escapeHtml(customTitle)}</p>\n`
 
     state.md.block.tokenize(state, startLine + 1, nextLine)
 
@@ -89,6 +89,15 @@ function createContainerRule(container: ContainerDef) {
 
     return true
   }
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
 }
 
 export function containersPlugin(md: MarkdownIt) {

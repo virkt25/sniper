@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { layerColors } from '../../colors'
 
 const props = defineProps<{
   pageType: string
@@ -25,13 +26,6 @@ const typeColors: Record<string, string> = {
   checklist: '#f97316',
   template: '#3b82f6',
   workflow: '#ec4899',
-}
-
-const layerColors: Record<string, string> = {
-  process: '#3b82f6',
-  cognitive: '#8b5cf6',
-  technical: '#10b981',
-  domain: '#f59e0b',
 }
 
 const breadcrumbs = computed(() => {

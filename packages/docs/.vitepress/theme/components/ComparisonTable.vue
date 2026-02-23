@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   columns: string[]
   rows: Array<{ feature: string; values: (boolean | string)[] }>
   highlightColumn?: number
-}>(), {})
+}>()
 </script>
 
 <template>
