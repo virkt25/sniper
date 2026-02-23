@@ -36,12 +36,12 @@ export async function generateChecklists(frameworkDir, outputDir) {
     ];
 
     // Wrap in v-pre to prevent Vue from parsing curly braces
-    // But keep the Badge component outside v-pre since it's a Vue component
     if (gateMode) {
+      const badgeClass = gateMode.toLowerCase() === 'strict' ? 'danger' : 'tip';
       lines.push(
-        `<Badge type="${gateMode.toLowerCase() === 'strict' ? 'danger' : 'tip'}" text="${gateMode}" />`,
-        '',
         '<div v-pre>',
+        '',
+        `<span class="VPBadge ${badgeClass}">${gateMode.toUpperCase()}</span>`,
         '',
         content,
         '',
