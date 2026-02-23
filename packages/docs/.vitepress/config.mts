@@ -19,7 +19,7 @@ export default defineConfig({
   cleanUrls: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/sniper/logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/sniper/logo.png' }],
   ],
 
   rewrites: {
@@ -32,7 +32,7 @@ export default defineConfig({
   },
 
   themeConfig: {
-    logo: '/logo.svg',
+    logo: '/logo.png',
     siteTitle: 'SNIPER',
 
     nav: [

@@ -9,6 +9,12 @@ html {
   scroll-padding-top: 4rem;
 }
 
+/* ── Center the home page content container ── */
+.VPHome .vp-doc.container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 /* ── Inverted table cards ── */
 
 /* Two-column layout: narrow label, wide value */
