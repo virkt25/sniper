@@ -34,7 +34,40 @@ features:
 ---
 
 <style>
-/* --- Stats bar --- */
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════ */
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.08); }
+  50% { box-shadow: 0 0 32px rgba(99, 102, 241, 0.18); }
+}
+
+@keyframes border-glow {
+  0%, 100% { border-color: var(--vp-c-divider); }
+  50% { border-color: var(--vp-c-brand-1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ═══════════════════════════════════════════════════
+   STATS BAR
+   ═══════════════════════════════════════════════════ */
+
 .stats-bar {
   display: flex;
   justify-content: center;
@@ -43,6 +76,7 @@ features:
   padding: 48px 24px 56px;
   margin: 0 auto;
   max-width: 960px;
+  animation: fade-up 0.6s ease-out both;
 }
 .stat {
   text-align: center;
@@ -52,16 +86,24 @@ features:
   border-radius: 16px;
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-divider);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  animation: glow-pulse 4s ease-in-out infinite;
 }
+.stat:nth-child(2) { animation-delay: 0.8s; }
+.stat:nth-child(3) { animation-delay: 1.6s; }
+.stat:nth-child(4) { animation-delay: 2.4s; }
+.stat:nth-child(5) { animation-delay: 3.2s; }
 .stat:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
+  border-color: var(--vp-c-brand-1);
 }
 .stat-number {
   font-size: 3em;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-2, #a78bfa));
+  background: linear-gradient(135deg, #818cf8, var(--vp-c-brand-1), #a78bfa, #c084fc);
+  background-size: 300% 300%;
+  animation: gradient-shift 6s ease infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -76,7 +118,35 @@ features:
   letter-spacing: 0.05em;
 }
 
-/* --- Sections --- */
+/* ═══════════════════════════════════════════════════
+   SECTION HEADINGS — gradient text
+   ═══════════════════════════════════════════════════ */
+
+.workflow-section h2,
+.screenshot-section h2,
+.cta-section h2 {
+  background: linear-gradient(135deg, var(--vp-c-text-1), var(--vp-c-brand-1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════════════════
+   GLOWING DIVIDERS
+   ═══════════════════════════════════════════════════ */
+
+.vp-doc hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vp-c-brand-1), transparent);
+  opacity: 0.4;
+  margin: 2.5rem 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   WORKFLOW SECTIONS
+   ═══════════════════════════════════════════════════ */
+
 .workflow-section {
   max-width: 100%;
   margin: 0 auto;
@@ -93,15 +163,15 @@ features:
   margin-bottom: 32px;
 }
 
-/* --- Two-column workflow grid --- */
+/* ═══════════════════════════════════════════════════
+   WORKFLOW GRID & CARDS — glassmorphism + glow border
+   ═══════════════════════════════════════════════════ */
+
 .workflow-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 48px;
-}
-.workflow-grid.quad {
-  grid-template-columns: 1fr 1fr;
 }
 @media (max-width: 768px) {
   .workflow-grid { grid-template-columns: 1fr; }
@@ -113,15 +183,37 @@ features:
   display: flex;
   flex-direction: column;
   min-width: 0;
+  position: relative;
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   padding: 28px;
   background: var(--vp-c-bg-soft);
-  transition: border-color 0.2s;
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
 }
+.workflow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 40%, var(--vp-c-brand-1) 50%, transparent 60%);
+  background-size: 400% 400%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.workflow-card:hover::before {
+  opacity: 1;
+  animation: gradient-shift 3s ease infinite;
+}
 .workflow-card:hover {
-  border-color: var(--vp-c-brand-1);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(99, 102, 241, 0.12);
+  border-color: transparent;
 }
 .workflow-card h3 {
   margin: 0 0 8px;
@@ -133,10 +225,14 @@ features:
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 6px;
-  background: var(--vp-c-brand-soft);
+  background: linear-gradient(135deg, var(--vp-c-brand-soft), rgba(139, 92, 246, 0.15));
   color: var(--vp-c-brand-1);
   margin-bottom: 12px;
   width: fit-content;
+  transition: box-shadow 0.3s ease;
+}
+.workflow-card:hover .phase-tag {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
 }
 .workflow-card p {
   margin: 0;
@@ -150,7 +246,10 @@ features:
   margin-top: 16px;
 }
 
-/* --- Screenshots --- */
+/* ═══════════════════════════════════════════════════
+   SCREENSHOTS — enhanced hover glow
+   ═══════════════════════════════════════════════════ */
+
 .screenshot-section {
   max-width: 100%;
   margin: 0 auto 48px;
@@ -180,25 +279,44 @@ features:
   width: 100%;
   border-radius: 12px;
   border: 1px solid var(--vp-c-divider);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .screenshot-grid img:hover {
   transform: scale(1.02);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 48px rgba(99, 102, 241, 0.2);
+  border-color: var(--vp-c-brand-1);
 }
 .screenshot-grid figcaption {
   text-align: center;
   font-size: 0.85em;
   color: var(--vp-c-text-2);
   margin-top: 10px;
+  transition: color 0.3s ease;
+}
+.screenshot-grid figure:hover figcaption {
+  color: var(--vp-c-brand-1);
 }
 
-/* --- CTA --- */
+/* ═══════════════════════════════════════════════════
+   CTA — gradient border + glowing links
+   ═══════════════════════════════════════════════════ */
+
 .cta-section {
   text-align: center;
   padding: 48px 0;
   margin: 0 auto;
   max-width: 100%;
+  position: relative;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vp-c-brand-1), transparent);
 }
 .cta-section h2 {
   font-size: 1.8em;
@@ -208,6 +326,12 @@ features:
   color: var(--vp-c-text-2);
   margin-bottom: 24px;
   line-height: 1.6;
+}
+.cta-section a {
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.cta-section a:hover {
+  text-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
 }
 </style>
 
