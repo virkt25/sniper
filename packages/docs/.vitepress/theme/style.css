@@ -746,6 +746,15 @@ div[class*="language-"] code {
 }
 
 /* ═══════════════════════════════════════════════════
+   HIDE DEFAULT VITEPRESS SEARCH
+   ═══════════════════════════════════════════════════ */
+
+.VPNavBarSearch,
+.VPNavBarSearchButton {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════
    REFERENCE PAGE LAYOUT — three-column responsive
    ═══════════════════════════════════════════════════ */
 

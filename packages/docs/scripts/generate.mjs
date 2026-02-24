@@ -18,10 +18,12 @@ import { generateChecklists } from './generators/checklists.mjs';
 import { generateTemplates } from './generators/templates.mjs';
 import { generateWorkflows } from './generators/workflows.mjs';
 import { generateSidebar } from './generators/sidebar.mjs';
+import { generateLlmsTxt } from './generators/llmstxt.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const frameworkDir = resolve(__dirname, '../../core/framework');
 const outputDir = resolve(__dirname, '../generated');
+const docsDir = resolve(__dirname, '..');
 
 async function main() {
   console.log('Generating SNIPER documentation...');
@@ -52,6 +54,9 @@ async function main() {
     workflows,
   });
 
+  // Generate llms.txt (needs generated output)
+  const llmsPath = await generateLlmsTxt(docsDir, outputDir, outputDir);
+
   // Summary
   const commandCount = commands.length;
   const personaCount = personas.reduce((sum, layer) => sum + (layer.items?.length || 0), 0);
@@ -70,6 +75,7 @@ async function main() {
   console.log(`  Templates:  ${templateCount}`);
   console.log(`  Workflows:  ${workflowCount}`);
   console.log(`  Sidebar:    ${sidebarPath}`);
+  console.log(`  llms.txt:   ${llmsPath}`);
   console.log('');
   console.log('Done.');
 }
