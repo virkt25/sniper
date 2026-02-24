@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-# LLMs
+# Sitemap
 Sitemap: https://sniperai.dev/sitemap.xml

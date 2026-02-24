@@ -5,3 +5,4 @@ dist/
 packages/docs/generated/
 **/.vitepress/dist/
 **/.vitepress/cache/
+packages/docs/public/llms.txt

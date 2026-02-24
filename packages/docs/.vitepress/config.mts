@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { existsSync, readFileSync } from 'node:fs'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { codeBlocksPlugin } from './plugins/codeBlocks'
 import { containersPlugin } from './plugins/containers'
@@ -25,10 +25,11 @@ export default withMermaid(defineConfig({
   sitemap: { hostname: 'https://sniperai.dev' },
 
   buildEnd(siteConfig) {
-    execSync(
-      `npx pagefind --site "${siteConfig.outDir}" --exclude-selectors "div.aside,a.header-anchor,.VPNav,.VPFooter"`,
-      { stdio: 'inherit' }
-    )
+    execFileSync('npx', [
+      'pagefind',
+      '--site', siteConfig.outDir,
+      '--exclude-selectors', 'div.aside,a.header-anchor,.VPNav,.VPFooter',
+    ], { stdio: 'inherit' })
   },
 
   vite: {

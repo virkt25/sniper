@@ -41,6 +41,7 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const resultsRef = ref<HTMLElement | null>(null)
 const isProduction = import.meta.env.PROD
 const isLoading = ref(false)
+const searchError = ref(false)
 
 let pagefind: any = null
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -49,6 +50,7 @@ const router = useRouter()
 
 const RECENT_KEY = 'sniper-recent-searches'
 const MAX_RECENT = 5
+const MAX_RESULTS = 20
 
 function loadRecent() {
   try {
@@ -113,17 +115,21 @@ async function initPagefind() {
     }
   } catch (e) {
     console.warn('Pagefind not available:', e)
+    searchError.value = true
   }
 }
 
 async function doSearch(q: string) {
-  if (!pagefind) return
+  if (!pagefind) {
+    isLoading.value = false
+    return
+  }
   isLoading.value = true
   try {
     const search = await pagefind.debouncedSearch(q)
     if (!search) return
     const loaded = await Promise.all(
-      search.results.slice(0, 20).map(async (r: PagefindResult) => {
+      search.results.slice(0, MAX_RESULTS).map(async (r: PagefindResult) => {
         const data = await r.data()
         return {
           id: r.id,
@@ -293,8 +299,13 @@ onUnmounted(() => {
           <div class="search-body">
             <!-- Results list -->
             <div class="search-results-panel">
+              <!-- Search error state -->
+              <div v-if="searchError" class="search-error">
+                Search is temporarily unavailable. Please try again later.
+              </div>
+
               <!-- Dev mode message -->
-              <div v-if="!isProduction" class="search-dev-message">
+              <div v-else-if="!isProduction" class="search-dev-message">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
                   <path d="M10 6v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -356,6 +367,7 @@ onUnmounted(() => {
                       {{ result.category }}
                     </span>
                   </div>
+                  <!-- v-html is safe: Pagefind sanitizes output to only <mark> tags -->
                   <div class="result-excerpt" v-html="result.excerpt" />
                   <!-- Sub-results -->
                   <div v-if="result.sub_results?.length" class="result-subs">
@@ -382,6 +394,7 @@ onUnmounted(() => {
               >
                 {{ selectedResult.category }}
               </span>
+              <!-- v-html is safe: Pagefind sanitizes output to only <mark> tags -->
               <div class="preview-excerpt" v-html="selectedResult.excerpt" />
               <div v-if="selectedResult.sub_results?.length" class="preview-sections">
                 <div class="preview-sections-label">Sections</div>
@@ -703,6 +716,7 @@ onUnmounted(() => {
 }
 
 /* ── States ── */
+.search-error,
 .search-dev-message,
 .search-placeholder,
 .search-loading,
