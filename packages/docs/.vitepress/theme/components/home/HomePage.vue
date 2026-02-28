@@ -3,7 +3,7 @@ import { defineAsyncComponent } from 'vue'
 import HeroSection from './HeroSection.vue'
 import StatsSection from './StatsSection.vue'
 
-const LifecycleWheel = defineAsyncComponent(() => import('./LifecycleWheel.vue'))
+const HowItWorks = defineAsyncComponent(() => import('./HowItWorks.vue'))
 const BentoGrid = defineAsyncComponent(() => import('./BentoGrid.vue'))
 const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
 </script>
@@ -13,9 +13,9 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
     <HeroSection />
 
     <section class="home-section">
-      <h2 class="section-heading">The SNIPER Lifecycle</h2>
-      <p class="section-subtitle">Six phases. Parallel agents. Quality gates at every step.</p>
-      <LifecycleWheel />
+      <h2 class="section-heading">How It Works</h2>
+      <p class="section-subtitle">Three steps from idea to production-ready code.</p>
+      <HowItWorks />
     </section>
 
     <section class="home-section">
