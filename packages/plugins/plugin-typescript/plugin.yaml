@@ -1,0 +1,60 @@
+# SNIPER TypeScript Language Plugin
+# Provides TypeScript-specific tooling, conventions, review checks,
+# and agent knowledge mixins for SNIPER-managed projects.
+
+name: typescript
+version: 1.0.0
+description: >
+  TypeScript language plugin for SNIPER. Adds build, test, lint, and typecheck
+  commands, enforces strict TypeScript conventions, and injects backend/frontend
+  knowledge into agent personas via mixins.
+
+commands:
+  build:
+    run: "npx tsup || npx tsc"
+    description: Compile TypeScript sources using tsup (preferred) or tsc fallback.
+  test:
+    run: "npx vitest run || npx jest"
+    description: Run the test suite using vitest (preferred) or jest fallback.
+  lint:
+    run: "npx eslint . --ext .ts,.tsx"
+    description: Lint all TypeScript and TSX files with ESLint.
+  typecheck:
+    run: "npx tsc --noEmit"
+    description: Run the TypeScript compiler in type-check-only mode (no output).
+
+conventions:
+  - "Enable strict mode in tsconfig.json (strict: true)."
+  - "Use ESM modules exclusively (type: module in package.json, ESNext module target)."
+  - "Add explicit return types on all public API functions and methods."
+  - "Barrel exports (index.ts re-exports) are discouraged; prefer direct imports."
+  - "Prefer unknown over any; narrow types with type guards."
+  - "Use readonly modifiers on properties and parameters that should not be mutated."
+
+review_checks:
+  - id: no-any
+    description: "Ensure no untyped 'any' annotations exist in source files."
+    command: "! grep -rn ': any' src/ --include='*.ts' --include='*.tsx'"
+    blocking: true
+
+  - id: no-ts-ignore
+    description: "Ensure @ts-ignore is not used to suppress compiler errors."
+    command: "! grep -rn '@ts-ignore' src/ --include='*.ts' --include='*.tsx'"
+    blocking: true
+
+  - id: strict-null-checks
+    description: "Verify that strictNullChecks is enabled in tsconfig.json."
+    command: "node -e \"const c=require('./tsconfig.json'); if(!c.compilerOptions?.strict && !c.compilerOptions?.strictNullChecks) process.exit(1)\""
+    blocking: false
+
+agent_mixins:
+  backend-dev:
+    - mixins/typescript-backend.md
+  frontend-dev:
+    - mixins/typescript-frontend.md
+
+hooks:
+  PreToolUse:
+    - "npx tsc --noEmit --pretty 2>&1 | head -20"
+  Stop:
+    - "npx tsc --noEmit"

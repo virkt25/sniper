@@ -1,0 +1,42 @@
+# {{PROJECT_NAME}}
+
+## SNIPER v3 Configuration
+
+This project uses the SNIPER framework for AI-assisted project lifecycle management.
+
+### Quick Start
+
+- `/sniper-flow` — Run the appropriate protocol (auto-detects scope, or use `--protocol <name>`)
+- `/sniper-flow --resume` — Resume an interrupted protocol from the last checkpoint
+- `/sniper-init` — Re-initialize or update SNIPER configuration
+- `/sniper-status` — Show current protocol progress and cost
+- `/sniper-review` — Manually trigger a review gate
+
+### Project Structure
+
+```
+.sniper/
+  config.yaml          — Project configuration
+  live-status.yaml     — Real-time protocol progress
+  checkpoints/         — Phase checkpoint snapshots
+  gates/               — Gate review results
+  retros/              — Retrospective reports
+  self-reviews/        — Developer self-review artifacts
+.claude/
+  agents/              — Agent definitions (scaffolded from @sniper.ai/core)
+  settings.json        — Claude Code settings with hooks
+```
+
+### Configuration
+
+Edit `.sniper/config.yaml` to customize:
+- Agent roster and cognitive mixins
+- Protocol routing and token budgets
+- File ownership boundaries
+- Stack-specific commands (test, lint, build)
+
+### Ownership Rules
+
+Agents respect file ownership boundaries. See `.sniper/config.yaml` `ownership` section.
+
+{{CUSTOM_INSTRUCTIONS}}

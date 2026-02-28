@@ -1,0 +1,30 @@
+name: patch
+description: Quick fix — implement and review only
+budget: 200000  # 200K tokens
+
+phases:
+  - name: implement
+    description: Bug fix or small change
+    agents:
+      - fullstack-dev
+    spawn_strategy: single
+    plan_approval: false  # Quick fixes skip plan approval
+    gate:
+      checklist: implement
+      human_approval: false
+    outputs:
+      - source code changes
+      - test files
+
+  - name: review
+    description: Code review
+    agents:
+      - code-reviewer
+    spawn_strategy: single
+    gate:
+      checklist: review
+      human_approval: true
+    outputs:
+      - docs/review-report.md
+
+auto_retro: false  # Patches are too small for retros

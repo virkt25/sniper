@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "description": "Enforce lead orchestrator write scope restriction",
+        "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q '\"file_path\"' && ! echo \"$CLAUDE_TOOL_INPUT\" | grep -q '.sniper/'; then echo 'BLOCK: Lead orchestrator can only write to .sniper/ directory'; exit 1; fi",
+        "agent": "lead-orchestrator"
+      }
+    ],
+    "Stop": [
+      {
+        "description": "Run gate reviewer at phase boundaries",
+        "command": "if [ -f .sniper/pending-gate.yaml ]; then echo 'Gate review pending — spawning gate-reviewer agent'; fi",
+        "agent": "gate-reviewer"
+      },
+      {
+        "description": "Run retro analyst after protocol completion",
+        "command": "if [ -f .sniper/protocol-complete.yaml ]; then echo 'Protocol complete — spawning retro-analyst agent'; fi",
+        "agent": "retro-analyst"
+      }
+    ]
+  }
+}

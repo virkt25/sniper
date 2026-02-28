@@ -1,16 +1,17 @@
 # SNIPER — AI-Powered Project Lifecycle Framework
 
-SNIPER (Spawn, Navigate, Implement, Parallelize, Evaluate, Release) is a framework for orchestrating Claude Code agent teams through structured project phases.
+SNIPER v3 orchestrates Claude Code agent teams through protocol-driven phases. The human declares intent, the framework handles decomposition, delegation, and quality assurance.
 
 ## Project Structure
 
-This is a **pnpm monorepo** (`@sniper.ai/monorepo`) with three packages:
+This is a **pnpm monorepo** (`@sniper.ai/monorepo`):
 
 | Package | Description |
 |---------|-------------|
-| `packages/core` (`@sniper.ai/core`) | Framework core — personas, teams, templates, checklists, workflows, and spawn prompts. No build step; ships raw YAML/Markdown files via `framework/` exports. |
+| `packages/core` (`@sniper.ai/core`) | Framework core — agents, skills, protocols, checklists, templates, hooks, schemas. No build step; ships raw YAML/Markdown files. |
 | `packages/cli` (`@sniper.ai/cli`) | CLI tool (`sniper` binary) — scaffolds and manages SNIPER-enabled projects. Built with tsup, uses citty + @clack/prompts. |
-| `packages/pack-sales-dialer` (`@sniper.ai/pack-sales-dialer`) | Example domain pack — sales dialer SaaS domain knowledge (telephony, CRM, OpenAI Realtime API, Follow Up Boss). |
+| `packages/plugins/plugin-typescript` (`@sniper.ai/plugin-typescript`) | TypeScript language plugin — commands, conventions, review checks, agent mixins. |
+| `packages/pack-sales-dialer` (`@sniper.ai/pack-sales-dialer`) | Legacy domain pack (v2). |
 
 ## Tech Stack
 
@@ -26,65 +27,61 @@ This is a **pnpm monorepo** (`@sniper.ai/monorepo`) with three packages:
 pnpm build          # Build all packages
 pnpm dev            # Watch mode for all packages
 pnpm clean          # Clean dist directories
-pnpm lint           # Lint all packages
 pnpm changeset      # Create a changeset for versioning
 pnpm release        # Build + publish with changesets
 ```
 
 ## Key Directories
 
-- `packages/core/framework/` — The framework content (personas, teams, workflows, templates, checklists, spawn-prompts, commands)
-- `packages/cli/src/` — CLI source (commands, scaffolder, pack-manager, config)
-- `packages/pack-sales-dialer/pack/` — Domain pack content
-- `.sniper/` — Local SNIPER config (used when developing SNIPER itself with SNIPER)
+- `packages/core/agents/` — Agent definitions (`.claude/agents/*.md` format with YAML frontmatter)
+- `packages/core/personas/cognitive/` — Cognitive mixins (security-first, performance-focused, devils-advocate)
+- `packages/core/skills/` — Skill definitions (SKILL.md files → slash commands)
+- `packages/core/protocols/` — Protocol state machines (full, feature, patch, ingest)
+- `packages/core/checklists/` — Quality gate checklists
+- `packages/core/templates/` — Artifact templates with token budgets
+- `packages/core/hooks/` — Claude Code hook definitions
+- `packages/core/schemas/` — Runtime data schemas (checkpoint, cost, live-status, retro, gate-result)
+- `packages/cli/src/` — CLI source (commands, scaffolder, plugin-manager, config)
+- `packages/plugins/` — Language plugins
 - `docs/` — Project documentation
 - `plans/` — Implementation plans
 
-## Framework Content (packages/core/framework/)
+## Core Concepts
 
-These are the YAML/Markdown files that get scaffolded into target projects:
+### Agents (packages/core/agents/)
+Agent definitions with YAML frontmatter specifying model, tools, and constraints. Scaffolded into `.claude/agents/` in target projects. Key pattern: lead-orchestrator is read-only (Write scoped to `.sniper/` only).
 
-- `personas/` — Agent persona layers (role definitions, expertise)
-- `teams/` — Team compositions for each phase (who gets spawned, dependencies)
-- `workflows/` — Phase workflow definitions
-- `templates/` — Artifact templates (PRD, architecture, stories, etc.)
-- `checklists/` — Quality gate checklists for review
-- `spawn-prompts/` — Pre-composed spawn prompts for agent roles
-- `commands/` — Slash command definitions
-- `config.template.yaml` — Template for `.sniper/config.yaml`
-- `claude-md.template` — Template for target project CLAUDE.md
-- `settings.template.json` — Template for Claude Code settings
+### Protocols (packages/core/protocols/)
+YAML state machines: `full` (discover→plan→implement→review), `feature` (plan→implement→review), `patch` (implement→review), `ingest` (scan→document→extract). Each phase specifies agents, spawn strategy, and gate config.
+
+### Skills (packages/core/skills/)
+SKILL.md files that become slash commands: `/sniper-flow` (the core execution engine, replaces 5 v2 commands), `/sniper-init`, `/sniper-status`, `/sniper-review`.
+
+### Plugins (packages/plugins/)
+Language-specific extensions with `plugin.yaml` manifests defining commands, conventions, review checks, agent mixins, and hooks.
 
 ## SNIPER Slash Commands
 
-These commands drive the project lifecycle:
+- `/sniper-flow` — Execute a protocol (auto-detects scope or use `--protocol <name>`)
+- `/sniper-flow --resume` — Resume an interrupted protocol
+- `/sniper-init` — Initialize SNIPER v3 in a project
+- `/sniper-status` — Show protocol progress and cost
+- `/sniper-review` — Manually trigger a review gate
 
-- `/sniper-init` — Initialize SNIPER in a new project
-- `/sniper-discover` — Phase 1: Discovery & Analysis (parallel team)
-- `/sniper-plan` — Phase 2: Planning & Architecture (parallel team)
-- `/sniper-solve` — Phase 3: Epic Sharding & Story Creation (sequential)
-- `/sniper-sprint` — Phase 4: Implementation Sprint (parallel team)
-- `/sniper-review` — Run review gate for current phase
-- `/sniper-compose` — Create a spawn prompt from persona layers
-- `/sniper-doc` — Generate or update project documentation (parallel team)
-- `/sniper-status` — Show lifecycle status and artifact state
+## CLI Subcommands
+
+- `sniper init` — Interactive project initialization
+- `sniper status` — Show project status
+- `sniper migrate` — Migrate v2 config to v3
+- `sniper plugin install/remove/list` — Manage plugins
 
 ## Development Guidelines
 
-- When adding new framework content, place it in `packages/core/framework/`
-- When adding CLI commands, add them in `packages/cli/src/commands/`
-- Domain packs follow the pattern in `packages/pack-sales-dialer/` — a `pack/` directory with domain-specific YAML/Markdown
-- The `@sniper.ai/core` package has no build step; it exports raw files. Do not add a build process to it.
+- Agent definitions go in `packages/core/agents/` — YAML frontmatter + Markdown instructions
+- Cognitive mixins go in `packages/core/personas/cognitive/` — short Markdown snippets
+- Skills go in `packages/core/skills/<name>/SKILL.md`
+- Protocols go in `packages/core/protocols/*.yaml`
+- CLI commands go in `packages/cli/src/commands/`
+- Plugins follow the pattern in `packages/plugins/plugin-typescript/`
+- The `@sniper.ai/core` package has no build step; it exports raw files
 - The CLI depends on core via `"@sniper.ai/core": "workspace:*"`
-
-## Agent Teams Rules
-
-When using SNIPER commands that spawn agent teams:
-
-1. Read the relevant team YAML from `packages/core/framework/teams/`
-2. Compose spawn prompts using `/sniper-compose` with the layers specified in the YAML
-3. Assign file ownership boundaries from `config.yaml` ownership rules
-4. Create tasks with dependencies from the team YAML
-5. Enter delegate mode (Shift+Tab) — the lead coordinates, it does not code
-6. Require plan approval for tasks marked `plan_approval: true`
-7. When a phase completes, run `/sniper-review` before advancing

@@ -3,28 +3,67 @@ import { join, dirname } from "node:path";
 import { createRequire } from "node:module";
 import YAML from "yaml";
 
-export interface SniperConfig {
+// ── v3 Config Interface ──
+
+export interface SniperConfigV3 {
   project: {
     name: string;
     type: string;
     description: string;
   };
+  agents: {
+    default_model: string;
+    planning_model: string;
+    max_teammates: number;
+    plan_approval: boolean;
+    coordination_timeout: number;
+    base: string[];
+    mixins: Record<string, string[]>;
+  };
+  routing: {
+    auto_detect: {
+      patch_max_files: number;
+      feature_max_files: number;
+    };
+    default: string;
+    budgets: Record<string, number>;
+  };
+  cost: {
+    warn_threshold: number;
+    soft_cap: number;
+    hard_cap: number;
+  };
+  ownership: Record<string, string[]>;
   stack: {
     language: string;
     frontend: string | null;
     backend: string | null;
     database: string | null;
-    cache: string | null;
     infrastructure: string | null;
     test_runner: string | null;
     package_manager: string;
+    commands: {
+      test: string;
+      lint: string;
+      typecheck: string;
+      build: string;
+    };
   };
-  review_gates: {
-    after_discover: string;
-    after_plan: string;
-    after_solve: string;
-    after_sprint: string;
+  plugins: Array<{ name: string; package: string }>;
+  visibility: {
+    live_status: boolean;
+    checkpoints: boolean;
+    cost_tracking: boolean;
+    auto_retro: boolean;
   };
+}
+
+// ── v2 Config Interface (for migration detection) ──
+
+export interface SniperConfigV2 {
+  project: { name: string; type: string; description: string };
+  stack: { language: string; [key: string]: unknown };
+  review_gates: Record<string, string>;
   agent_teams: {
     max_teammates: number;
     default_model: string;
@@ -34,43 +73,33 @@ export interface SniperConfig {
     coordination_timeout: number;
   };
   domain_packs: Array<{ name: string; package: string }>;
-  memory?: {
-    enabled: boolean;
-    auto_retro: boolean;
-    auto_codify: boolean;
-    token_budget: number;
-  };
-  workspace?: {
-    enabled: boolean;
-    workspace_path: string | null;
-    repo_name: string | null;
-  };
   ownership: Record<string, string[]>;
-  state: {
-    current_phase: string | null;
-    phase_history: Array<{
-      phase: string;
-      started_at: string;
-      completed_at?: string;
-      approved_by?: string;
-    }>;
-    current_sprint: number;
-    artifacts: Record<string, { status: string | null; version: number } | string | null>;
-    retro_counter?: number;
-    last_retro_sprint?: number;
-  };
+  state: Record<string, unknown>;
+  [key: string]: unknown;
 }
+
+// ── Type Guards ──
+
+export function isV2Config(data: unknown): data is SniperConfigV2 {
+  if (!data || typeof data !== "object") return false;
+  const cfg = data as Record<string, unknown>;
+  return (
+    "review_gates" in cfg ||
+    "agent_teams" in cfg ||
+    "domain_packs" in cfg ||
+    "state" in cfg
+  );
+}
+
+export function isV3Config(data: unknown): data is SniperConfigV3 {
+  if (!data || typeof data !== "object") return false;
+  const cfg = data as Record<string, unknown>;
+  return "agents" in cfg && "routing" in cfg && "visibility" in cfg;
+}
+
+// ── Validation ──
 
 const CONFIG_PATH = ".sniper/config.yaml";
-
-export async function sniperConfigExists(cwd: string): Promise<boolean> {
-  try {
-    await access(join(cwd, CONFIG_PATH));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function assertField(
   obj: Record<string, unknown>,
@@ -86,68 +115,95 @@ function assertField(
   }
 }
 
-function validateConfig(data: unknown): SniperConfig {
+function validateV3Config(data: unknown): SniperConfigV3 {
   if (!data || typeof data !== "object") {
     throw new Error("Invalid config.yaml: expected an object");
   }
   const cfg = data as Record<string, unknown>;
-  for (const key of [
-    "project",
-    "stack",
-    "state",
-    "review_gates",
-    "agent_teams",
-  ]) {
+
+  // Check required sections
+  for (const key of ["project", "agents", "routing", "cost", "stack"]) {
     if (!cfg[key] || typeof cfg[key] !== "object") {
       throw new Error(`Invalid config.yaml: missing "${key}" section`);
     }
   }
 
-  // Validate nested fields
+  // Validate project
   const project = cfg.project as Record<string, unknown>;
   assertField(project, "project", "name", "string");
   assertField(project, "project", "type", "string");
 
+  // Validate agents
+  const agents = cfg.agents as Record<string, unknown>;
+  assertField(agents, "agents", "max_teammates", "number");
+
+  // Validate stack
   const stack = cfg.stack as Record<string, unknown>;
   assertField(stack, "stack", "language", "string");
 
-  const agentTeams = cfg.agent_teams as Record<string, unknown>;
-  assertField(agentTeams, "agent_teams", "max_teammates", "number");
+  // Normalize optional sections
+  if (!cfg.plugins || !Array.isArray(cfg.plugins)) {
+    (cfg as Record<string, unknown>).plugins = [];
+  }
+  if (!cfg.visibility || typeof cfg.visibility !== "object") {
+    (cfg as Record<string, unknown>).visibility = {
+      live_status: true,
+      checkpoints: true,
+      cost_tracking: true,
+      auto_retro: true,
+    };
+  }
+  if (!cfg.ownership || typeof cfg.ownership !== "object") {
+    (cfg as Record<string, unknown>).ownership = {};
+  }
 
-  const state = cfg.state as Record<string, unknown>;
-  if (state.artifacts !== undefined && typeof state.artifacts !== "object") {
+  return data as SniperConfigV3;
+}
+
+// ── File I/O ──
+
+export async function sniperConfigExists(cwd: string): Promise<boolean> {
+  try {
+    await access(join(cwd, CONFIG_PATH));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readConfig(cwd: string): Promise<SniperConfigV3> {
+  const raw = await readFile(join(cwd, CONFIG_PATH), "utf-8");
+  const data = YAML.parse(raw);
+
+  if (isV2Config(data)) {
     throw new Error(
-      'Invalid config.yaml: "state.artifacts" must be an object',
+      'This project uses SNIPER v2 config. Run "sniper migrate" to upgrade to v3.',
     );
   }
 
-  // Normalize: ensure domain_packs is always an array
-  if (!Array.isArray(cfg.domain_packs)) {
-    cfg.domain_packs = [];
-  }
-  return data as SniperConfig;
+  return validateV3Config(data);
 }
 
-export async function readConfig(cwd: string): Promise<SniperConfig> {
+export async function readRawConfig(cwd: string): Promise<unknown> {
   const raw = await readFile(join(cwd, CONFIG_PATH), "utf-8");
-  return validateConfig(YAML.parse(raw));
+  return YAML.parse(raw);
 }
 
 export async function writeConfig(
   cwd: string,
-  config: SniperConfig,
+  config: SniperConfigV3,
 ): Promise<void> {
   const content = YAML.stringify(config, { lineWidth: 0 });
   await writeFile(join(cwd, CONFIG_PATH), content, "utf-8");
 }
 
+// ── Core Path Resolution ──
+
 export function getCorePath(): string {
-  // Resolve the path to @sniper.ai/core's framework directory
-  // Works in both monorepo (workspace link) and published (node_modules)
   const require = createRequire(import.meta.url);
   try {
     const corePkgPath = require.resolve("@sniper.ai/core/package.json");
-    return join(dirname(corePkgPath), "framework");
+    return dirname(corePkgPath);
   } catch {
     throw new Error(
       '@sniper.ai/core is not installed. Run "pnpm add -D @sniper.ai/core" first.',

@@ -1,23 +1,82 @@
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
-import { sniperConfigExists, type SniperConfig } from "../config.js";
+import { sniperConfigExists, readRawConfig, isV2Config } from "../config.js";
+import type { SniperConfigV3 } from "../config.js";
 import { scaffoldProject } from "../scaffolder.js";
+import { pathExists } from "../fs-utils.js";
+import { readdir } from "node:fs/promises";
+import { join, basename } from "node:path";
+
+async function detectLanguage(cwd: string): Promise<string | null> {
+  const checks: Array<[string[], string]> = [
+    [["tsconfig.json"], "typescript"],
+    [["pyproject.toml", "requirements.txt"], "python"],
+    [["go.mod"], "go"],
+    [["Cargo.toml"], "rust"],
+    [["pom.xml", "build.gradle"], "java"],
+    [["package.json"], "javascript"],
+  ];
+
+  for (const [files, lang] of checks) {
+    for (const file of files) {
+      if (await pathExists(join(cwd, file))) return lang;
+    }
+  }
+  return null;
+}
+
+async function detectPackageManager(cwd: string): Promise<string> {
+  const checks: Array<[string, string]> = [
+    ["pnpm-lock.yaml", "pnpm"],
+    ["yarn.lock", "yarn"],
+    ["bun.lockb", "bun"],
+    ["package-lock.json", "npm"],
+    ["uv.lock", "uv"],
+    ["poetry.lock", "poetry"],
+  ];
+
+  for (const [file, pm] of checks) {
+    if (await pathExists(join(cwd, file))) return pm;
+  }
+  return "npm";
+}
+
+async function detectTestRunner(cwd: string): Promise<string | null> {
+  const checks: Array<[string[], string]> = [
+    [["vitest.config.ts", "vitest.config.js", "vitest.config.mts"], "vitest"],
+    [["jest.config.ts", "jest.config.js", "jest.config.mjs"], "jest"],
+    [["pytest.ini", "conftest.py", "pyproject.toml"], "pytest"],
+  ];
+
+  for (const [files, runner] of checks) {
+    for (const file of files) {
+      if (await pathExists(join(cwd, file))) return runner;
+    }
+  }
+  return null;
+}
 
 export const initCommand = defineCommand({
   meta: {
     name: "init",
-    description: "Initialize a new SNIPER-enabled project",
+    description: "Initialize SNIPER v3 in a project",
   },
   run: async () => {
     const cwd = process.cwd();
 
-    p.intro("SNIPER — Project Initialization");
+    p.intro("SNIPER v3 — Project Initialization");
 
-    // Check if already initialized
+    // Check for existing config
     if (await sniperConfigExists(cwd)) {
+      const raw = await readRawConfig(cwd);
+      if (isV2Config(raw)) {
+        p.log.warning(
+          'Detected SNIPER v2 config. Run "sniper migrate" to upgrade, or reinitialize.',
+        );
+      }
+
       const overwrite = await p.confirm({
-        message:
-          "SNIPER is already initialized in this directory. Reinitialize?",
+        message: "SNIPER is already initialized. Reinitialize?",
         initialValue: false,
       });
       if (p.isCancel(overwrite) || !overwrite) {
@@ -26,15 +85,20 @@ export const initCommand = defineCommand({
       }
     }
 
+    // Auto-detect
+    const detectedLang = await detectLanguage(cwd);
+    const detectedPM = await detectPackageManager(cwd);
+    const detectedTestRunner = await detectTestRunner(cwd);
+    const dirName = basename(cwd);
+
+    // Gather user input
     const projectName = await p.text({
       message: "Project name:",
-      placeholder: "my-app",
+      placeholder: dirName,
+      initialValue: dirName,
       validate: (v) => (v.length === 0 ? "Project name is required" : undefined),
     });
-    if (p.isCancel(projectName)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
+    if (p.isCancel(projectName)) { p.cancel("Aborted."); process.exit(0); }
 
     const projectType = await p.select({
       message: "Project type:",
@@ -47,95 +111,27 @@ export const initCommand = defineCommand({
         { value: "monorepo", label: "Monorepo" },
       ],
     });
-    if (p.isCancel(projectType)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
+    if (p.isCancel(projectType)) { p.cancel("Aborted."); process.exit(0); }
 
     const description = await p.text({
-      message: "One-line project description:",
-      placeholder: "A brief description of your project",
+      message: "One-line description:",
+      placeholder: "A brief description",
     });
-    if (p.isCancel(description)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
+    if (p.isCancel(description)) { p.cancel("Aborted."); process.exit(0); }
 
     const language = await p.select({
-      message: "Primary language:",
+      message: `Primary language${detectedLang ? ` (detected: ${detectedLang})` : ""}:`,
+      initialValue: detectedLang || "typescript",
       options: [
         { value: "typescript", label: "TypeScript" },
+        { value: "javascript", label: "JavaScript" },
         { value: "python", label: "Python" },
         { value: "go", label: "Go" },
         { value: "rust", label: "Rust" },
         { value: "java", label: "Java" },
       ],
     });
-    if (p.isCancel(language)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
-
-    const frontend = await p.select({
-      message: "Frontend framework:",
-      options: [
-        { value: "react", label: "React" },
-        { value: "nextjs", label: "Next.js" },
-        { value: "vue", label: "Vue" },
-        { value: "svelte", label: "Svelte" },
-        { value: "none", label: "None" },
-      ],
-    });
-    if (p.isCancel(frontend)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
-
-    const backend = await p.select({
-      message: "Backend framework:",
-      options: [
-        { value: "node-express", label: "Node + Express" },
-        { value: "node-fastify", label: "Node + Fastify" },
-        { value: "django", label: "Django" },
-        { value: "fastapi", label: "FastAPI" },
-        { value: "gin", label: "Go Gin" },
-        { value: "none", label: "None" },
-      ],
-    });
-    if (p.isCancel(backend)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
-
-    const database = await p.select({
-      message: "Primary database:",
-      options: [
-        { value: "postgresql", label: "PostgreSQL" },
-        { value: "mysql", label: "MySQL" },
-        { value: "mongodb", label: "MongoDB" },
-        { value: "sqlite", label: "SQLite" },
-        { value: "none", label: "None" },
-      ],
-    });
-    if (p.isCancel(database)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
-
-    const infrastructure = await p.select({
-      message: "Cloud infrastructure:",
-      options: [
-        { value: "aws", label: "AWS" },
-        { value: "gcp", label: "Google Cloud" },
-        { value: "azure", label: "Azure" },
-        { value: "vercel", label: "Vercel" },
-        { value: "none", label: "None / Self-hosted" },
-      ],
-    });
-    if (p.isCancel(infrastructure)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
+    if (p.isCancel(language)) { p.cancel("Aborted."); process.exit(0); }
 
     const maxTeammates = await p.text({
       message: "Max concurrent agent teammates:",
@@ -147,89 +143,87 @@ export const initCommand = defineCommand({
         return undefined;
       },
     });
-    if (p.isCancel(maxTeammates)) {
-      p.cancel("Aborted.");
-      process.exit(0);
-    }
+    if (p.isCancel(maxTeammates)) { p.cancel("Aborted."); process.exit(0); }
 
-    // Build config
-    const config: SniperConfig = {
+    // Build v3 config
+    const config: SniperConfigV3 = {
       project: {
         name: projectName as string,
         type: projectType as string,
         description: (description as string) || "",
       },
-      stack: {
-        language: language as string,
-        frontend: frontend === "none" ? null : (frontend as string),
-        backend: backend === "none" ? null : (backend as string),
-        database: database === "none" ? null : (database as string),
-        cache: null,
-        infrastructure:
-          infrastructure === "none" ? null : (infrastructure as string),
-        test_runner: null,
-        package_manager: "pnpm",
-      },
-      review_gates: {
-        after_discover: "flexible",
-        after_plan: "strict",
-        after_solve: "flexible",
-        after_sprint: "strict",
-      },
-      agent_teams: {
-        max_teammates: parseInt(maxTeammates as string, 10),
+      agents: {
         default_model: "sonnet",
         planning_model: "opus",
-        delegate_mode: true,
+        max_teammates: parseInt(maxTeammates as string, 10),
         plan_approval: true,
         coordination_timeout: 30,
+        base: [
+          "lead-orchestrator",
+          "analyst",
+          "architect",
+          "product-manager",
+          "backend-dev",
+          "frontend-dev",
+          "qa-engineer",
+          "code-reviewer",
+          "gate-reviewer",
+          "retro-analyst",
+        ],
+        mixins: {},
       },
-      domain_packs: [],
+      routing: {
+        auto_detect: {
+          patch_max_files: 5,
+          feature_max_files: 20,
+        },
+        default: "feature",
+        budgets: {
+          full: 2000000,
+          feature: 800000,
+          patch: 200000,
+          ingest: 1000000,
+        },
+      },
+      cost: {
+        warn_threshold: 0.7,
+        soft_cap: 0.9,
+        hard_cap: 1.0,
+      },
       ownership: {
-        backend: [
-          "src/backend/",
-          "src/api/",
-          "src/services/",
-          "src/db/",
-          "src/workers/",
-        ],
-        frontend: [
-          "src/frontend/",
-          "src/components/",
-          "src/hooks/",
-          "src/styles/",
-          "src/pages/",
-        ],
-        infrastructure: [
-          "docker/",
-          ".github/",
-          "infra/",
-          "terraform/",
-          "scripts/",
-        ],
+        backend: ["src/backend/", "src/api/", "src/services/", "src/db/"],
+        frontend: ["src/frontend/", "src/components/", "src/hooks/", "src/styles/", "src/pages/"],
+        infrastructure: ["docker/", ".github/", "infra/", "scripts/"],
         tests: ["tests/", "__tests__/", "*.test.*", "*.spec.*"],
-        ai: ["src/ai/", "src/ml/", "src/pipeline/"],
         docs: ["docs/"],
       },
-      state: {
-        current_phase: null,
-        phase_history: [],
-        current_sprint: 0,
-        artifacts: {
-          brief: null,
-          prd: null,
-          architecture: null,
-          ux_spec: null,
-          security: null,
-          epics: null,
-          stories: null,
+      stack: {
+        language: language as string,
+        frontend: null,
+        backend: null,
+        database: null,
+        infrastructure: null,
+        test_runner: detectedTestRunner,
+        package_manager: detectedPM,
+        commands: {
+          test: "",
+          lint: "",
+          typecheck: "",
+          build: "",
         },
+      },
+      plugins: [],
+      visibility: {
+        live_status: true,
+        checkpoints: true,
+        cost_tracking: true,
+        auto_retro: true,
       },
     };
 
     // Scaffold
     const s = p.spinner();
-    s.start("Scaffolding SNIPER project...");
+    s.start("Scaffolding SNIPER v3 project...");
 
     try {
       const log = await scaffoldProject(cwd, config);
@@ -240,7 +234,7 @@ export const initCommand = defineCommand({
       }
 
       p.outro(
-        'SNIPER initialized. Run "sniper add-pack <name>" to add domain packs.',
+        'SNIPER v3 initialized. Run "/sniper-flow" to start your first protocol.',
       );
     } catch (err) {
       s.stop("Failed!");

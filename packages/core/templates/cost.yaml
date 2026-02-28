@@ -1,0 +1,23 @@
+# Cost tracking for protocol execution
+protocol: ""
+started_at: ""
+budget: 0
+
+phases: []
+# - name: discover
+#   started_at: ""
+#   completed_at: ""
+#   tokens_used: 0
+#   agents:
+#     - name: analyst
+#       tokens: 0
+
+totals:
+  tokens_used: 0
+  budget_remaining: 0
+  budget_percent_used: 0
+
+enforcement:
+  warn_threshold: 0.7    # Warn at 70% budget
+  soft_cap: 0.9          # Soft cap at 90% — agents must justify continuation
+  hard_cap: 1.0          # Hard cap at 100% — stop execution

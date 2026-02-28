@@ -1,14 +1,32 @@
 {
   "name": "@sniper.ai/core",
-  "version": "2.0.0",
-  "description": "SNIPER framework core — personas, teams, templates, checklists, and workflows",
+  "version": "3.0.0",
+  "description": "SNIPER framework core — agents, skills, protocols, checklists, templates, and hooks",
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
-    "./framework/*": "./framework/*"
+    "./agents/*": "./agents/*",
+    "./personas/*": "./personas/*",
+    "./skills/*": "./skills/*",
+    "./protocols/*": "./protocols/*",
+    "./checklists/*": "./checklists/*",
+    "./templates/*": "./templates/*",
+    "./hooks/*": "./hooks/*",
+    "./schemas/*": "./schemas/*",
+    "./config.template.yaml": "./config.template.yaml",
+    "./claude-md.template": "./claude-md.template"
   },
   "files": [
-    "framework"
+    "agents",
+    "personas",
+    "skills",
+    "protocols",
+    "checklists",
+    "templates",
+    "hooks",
+    "schemas",
+    "config.template.yaml",
+    "claude-md.template"
   ],
   "keywords": [
     "sniper",
@@ -16,7 +34,7 @@
     "claude",
     "framework",
     "agent",
-    "personas"
+    "protocol"
   ],
   "license": "MIT",
   "repository": {

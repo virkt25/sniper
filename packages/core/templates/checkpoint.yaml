@@ -1,0 +1,27 @@
+# Phase checkpoint — snapshot of protocol state
+protocol: ""
+phase: ""
+timestamp: ""
+status: ""  # in_progress | completed | failed
+
+agents:
+  - name: ""
+    status: ""  # active | completed | failed
+    tasks_completed: 0
+    tasks_total: 0
+
+gate_result: null  # null if gate not yet run
+# gate_result:
+#   result: pass | fail
+#   blocking_failures: 0
+
+artifacts_produced: []
+# - path: docs/spec.md
+#   status: draft | complete
+
+token_usage:
+  phase_tokens: 0
+  cumulative_tokens: 0
+  budget_remaining: 0
+
+notes: ""

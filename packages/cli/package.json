@@ -1,7 +1,7 @@
 {
   "name": "@sniper.ai/cli",
-  "version": "2.0.0",
-  "description": "SNIPER CLI — scaffold and manage SNIPER-enabled projects",
+  "version": "3.0.0",
+  "description": "SNIPER v3 CLI — scaffold and manage SNIPER-enabled projects",
   "type": "module",
   "bin": {
     "sniper": "dist/index.js"
@@ -31,7 +31,8 @@
     "cli",
     "scaffold",
     "ai",
-    "claude"
+    "claude",
+    "agent"
   ],
   "license": "MIT",
   "repository": {

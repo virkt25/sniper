@@ -1,0 +1,23 @@
+name: plan
+description: Planning phase quality gate
+
+checks:
+  - id: required_sections
+    description: Architecture doc has all required sections
+    check: grep:docs/architecture.md:"## Context|## Decisions|## Components|## Data Model"
+    blocking: true
+
+  - id: ears_criteria
+    description: All stories have EARS acceptance criteria
+    check: grep:docs/stories/:"shall"
+    blocking: true
+
+  - id: open_questions
+    description: No unresolved open questions remain
+    check: "!grep:docs/:**TBD**|**TODO**|**OPEN**"
+    blocking: false
+
+  - id: token_budget
+    description: Architecture doc is within 4000 token budget
+    check: wc:docs/architecture.md:<16000
+    blocking: false

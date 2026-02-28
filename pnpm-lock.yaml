@@ -83,6 +83,8 @@ importers:
 
   packages/pack-sales-dialer: {}
 
+  packages/plugins/plugin-typescript: {}
+
 packages:
 
   '@algolia/abtesting@1.15.0':

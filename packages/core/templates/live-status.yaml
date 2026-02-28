@@ -1,0 +1,26 @@
+# Real-time protocol progress
+protocol: ""
+status: ""  # idle | running | paused | completed | failed
+current_phase: ""
+started_at: ""
+updated_at: ""
+
+phases:
+  - name: ""
+    status: ""  # pending | in_progress | completed | failed | skipped
+    agents: []
+    # - name: analyst
+    #   status: active | idle | completed | failed
+    progress: 0  # percentage
+
+gate_results: []
+# - phase: discover
+#   result: pass
+#   timestamp: ""
+
+cost:
+  tokens_used: 0
+  budget: 0
+  percent: 0
+
+next_action: ""  # Human-readable description of what's next

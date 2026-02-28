@@ -1,0 +1,23 @@
+name: discover
+description: Discovery phase quality gate
+
+checks:
+  - id: spec_produced
+    description: Discovery spec exists
+    check: file:docs/spec.md
+    blocking: true
+
+  - id: scope_defined
+    description: Spec defines in-scope requirements
+    check: grep:docs/spec.md:"## Requirements"
+    blocking: true
+
+  - id: out_of_scope_explicit
+    description: Spec explicitly lists out-of-scope items
+    check: grep:docs/spec.md:"## Out of Scope"
+    blocking: false
+
+  - id: codebase_overview
+    description: Codebase overview exists (if ingesting existing project)
+    check: file:docs/codebase-overview.md
+    blocking: false

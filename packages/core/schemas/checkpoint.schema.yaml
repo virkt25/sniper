@@ -1,0 +1,114 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/checkpoint"
+title: Phase Checkpoint
+description: Schema for SNIPER phase checkpoint files that track progress through lifecycle phases.
+type: object
+required:
+  - protocol
+  - phase
+  - timestamp
+  - status
+properties:
+  protocol:
+    type: string
+    description: The SNIPER protocol version identifier.
+  phase:
+    type: string
+    description: The lifecycle phase this checkpoint belongs to (e.g. discover, plan, solve, sprint).
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when this checkpoint was recorded.
+  status:
+    type: string
+    enum:
+      - in_progress
+      - completed
+      - failed
+    description: Current status of the phase.
+  agents:
+    type: array
+    description: List of agents participating in this phase.
+    items:
+      type: object
+      required:
+        - name
+        - status
+        - tasks_completed
+        - tasks_total
+      properties:
+        name:
+          type: string
+          description: Agent persona name.
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+            - failed
+          description: Current status of the agent.
+        tasks_completed:
+          type: integer
+          minimum: 0
+          description: Number of tasks the agent has completed.
+        tasks_total:
+          type: integer
+          minimum: 0
+          description: Total number of tasks assigned to the agent.
+  gate_result:
+    oneOf:
+      - type: "null"
+      - type: object
+        required:
+          - result
+          - blocking_failures
+        properties:
+          result:
+            type: string
+            enum:
+              - pass
+              - fail
+            description: Overall gate review result.
+          blocking_failures:
+            type: integer
+            minimum: 0
+            description: Number of blocking check failures.
+    description: Gate review result, or null if the gate has not been run yet.
+  artifacts_produced:
+    type: array
+    description: List of artifacts produced during this phase.
+    items:
+      type: object
+      required:
+        - path
+        - status
+      properties:
+        path:
+          type: string
+          description: File path of the produced artifact.
+        status:
+          type: string
+          enum:
+            - draft
+            - complete
+          description: Whether the artifact is a draft or complete.
+  token_usage:
+    type: object
+    description: Token consumption metrics for this phase.
+    properties:
+      phase_tokens:
+        type: integer
+        minimum: 0
+        description: Tokens consumed during this phase.
+      cumulative_tokens:
+        type: integer
+        minimum: 0
+        description: Total tokens consumed across all phases up to and including this one.
+      budget_remaining:
+        type: number
+        minimum: 0
+        description: Remaining token budget.
+  notes:
+    type: string
+    description: Free-form notes about the checkpoint.
+additionalProperties: false
