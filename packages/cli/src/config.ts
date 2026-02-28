@@ -60,6 +60,26 @@ export interface SniperConfigV3 {
     agent?: string;
     protocol?: string;
   }>;
+  knowledge?: {
+    directory: string;
+    manifest: string;
+    max_total_tokens: number;
+  };
+  mcp_knowledge?: {
+    enabled: boolean;
+    directory: string;
+    auto_index: boolean;
+  };
+  headless?: {
+    auto_approve_gates: boolean;
+    output_format: "json" | "yaml" | "text";
+    log_level: "debug" | "info" | "warn" | "error";
+    timeout_minutes: number;
+    fail_on_gate_failure: boolean;
+  };
+  workspace?: {
+    ref: string;
+  };
   visibility: {
     live_status: boolean;
     checkpoints: boolean;

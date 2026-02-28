@@ -15,6 +15,12 @@ required:
   - version
 
 properties:
+  type:
+    type: string
+    enum: [plugin, agent, mixin, pack]
+    description: Package type — determines how the package is installed and where its files are placed.
+    default: plugin
+
   name:
     type: string
     description: Unique plugin identifier (lowercase, hyphen-separated).

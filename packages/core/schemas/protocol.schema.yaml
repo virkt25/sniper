@@ -1,0 +1,97 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/protocol"
+title: SNIPER Protocol
+description: Schema for SNIPER protocol definition files that define lifecycle phase sequences.
+type: object
+required:
+  - name
+  - description
+  - budget
+  - phases
+properties:
+  name:
+    type: string
+    description: Unique protocol identifier (e.g. full, feature, patch, hotfix).
+  description:
+    type: string
+    description: Human-readable description of the protocol's purpose.
+  budget:
+    type: integer
+    minimum: 1
+    description: Maximum token budget for the entire protocol execution.
+  phases:
+    type: array
+    minItems: 1
+    description: Ordered list of phases that compose this protocol.
+    items:
+      type: object
+      required:
+        - name
+        - description
+        - agents
+        - spawn_strategy
+      properties:
+        name:
+          type: string
+          description: Phase identifier (e.g. discover, plan, implement, review).
+        description:
+          type: string
+          description: Human-readable description of what this phase accomplishes.
+        agents:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: Agent personas assigned to this phase.
+        spawn_strategy:
+          type: string
+          enum:
+            - single
+            - team
+          description: Whether to spawn a single agent or a coordinated team.
+        gate:
+          type: object
+          properties:
+            checklist:
+              type: string
+              description: Name of the checklist to evaluate at the gate.
+            human_approval:
+              type: boolean
+              description: Whether a human must approve the gate before proceeding.
+          required:
+            - checklist
+            - human_approval
+          additionalProperties: false
+          description: Quality gate configuration for this phase.
+        outputs:
+          type: array
+          items:
+            type: string
+          description: Expected artifacts produced by this phase.
+        plan_approval:
+          type: boolean
+          description: Whether agents must get their plan approved before executing.
+        coordination:
+          type: array
+          description: Inter-agent coordination constraints for team phases.
+          items:
+            type: object
+            required:
+              - between
+              - topic
+            properties:
+              between:
+                type: array
+                minItems: 2
+                items:
+                  type: string
+                description: Agent personas that must coordinate.
+              topic:
+                type: string
+                description: Description of the coordination requirement.
+            additionalProperties: false
+      additionalProperties: false
+  auto_retro:
+    type: boolean
+    description: Whether to trigger the retro-analyst after protocol completion.
+additionalProperties: false

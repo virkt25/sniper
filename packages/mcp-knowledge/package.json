@@ -1,0 +1,37 @@
+{
+  "name": "@sniper.ai/mcp-knowledge",
+  "version": "3.0.0",
+  "description": "SNIPER MCP server for domain knowledge indexing and retrieval",
+  "type": "module",
+  "bin": {
+    "sniper-mcp-knowledge": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./indexer": "./dist/indexer.js",
+    "./search": "./dist/search.js",
+    "./types": "./dist/types.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

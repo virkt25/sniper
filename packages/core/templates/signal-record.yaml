@@ -1,0 +1,37 @@
+# Signal Record — captures an external learning for future agent context
+#
+# Signals are stored in .sniper/memory/signals/ and are ingested from
+# CI failures, PR review comments, production errors, or manually.
+# Agents query relevant signals before implementation to avoid repeating mistakes.
+
+# Required: one of ci_failure | pr_review_comment | production_error | manual
+type: ci_failure
+
+# Required: where this signal originated (e.g., "github-actions", "pr-42", "datadog")
+source: github-actions
+
+# Required: ISO 8601 timestamp of when the signal was observed
+timestamp: "2026-01-15T10:30:00Z"
+
+# Required: one-line summary of what happened
+summary: "Jest test suite failed — missing mock for PaymentService"
+
+# Optional: full error message, review comment text, or stack trace
+details: |
+  FAIL src/services/payment.test.ts
+  TypeError: Cannot read properties of undefined (reading 'charge')
+  Expected PaymentService to be mocked in test setup.
+
+# Optional: the takeaway to apply in future work
+learning: "Always mock external service dependencies in unit tests before calling the handler."
+
+# Optional: tags for matching this signal to relevant agent context
+relevance_tags:
+  - testing
+  - mocking
+  - payment-service
+
+# Optional: file paths that were involved
+affected_files:
+  - src/services/payment.test.ts
+  - src/services/payment.ts

@@ -1,0 +1,82 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/workspace"
+title: Workspace Configuration
+description: Schema for SNIPER workspace config files that coordinate multi-project orchestration.
+type: object
+required:
+  - name
+  - projects
+properties:
+  name:
+    type: string
+    description: Human-readable workspace name.
+  projects:
+    type: array
+    description: List of projects managed by this workspace.
+    items:
+      type: object
+      required:
+        - name
+        - path
+      properties:
+        name:
+          type: string
+          description: Project identifier within the workspace.
+        path:
+          type: string
+          description: Relative directory path from workspace root to the project.
+        type:
+          type: string
+          description: Optional project type label (e.g. api, frontend, library).
+  shared:
+    type: object
+    description: Shared conventions and decisions applied across all workspace projects.
+    properties:
+      conventions:
+        type: array
+        description: Coding conventions enforced across all projects.
+        items:
+          type: string
+      anti_patterns:
+        type: array
+        description: Patterns to avoid across all projects.
+        items:
+          type: string
+      architectural_decisions:
+        type: array
+        description: Architecture Decision Records shared across the workspace.
+        items:
+          type: object
+          required:
+            - id
+            - title
+            - decision
+            - rationale
+            - date
+          properties:
+            id:
+              type: string
+              description: Unique ADR identifier (e.g. ADR-001).
+            title:
+              type: string
+              description: Short title of the decision.
+            decision:
+              type: string
+              description: The decision that was made.
+            rationale:
+              type: string
+              description: Why this decision was made.
+            date:
+              type: string
+              format: date
+              description: Date the decision was recorded (YYYY-MM-DD).
+    additionalProperties: false
+  memory:
+    type: object
+    description: Configuration for shared workspace memory.
+    properties:
+      directory:
+        type: string
+        description: Path to the shared memory directory relative to workspace root.
+    additionalProperties: false
+additionalProperties: false

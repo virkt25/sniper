@@ -92,14 +92,106 @@ export async function installPlugin(
   const pkgJsonRaw = await readFile(join(pkgDir, "package.json"), "utf-8");
   const pkgJson = JSON.parse(pkgJsonRaw) as PackageJson;
 
-  if (!pkgJson.sniper || pkgJson.sniper.type !== "plugin") {
+  const validTypes = ["plugin", "agent", "mixin", "pack"];
+  if (!pkgJson.sniper || !validTypes.includes(pkgJson.sniper.type)) {
     execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
     throw new Error(
-      `${packageName} is not a valid SNIPER plugin (missing sniper.type: "plugin")`,
+      `${packageName} is not a valid SNIPER package (missing sniper.type: one of ${validTypes.join(", ")})`,
     );
   }
 
-  // Read and validate plugin.yaml
+  const sniperType = pkgJson.sniper.type;
+
+  // Handle installation based on package type
+  if (sniperType === "agent") {
+    // Agent packages: copy .md files to .claude/agents/
+    const agentsDir = join(cwd, ".claude", "agents");
+    await mkdir(agentsDir, { recursive: true });
+    const files = await readdir(pkgDir);
+    for (const file of files) {
+      if (file.endsWith(".md") && file !== "README.md") {
+        const src = assertSafePath(pkgDir, file);
+        await cp(src, join(agentsDir, file), { force: true });
+      }
+    }
+
+    const config = await readConfig(cwd);
+    if (!config.plugins.some((p) => p.name === pkgJson.name)) {
+      config.plugins.push({ name: pkgJson.name, package: packageName });
+    }
+    await writeConfig(cwd, config);
+
+    return { name: pkgJson.name, package: packageName, version: pkgJson.version };
+  }
+
+  if (sniperType === "mixin") {
+    // Mixin packages: copy .md files to .claude/personas/cognitive/
+    const mixinsDir = join(cwd, ".claude", "personas", "cognitive");
+    await mkdir(mixinsDir, { recursive: true });
+    const files = await readdir(pkgDir);
+    for (const file of files) {
+      if (file.endsWith(".md") && file !== "README.md") {
+        const src = assertSafePath(pkgDir, file);
+        await cp(src, join(mixinsDir, file), { force: true });
+      }
+    }
+
+    const config = await readConfig(cwd);
+    if (!config.plugins.some((p) => p.name === pkgJson.name)) {
+      config.plugins.push({ name: pkgJson.name, package: packageName });
+    }
+    await writeConfig(cwd, config);
+
+    return { name: pkgJson.name, package: packageName, version: pkgJson.version };
+  }
+
+  if (sniperType === "pack") {
+    // Pack packages: copy knowledge, personas, checklists, templates
+    const sniperDir = join(cwd, ".sniper");
+    const claudeDir = join(cwd, ".claude");
+
+    // Copy knowledge files if they exist
+    const knowledgeDir = join(pkgDir, "knowledge");
+    if (await pathExists(knowledgeDir)) {
+      const dest = join(sniperDir, "knowledge");
+      await mkdir(dest, { recursive: true });
+      await cp(knowledgeDir, dest, { recursive: true, force: true });
+    }
+
+    // Copy personas if they exist
+    const personasDir = join(pkgDir, "personas");
+    if (await pathExists(personasDir)) {
+      const dest = join(claudeDir, "personas", "cognitive");
+      await mkdir(dest, { recursive: true });
+      await cp(personasDir, dest, { recursive: true, force: true });
+    }
+
+    // Copy checklists if they exist
+    const checklistsDir = join(pkgDir, "checklists");
+    if (await pathExists(checklistsDir)) {
+      const dest = join(sniperDir, "checklists");
+      await mkdir(dest, { recursive: true });
+      await cp(checklistsDir, dest, { recursive: true, force: true });
+    }
+
+    // Copy templates if they exist
+    const templatesDir = join(pkgDir, "templates");
+    if (await pathExists(templatesDir)) {
+      const dest = join(sniperDir, "templates");
+      await mkdir(dest, { recursive: true });
+      await cp(templatesDir, dest, { recursive: true, force: true });
+    }
+
+    const config = await readConfig(cwd);
+    if (!config.plugins.some((p) => p.name === pkgJson.name)) {
+      config.plugins.push({ name: pkgJson.name, package: packageName });
+    }
+    await writeConfig(cwd, config);
+
+    return { name: pkgJson.name, package: packageName, version: pkgJson.version };
+  }
+
+  // Default: plugin type — requires plugin.yaml
   const pluginYamlPath = join(pkgDir, "plugin.yaml");
   if (!(await pathExists(pluginYamlPath))) {
     execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });

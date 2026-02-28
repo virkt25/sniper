@@ -98,7 +98,15 @@ export async function scaffoldProject(
 
   // Create .sniper/ directories
   await ensureDir(sniperDir);
-  for (const sub of ["checkpoints", "gates", "retros", "self-reviews"]) {
+  for (const sub of [
+    "checkpoints",
+    "gates",
+    "retros",
+    "self-reviews",
+    "protocols",
+    "knowledge",
+    "memory/signals",
+  ]) {
     await ensureDir(join(sniperDir, sub));
   }
 
@@ -107,6 +115,14 @@ export async function scaffoldProject(
   const checklistsDest = join(sniperDir, "checklists");
   await cp(checklistsSrc, checklistsDest, { recursive: true, force: true });
   log.push("Copied checklists/");
+
+  // Copy knowledge manifest template if it doesn't exist
+  const manifestTemplate = join(corePath, "templates", "knowledge-manifest.yaml");
+  const manifestDest = join(sniperDir, "knowledge", "manifest.yaml");
+  if ((await fileExists(manifestTemplate)) && !(await fileExists(manifestDest))) {
+    await cp(manifestTemplate, manifestDest);
+    log.push("Created .sniper/knowledge/manifest.yaml");
+  }
 
   // Generate config.yaml
   if (!isUpdate) {

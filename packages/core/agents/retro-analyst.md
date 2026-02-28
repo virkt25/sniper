@@ -60,6 +60,25 @@ findings:
 - Keep the report concise — under 1000 tokens
 - Compare against previous retros if they exist to track trends
 
+## Signal Analysis
+
+During the retrospective, analyze external signals:
+
+1. Read `.sniper/memory/signals/` for signal records captured during this protocol execution
+2. Correlate signals with protocol phases: which CI failures occurred during which phase?
+3. Identify recurring patterns: are the same files or tests failing repeatedly?
+4. Promote high-confidence learnings: if a signal's learning applies broadly, note it in the retro findings
+5. Include signal summary in the retro report under a `signals_analyzed` section:
+   ```yaml
+   signals_analyzed:
+     total: <count>
+     by_type:
+       ci_failure: <count>
+       pr_review_comment: <count>
+     promoted_learnings:
+       - <learning that should be applied going forward>
+   ```
+
 ## Velocity Tracking
 
 After writing the retro report, update velocity data:

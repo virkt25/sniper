@@ -58,9 +58,38 @@ When `--resume` is specified:
 3. Re-spawn agents that had incomplete tasks
 4. Continue from the checkpoint state
 
+## Protocol Resolution (Custom Protocols — Feature 6)
+
+When resolving a protocol name, check in order:
+1. `.sniper/protocols/<name>.yaml` — User-defined custom protocols take priority
+2. Core protocols from `@sniper.ai/core/protocols/<name>.yaml` — Built-in protocols
+
+This allows users to override built-in protocols or define entirely new ones.
+
 ## Phase Execution Loop
 
 For each phase in the protocol:
+
+### 0. Pre-Phase Setup
+
+**Load Workspace Context (Feature 1):**
+If a workspace exists (`.sniper-workspace/` in a parent directory):
+1. Read `.sniper-workspace/config.yaml`
+2. Extract `shared.conventions` and `shared.anti_patterns`
+3. These will be injected into agent context in step 2
+
+**Load Relevant Signals (Feature 8):**
+1. Read `.sniper/memory/signals/` for signal records
+2. Match signals by `affected_files` (files that will be touched in this phase) and `relevance_tags`
+3. Select top 10 most relevant signals
+4. These will be injected as "## Recent Learnings" in agent context in step 2
+
+**Check Workspace Conflicts (Feature 5):**
+If a workspace exists:
+1. Check `.sniper-workspace/locks/` for advisory file locks
+2. If any files that this phase's agents will modify are locked by another project, flag the conflict
+3. Present conflicts to the user and wait for resolution before proceeding
+4. Acquire advisory locks for files this phase will modify
 
 ### 1. Read Phase Configuration
 ```
@@ -81,6 +110,24 @@ For each agent in the phase:
 2. Check config for mixins: `config.agents.mixins.<agent-name>`
 3. If mixins exist, read each mixin from `.claude/personas/cognitive/<mixin>.md`
 4. The agent's full prompt = base definition + concatenated mixins
+
+**Load Domain Knowledge (Feature 9):**
+After composing the base agent:
+1. Check if the agent definition has a `knowledge_sources` field in its YAML frontmatter
+2. If present, read `.sniper/knowledge/manifest.yaml`
+3. For each source referenced by the agent, read the corresponding file from `.sniper/knowledge/`
+4. Truncate content to stay within `config.knowledge.max_total_tokens` (default: 50000 tokens)
+5. Append matched knowledge as `## Domain Knowledge` section in the agent's prompt
+
+**Inject Workspace Conventions (Feature 1):**
+If workspace conventions were loaded in step 0:
+1. Append shared conventions as `## Workspace Conventions` section
+2. Append anti-patterns as `## Anti-Patterns (Workspace)` section
+
+**Inject Recent Signals (Feature 8):**
+If relevant signals were loaded in step 0:
+1. Format each signal as: `- [<type>] <summary> (<affected_files>)`
+2. Append as `## Recent Learnings` section in the agent's prompt
 
 ### 3. Determine Spawn Strategy
 Based on the protocol's `spawn_strategy` for this phase:
@@ -120,7 +167,14 @@ timestamp: <ISO 8601>
 status: completed | failed
 agents: [status per agent]
 token_usage: [phase + cumulative]
+commits: [git SHAs produced during this phase]
 ```
+
+**Record Git Commits (Feature 2):**
+After agents complete, capture commits for logical revert support:
+1. Run `git log --oneline <start-sha>..HEAD` to find new commits since the phase started
+2. Record each commit's SHA, message, and the agent that produced it
+3. Include the `commits` array in the checkpoint YAML
 
 ### 7. Run Gate
 Trigger the gate-reviewer for this phase:

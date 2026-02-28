@@ -1,0 +1,39 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/signal"
+title: External Signal Record
+description: Schema for SNIPER signal records that capture learnings from CI failures, PR reviews, and production errors.
+type: object
+required:
+  - type
+  - source
+  - timestamp
+  - summary
+properties:
+  type:
+    type: string
+    enum: [ci_failure, pr_review_comment, production_error, manual]
+    description: Signal type classification.
+  source:
+    type: string
+    description: Where the signal came from (e.g., "github-actions", "pr-42", "datadog").
+  timestamp:
+    type: string
+    format: date-time
+  summary:
+    type: string
+    description: One-line summary of the signal.
+  details:
+    type: string
+    description: Full details (error message, review comment text, etc.).
+  learning:
+    type: string
+    description: Extracted learning or pattern to apply in future.
+  relevance_tags:
+    type: array
+    items: { type: string }
+    description: Tags for matching against agent context.
+  affected_files:
+    type: array
+    items: { type: string }
+    description: File paths affected by this signal.
+additionalProperties: false

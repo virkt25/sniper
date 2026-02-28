@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "description": "Auto-capture CI failure signals from test/lint output",
+        "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -qiE '(FAIL|FAILED|ERROR|exit code [1-9])'; then SIGNAL_DIR=\".sniper/memory/signals\"; mkdir -p \"$SIGNAL_DIR\"; SIGNAL_FILE=\"$SIGNAL_DIR/$(date +%Y%m%d)-ci_failure-$(date +%s).yaml\"; echo \"type: ci_failure\" > \"$SIGNAL_FILE\"; echo \"source: bash-output\" >> \"$SIGNAL_FILE\"; echo \"timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)\" >> \"$SIGNAL_FILE\"; echo \"summary: CI failure detected in command output\" >> \"$SIGNAL_FILE\"; echo 'Signal captured to '\"$SIGNAL_FILE\"; fi"
+      }
+    ]
+  }
+}

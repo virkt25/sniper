@@ -108,6 +108,25 @@ properties:
         type: number
         minimum: 0
         description: Remaining token budget.
+  commits:
+    type: array
+    description: Git commits made during this phase, used for logical revert.
+    items:
+      type: object
+      required:
+        - sha
+        - message
+        - agent
+      properties:
+        sha:
+          type: string
+          description: Git commit SHA.
+        message:
+          type: string
+          description: Commit message.
+        agent:
+          type: string
+          description: Agent that produced this commit.
   notes:
     type: string
     description: Free-form notes about the checkpoint.

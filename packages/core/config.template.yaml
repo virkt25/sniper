@@ -126,6 +126,30 @@ plugins: []
 # - name: typescript
 #   package: "@sniper.ai/plugin-typescript"
 
+# Domain knowledge configuration (Feature 9)
+# knowledge:
+#   directory: ".sniper/knowledge"
+#   manifest: "manifest.yaml"
+#   max_total_tokens: 50000
+
+# MCP Knowledge Base server (Feature 10)
+# mcp_knowledge:
+#   enabled: false
+#   directory: ".sniper/knowledge"
+#   auto_index: true
+
+# Headless / CI mode defaults (Feature 3)
+# headless:
+#   auto_approve_gates: false
+#   output_format: json
+#   log_level: info
+#   timeout_minutes: 60
+#   fail_on_gate_failure: true
+
+# Workspace reference (Feature 1)
+# workspace:
+#   ref: "../.sniper-workspace"
+
 # Visibility settings
 visibility:
   live_status: true          # Maintain .sniper/live-status.yaml
