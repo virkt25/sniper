@@ -34,6 +34,7 @@ export async function generateLlmsTxt(docsDir, outputDir, generatedDir) {
     'memory',
     'signals-and-learning',
     'advanced-features',
+    'ecosystem',
     'plugin-development',
     'migration-from-v2',
     'troubleshooting',
@@ -62,6 +63,10 @@ export async function generateLlmsTxt(docsDir, outputDir, generatedDir) {
     { name: 'Checklists', dir: 'checklists', urlPrefix: '/reference/checklists' },
     { name: 'Templates', dir: 'templates', urlPrefix: '/reference/templates' },
     { name: 'Workflows', dir: 'workflows', urlPrefix: '/reference/workflows' },
+    { name: 'CLI Commands', dir: 'cli', urlPrefix: '/reference/cli' },
+    { name: 'Schemas', dir: 'schemas', urlPrefix: '/reference/schemas' },
+    { name: 'Hooks', dir: 'hooks', urlPrefix: '/reference/hooks' },
+    { name: 'Configuration', dir: 'config', urlPrefix: '/reference/config' },
   ];
 
   for (const section of refSections) {

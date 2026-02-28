@@ -61,6 +61,10 @@ export default withMermaid(defineConfig({
     'generated/checklists/:slug.md': 'reference/checklists/:slug.md',
     'generated/templates/:slug.md': 'reference/templates/:slug.md',
     'generated/workflows/:slug.md': 'reference/workflows/:slug.md',
+    'generated/cli/:slug.md': 'reference/cli/:slug.md',
+    'generated/schemas/:slug.md': 'reference/schemas/:slug.md',
+    'generated/hooks/:slug.md': 'reference/hooks/:slug.md',
+    'generated/config/:slug.md': 'reference/config/:slug.md',
   },
 
   markdown: {
@@ -120,6 +124,7 @@ export default withMermaid(defineConfig({
         {
           text: 'Extending',
           items: [
+            { text: 'Ecosystem', link: '/guide/ecosystem' },
             { text: 'Plugin Development', link: '/guide/plugin-development' },
             { text: 'Migration from v2', link: '/guide/migration-from-v2' },
           ],
@@ -187,6 +192,37 @@ export default withMermaid(defineConfig({
           items: [
             { text: 'Overview', link: '/reference/workflows/' },
             ...(generated.workflows ?? []),
+          ],
+        },
+        {
+          text: 'CLI Commands',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/reference/cli/' },
+            ...(generated.cli ?? []),
+          ],
+        },
+        {
+          text: 'Schemas',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/reference/schemas/' },
+            ...(generated.schemas ?? []),
+          ],
+        },
+        {
+          text: 'Hooks',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/reference/hooks/' },
+            ...(generated.hooks ?? []),
+          ],
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            ...(generated.config ?? []),
           ],
         },
       ],
