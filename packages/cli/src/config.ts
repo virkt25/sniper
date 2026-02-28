@@ -33,6 +33,11 @@ export interface SniperConfigV3 {
     soft_cap: number;
     hard_cap: number;
   };
+  review?: {
+    multi_model: boolean;
+    models: string[];
+    require_consensus: boolean;
+  };
   ownership: Record<string, string[]>;
   stack: {
     language: string;
@@ -50,6 +55,11 @@ export interface SniperConfigV3 {
     };
   };
   plugins: Array<{ name: string; package: string }>;
+  triggers?: Array<{
+    pattern: string;
+    agent?: string;
+    protocol?: string;
+  }>;
   visibility: {
     live_status: boolean;
     checkpoints: boolean;

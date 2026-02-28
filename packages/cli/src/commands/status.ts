@@ -95,6 +95,25 @@ export const statusCommand = defineCommand({
     console.log(`  Default: ${config.routing.default}`);
     console.log(`  Budgets: full=${(config.routing.budgets.full / 1000000).toFixed(1)}M, feature=${(config.routing.budgets.feature / 1000).toFixed(0)}K, patch=${(config.routing.budgets.patch / 1000).toFixed(0)}K`);
 
+    // Velocity data
+    const velocityPath = join(cwd, ".sniper", "memory", "velocity.yaml");
+    if (await pathExists(velocityPath)) {
+      const velRaw = await readFile(velocityPath, "utf-8");
+      const velocity = YAML.parse(velRaw);
+
+      if (velocity && velocity.calibrated_budgets && Object.keys(velocity.calibrated_budgets).length > 0) {
+        p.log.step("Velocity (calibrated budgets):");
+        for (const [protocol, budget] of Object.entries(velocity.calibrated_budgets)) {
+          const configured = config.routing.budgets[protocol];
+          const calibrated = budget as number;
+          const avg = velocity.rolling_averages?.[protocol] as number | undefined;
+          const avgStr = avg ? `${(avg / 1000).toFixed(0)}K avg` : "";
+          const trend = configured && calibrated < configured * 0.9 ? "↓" : calibrated > configured * 1.1 ? "↑" : "→";
+          console.log(`  ${protocol}: ${avgStr} (calibrated: ${(calibrated / 1000).toFixed(0)}K, configured: ${configured ? (configured / 1000).toFixed(0) + "K" : "N/A"}) ${trend}`);
+        }
+      }
+    }
+
     p.outro("");
   },
 });

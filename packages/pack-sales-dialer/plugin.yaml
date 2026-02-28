@@ -1,0 +1,51 @@
+# SNIPER Sales Dialer Domain Pack (v3 Plugin Format)
+# Provides telephony domain knowledge, compliance conventions,
+# review checks, and agent mixins for sales dialer applications.
+
+name: sales-dialer
+version: 2.0.0
+description: >
+  Sales dialer domain pack for SNIPER. Provides telephony expertise,
+  compliance conventions, CRM integration patterns, AI pipeline guidance,
+  and agent knowledge mixins for building sales dialer applications.
+
+commands: {}
+
+conventions:
+  - "Use E.164 format for all phone numbers (e.g., +14155551234)."
+  - "Use Async AMD with DetectMessageEnd for answering machine detection."
+  - "Enable dual-channel recording for accurate speaker separation."
+  - "Enforce TCPA calling hours: 8am-9pm in the callee's local timezone."
+  - "Check DNC (Do Not Call) lists before every outbound call."
+  - "Announce recording consent at the start of every recorded call."
+  - "Pause recording during payment card data collection (PCI-DSS)."
+  - "Use StatusCallback webhooks for reliable call state tracking."
+
+review_checks:
+  - id: tcpa-compliance
+    description: "Verify timezone-aware TCPA calling hour enforcement."
+    command: "grep -rn 'timezone\\|calling.hours\\|tcpa\\|TCPA' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No TCPA references found — verify compliance is handled'"
+    blocking: true
+
+  - id: dnc-check
+    description: "Verify DNC list verification before outbound calls."
+    command: "grep -rn 'dnc\\|DNC\\|do.not.call\\|doNotCall' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No DNC references found — verify compliance is handled'"
+    blocking: true
+
+  - id: recording-consent
+    description: "Verify recording consent disclosure is implemented."
+    command: "grep -rn 'recording.*consent\\|consent.*recording\\|disclosure' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No recording consent references found'"
+    blocking: false
+
+  - id: pci-recording-pause
+    description: "Verify recording pause during payment data collection."
+    command: "grep -rn 'pause.*recording\\|recording.*pause\\|pci\\|PCI' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No PCI recording pause references found'"
+    blocking: false
+
+agent_mixins:
+  backend-dev:
+    - pack/personas/process/telephony-specialist.md
+  architect:
+    - pack/personas/process/telephony-specialist.md
+
+hooks: {}

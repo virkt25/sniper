@@ -57,4 +57,45 @@ properties:
     type: integer
     minimum: 0
     description: Total number of checks that were evaluated.
+  model_results:
+    type: array
+    description: Individual model assessments when multi-model review is enabled.
+    items:
+      type: object
+      required:
+        - model
+        - result
+        - timestamp
+      properties:
+        model:
+          type: string
+          description: Model identifier used for this assessment.
+        result:
+          type: string
+          enum:
+            - pass
+            - fail
+          description: This model's gate result.
+        checks:
+          type: array
+          description: Check results from this model's assessment.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+                enum:
+                  - pass
+                  - fail
+              output:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+          description: When this model's assessment was performed.
+  consensus:
+    type: boolean
+    description: Whether all models agreed on the result. Only present when multi-model review is enabled.
 additionalProperties: false

@@ -41,6 +41,22 @@ blocking_failures: <count>
 total_checks: <count>
 ```
 
+## Multi-Model Review
+
+When `review.multi_model` is enabled in `.sniper/config.yaml`:
+
+1. Run all checklist checks normally as the primary model assessment
+2. Record the primary result as the first entry in `model_results`
+3. Note that a secondary model review is requested in the gate result
+4. Each model's assessment is recorded separately with its own checks array
+5. Consensus logic:
+   - If `require_consensus: true` — ALL models must agree for a pass
+   - If `require_consensus: false` — majority of models determines the result
+6. Set the `consensus` field to `true` if all models agree, `false` otherwise
+7. The overall `result` is determined by the consensus logic
+
+When `review.multi_model` is disabled (default), proceed with single-model review as normal.
+
 ## Rules
 
 - Run ALL checks even if early ones fail — report complete results

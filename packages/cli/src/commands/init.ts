@@ -183,12 +183,20 @@ export const initCommand = defineCommand({
           feature: 800000,
           patch: 200000,
           ingest: 1000000,
+          explore: 500000,
+          refactor: 600000,
+          hotfix: 100000,
         },
       },
       cost: {
         warn_threshold: 0.7,
         soft_cap: 0.9,
         hard_cap: 1.0,
+      },
+      review: {
+        multi_model: false,
+        models: ['opus', 'sonnet'],
+        require_consensus: true,
       },
       ownership: {
         backend: ["src/backend/", "src/api/", "src/services/", "src/db/"],
@@ -213,6 +221,7 @@ export const initCommand = defineCommand({
         },
       },
       plugins: [],
+      triggers: [],
       visibility: {
         live_status: true,
         checkpoints: true,

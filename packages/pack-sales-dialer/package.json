@@ -5,10 +5,11 @@
   "type": "module",
   "main": "pack",
   "files": [
-    "pack"
+    "pack",
+    "plugin.yaml"
   ],
   "sniper": {
-    "type": "domain-pack",
+    "type": "plugin",
     "packDir": "pack"
   },
   "keywords": [

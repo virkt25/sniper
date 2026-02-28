@@ -8,6 +8,13 @@
         "agent": "lead-orchestrator"
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "description": "Self-healing CI: detect test/lint failures and instruct agent to fix",
+        "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -qiE '(FAIL|FAILED|ERROR|AssertionError|SyntaxError|TypeError|ReferenceError|lint.*error|eslint.*error|tsc.*error)'; then echo 'WARN: Test or lint failure detected. Fix the failing test/lint issue before proceeding to the next task.'; fi"
+      }
+    ],
     "Stop": [
       {
         "description": "Run gate reviewer at phase boundaries",

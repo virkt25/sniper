@@ -1,0 +1,9 @@
+# Velocity — protocol execution history and calibrated budgets
+# Auto-populated by retro-analyst after each protocol completion
+# Read by /sniper-flow for adaptive budget selection
+
+executions: []
+
+calibrated_budgets: {}
+
+rolling_averages: {}

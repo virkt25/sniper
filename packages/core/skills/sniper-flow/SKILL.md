@@ -3,7 +3,7 @@ name: sniper-flow
 description: Execute a SNIPER protocol — the core execution engine
 arguments:
   - name: protocol
-    description: Protocol to run (full, feature, patch, ingest). Auto-detected if omitted.
+    description: Protocol to run (full, feature, patch, ingest, explore, refactor, hotfix). Auto-detected if omitted.
     required: false
   - name: resume
     description: Resume from last checkpoint
@@ -27,12 +27,28 @@ If `--protocol` is specified, use it directly. Otherwise, auto-detect:
 3. If resuming (`--resume`), read the last checkpoint to determine protocol
 4. Otherwise, estimate scope:
    - Analyze the user's request complexity
+   - `hotfix` — Critical/urgent production fix ("critical", "urgent", "production down", "hotfix")
    - `patch` — Bug fix or small change (< 5 files likely affected)
    - `feature` — New feature or significant enhancement (5-20 files)
    - `full` — New project, major rework, or multi-component change (20+ files)
    - `ingest` — User wants to understand/document an existing codebase
+   - `explore` — Exploratory analysis, understanding, or research ("what is", "how does", "analyze", "explore")
+   - `refactor` — Code improvement without new features ("refactor", "clean up", "improve", "reorganize")
 
 Announce the selected protocol and ask for confirmation before proceeding.
+
+### Trigger Table Evaluation
+
+After auto-detection, evaluate trigger tables from `.sniper/config.yaml`:
+
+1. Read `triggers` array from config
+2. Get changed files via `git diff --name-only` (or `git status` for new files)
+3. For each trigger entry, glob-match changed files against `pattern`
+4. If a trigger matches:
+   - If `protocol` is specified, it can override the auto-detected protocol
+   - If `agent` is specified, that agent is added to the phase's agent list
+5. Trigger matches are additive — they refine the selection, not replace it
+6. Log which triggers matched and what they changed
 
 ## Resume Support
 
@@ -50,7 +66,14 @@ For each phase in the protocol:
 ```
 Read the protocol YAML → get phase definition
 Read .sniper/config.yaml → get agent config, ownership, commands
+Read .sniper/memory/velocity.yaml → check for calibrated budget (if exists)
 ```
+
+**Velocity-Aware Budget Selection:**
+- Check `.sniper/memory/velocity.yaml` for a `calibrated_budget` for the current protocol
+- If a calibrated budget exists and differs from the configured budget, use the calibrated budget
+- Log which budget source is being used: "Using calibrated budget (X tokens)" or "Using configured budget (X tokens)"
+- The calibrated budget takes precedence over `config.routing.budgets`
 
 ### 2. Compose Agents
 For each agent in the phase:

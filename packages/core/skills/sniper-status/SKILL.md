@@ -43,6 +43,12 @@ Format and display:
 - Last 3 checkpoints with timestamps
 - Last gate result
 
+**Velocity Trends** (if velocity data exists):
+- Read `.sniper/memory/velocity.yaml`
+- Show last 5 executions per protocol with tokens used
+- Show calibrated budget vs configured budget comparison
+- Show trend direction: ↑ (increasing usage), ↓ (decreasing usage), → (stable)
+
 ### 3. Format Output
 
 Use clear formatting:
@@ -60,6 +66,10 @@ Gates:
 
 Cost: 245K / 800K tokens (31%)
 [======--------------] 31%
+
+Velocity:
+  feature: 612K avg (calibrated: 750K, configured: 800K) →
+  patch:   145K avg (calibrated: 180K, configured: 200K) ↓
 ```
 
 ## Rules

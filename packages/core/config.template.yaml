@@ -51,12 +51,33 @@ routing:
     feature: 800000
     patch: 200000
     ingest: 1000000
+    explore: 500000
+    refactor: 600000
+    hotfix: 100000
+
+# Trigger tables — map file patterns to agents or protocols
+# Example:
+#   - pattern: "src/api/**"
+#     agent: backend-dev
+#   - pattern: "*.test.ts"
+#     agent: qa-engineer
+#   - pattern: "infrastructure/**"
+#     protocol: full
+triggers: []
 
 # Cost enforcement
 cost:
   warn_threshold: 0.7       # Warn at 70% of budget
   soft_cap: 0.9              # Soft cap at 90% — agents must justify continuing
   hard_cap: 1.0              # Hard cap at 100% — stop execution
+
+# Review configuration
+review:
+  multi_model: false           # Enable multi-model review for gate checks
+  models:                      # Models to use when multi_model is enabled
+    - opus
+    - sonnet
+  require_consensus: true      # All models must agree for a pass (false = majority wins)
 
 # File ownership boundaries
 ownership:

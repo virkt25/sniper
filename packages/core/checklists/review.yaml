@@ -21,3 +21,8 @@ checks:
     description: No blocking findings in review report
     check: "!grep:docs/review-report.md:blocking"
     blocking: true
+
+  - id: spec_reconciled
+    description: Spec has been reconciled with implementation
+    check: "grep:docs/spec.md:Last reconciled:"
+    blocking: false

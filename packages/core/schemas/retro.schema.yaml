@@ -78,4 +78,18 @@ properties:
         description: Concrete action items for future runs.
         items:
           type: string
+  velocity:
+    type: object
+    description: Velocity metrics for this execution, used for budget calibration.
+    properties:
+      wall_clock_seconds:
+        type: number
+        minimum: 0
+        description: Total wall clock time for the protocol execution in seconds.
+      tokens_per_phase:
+        type: object
+        description: Token usage broken down by phase name.
+        additionalProperties:
+          type: integer
+          minimum: 0
 additionalProperties: false

@@ -1,0 +1,16 @@
+name: hotfix
+description: Critical fix — fastest path to production
+budget: 100000  # 100K tokens
+
+phases:
+  - name: implement
+    description: Emergency fix with minimal overhead
+    agents:
+      - fullstack-dev
+    spawn_strategy: single
+    plan_approval: false
+    outputs:
+      - source code changes
+      - test files
+
+auto_retro: false  # Hotfixes are too urgent for retros
