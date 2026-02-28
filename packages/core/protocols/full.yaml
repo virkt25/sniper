@@ -35,8 +35,7 @@ phases:
   - name: implement
     description: Code implementation with worktree isolation
     agents:
-      - backend-dev
-      - frontend-dev
+      - fullstack-dev
       - qa-engineer
     spawn_strategy: team
     plan_approval: true  # Each agent must get plan approved before coding

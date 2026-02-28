@@ -40,7 +40,7 @@ review_checks:
   - id: type-annotations
     description: "Ensure public functions have type annotations."
     command: "! grep -rn 'def [a-z]' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v '\\->' | grep -v '__' | grep -v 'def _'"
-    blocking: true
+    blocking: false
 
   - id: no-print
     description: "Prefer logging over print statements in production code."

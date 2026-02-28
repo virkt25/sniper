@@ -2,10 +2,22 @@ name: plan
 description: Planning phase quality gate
 
 checks:
-  - id: required_sections
-    description: Architecture doc has all required sections
-    check: grep:docs/architecture.md:"## Context|## Decisions|## Components|## Data Model"
+  - id: has_context_section
+    check: grep:docs/architecture.md:"## Context"
     blocking: true
+    description: Architecture doc includes Context section
+  - id: has_decisions_section
+    check: grep:docs/architecture.md:"## Decisions"
+    blocking: true
+    description: Architecture doc includes Decisions section
+  - id: has_components_section
+    check: grep:docs/architecture.md:"## Components"
+    blocking: true
+    description: Architecture doc includes Components section
+  - id: has_data_model_section
+    check: grep:docs/architecture.md:"## Data Model"
+    blocking: true
+    description: Architecture doc includes Data Model section
 
   - id: ears_criteria
     description: All stories have EARS acceptance criteria
@@ -15,10 +27,10 @@ checks:
   - id: open_questions
     description: No unresolved open questions remain
     # '|' separates alternation patterns (grep -E style)
-    check: "!grep:docs/:**TBD**|**TODO**|**OPEN**"
+    check: "!grep:docs/:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
     blocking: false
 
   - id: token_budget
-    description: Architecture doc is within 4000 token budget
+    description: Architecture doc within character budget (~4000 tokens ≈ 16000 chars)
     check: wc:docs/architecture.md:<16000
     blocking: false

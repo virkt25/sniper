@@ -58,6 +58,9 @@ properties:
             human_approval:
               type: boolean
               description: Whether a human must approve the gate before proceeding.
+            multi_model_checklist:
+              type: string
+              description: Checklist to use for multi-model review (optional).
           required:
             - checklist
             - human_approval

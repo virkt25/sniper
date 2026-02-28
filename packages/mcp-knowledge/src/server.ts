@@ -8,7 +8,7 @@ import {
 import { indexKnowledgeDir, readIndex, writeIndex } from "./indexer.js";
 import { searchKnowledge } from "./search.js";
 import type { KnowledgeIndex } from "./types.js";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { access, readdir, stat } from "node:fs/promises";
 
 const INDEX_FILENAME = "knowledge-index.json";
@@ -17,7 +17,9 @@ async function getNewestMtime(dir: string): Promise<number> {
   let newest = 0;
   try {
     const files = await readdir(dir);
-    for (const file of files) {
+    // Filter out the index file itself to avoid self-comparison
+    const sourceFiles = files.filter(f => f !== INDEX_FILENAME);
+    for (const file of sourceFiles) {
       const s = await stat(join(dir, file));
       if (s.mtimeMs > newest) newest = s.mtimeMs;
     }
@@ -52,6 +54,14 @@ async function getIndex(knowledgeDir: string): Promise<KnowledgeIndex> {
 export function createServer(): Server {
   const knowledgeDir =
     process.env.SNIPER_KNOWLEDGE_DIR || ".sniper/knowledge";
+
+  // Validate that knowledgeDir is within the current working directory
+  const resolvedKnowledgeDir = resolve(knowledgeDir);
+  if (!resolvedKnowledgeDir.startsWith(process.cwd())) {
+    throw new Error(
+      `SNIPER_KNOWLEDGE_DIR must be within the project directory (got: ${resolvedKnowledgeDir})`,
+    );
+  }
 
   const server = new Server(
     { name: "sniper-mcp-knowledge", version: "3.0.0" },

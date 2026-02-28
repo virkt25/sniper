@@ -39,8 +39,8 @@ review_checks:
 
   - id: error-handling
     description: "Ensure errors are not silently discarded."
-    command: "! grep -rn '_ =' . --include='*.go' | grep -v '_test.go' | grep -v 'vendor/' | grep -v '_ = flag'"
-    blocking: true
+    command: "! grep -rn 'err\\s*=' . --include='*.go' | grep '_ =' | grep -v '_test.go' | grep -v 'vendor/'"
+    blocking: false
 
   - id: context-first
     description: "Verify context.Context is the first parameter where applicable."

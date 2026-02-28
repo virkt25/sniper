@@ -76,7 +76,7 @@ export const statusCommand = defineCommand({
 
         // Cost
         if (liveStatus.cost && typeof liveStatus.cost.percent === "number" && typeof liveStatus.cost.tokens_used === "number" && typeof liveStatus.cost.budget === "number") {
-          const pct = Math.round(liveStatus.cost.percent * 100);
+          const pct = Math.max(0, Math.min(100, Math.round(liveStatus.cost.percent * 100)));
           const bar = "=".repeat(Math.floor(pct / 5)) + "-".repeat(20 - Math.floor(pct / 5));
           console.log(`\n  Cost: ${(liveStatus.cost.tokens_used / 1000).toFixed(0)}K / ${(liveStatus.cost.budget / 1000).toFixed(0)}K tokens (${pct}%)`);
           console.log(`  [${bar}] ${pct}%`);

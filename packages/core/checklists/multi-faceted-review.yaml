@@ -26,7 +26,7 @@ checks:
 
   - id: standards_test_coverage
     description: Tests exist for new functionality
-    check: "glob:*.test.* *.spec.*"
+    command: "find . -name '*.test.*' -o -name '*.spec.*' | grep -q ."
     blocking: true
 
   - id: standards_lint_clean
@@ -37,20 +37,20 @@ checks:
   # Risk Scoring — are there security, performance, or reliability risks?
   - id: risk_security
     description: No OWASP Top 10 vulnerabilities detected
-    check: file:docs/review-report.md
+    check: 'grep:docs/review-report.md:"## Security"'
     blocking: true
 
   - id: risk_performance
     description: No obvious performance regressions
-    check: file:docs/review-report.md
+    check: 'grep:docs/review-report.md:"## Performance"'
     blocking: false
 
   - id: risk_error_handling
     description: Error cases are handled gracefully
-    check: file:docs/review-report.md
+    check: 'grep:docs/review-report.md:"## Error Handling"'
     blocking: false
 
   - id: risk_data_integrity
     description: No data loss or corruption risks
-    check: file:docs/review-report.md
+    check: 'grep:docs/review-report.md:"## Data Integrity"'
     blocking: true

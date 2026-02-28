@@ -14,6 +14,7 @@ phases:
       human_approval: true
     outputs:
       - docs/architecture.md
+      - docs/prd.md
       - docs/stories/
 
   - name: implement

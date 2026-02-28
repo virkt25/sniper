@@ -84,6 +84,20 @@ export class HeadlessRunner {
       };
     }
 
+    // Validate protocol name
+    if (!/^[a-z][a-z0-9-]*$/.test(this.options.protocol)) {
+      return {
+        exitCode: ExitCode.ConfigError,
+        protocol: this.options.protocol,
+        phases: [],
+        totalTokens: 0,
+        duration: Date.now() - startTime,
+        errors: [
+          `Invalid protocol name: "${this.options.protocol}". Must be lowercase alphanumeric with hyphens.`,
+        ],
+      };
+    }
+
     // Validate the protocol exists
     const isBuiltIn = BUILT_IN_PROTOCOLS.includes(this.options.protocol);
     let isCustom = false;
@@ -159,6 +173,20 @@ export class HeadlessRunner {
 
       case "text":
         return formatTextTable(result);
+
+      default:
+        return JSON.stringify(
+          {
+            protocol: result.protocol,
+            status: exitCodeToStatus(result.exitCode),
+            phases: result.phases,
+            total_tokens: result.totalTokens,
+            duration_seconds: Math.round(result.duration / 1000),
+            errors: result.errors,
+          },
+          null,
+          2,
+        );
     }
   }
 }

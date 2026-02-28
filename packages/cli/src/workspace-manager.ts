@@ -110,6 +110,10 @@ export async function addProject(
   name: string,
   path: string,
 ): Promise<void> {
+  if (path.includes('..')) {
+    throw new Error(`Project path must not contain '..': ${path}`);
+  }
+
   const config = await readWorkspaceConfig(workspaceRoot);
 
   if (config.projects.some((p) => p.name === name)) {

@@ -9,6 +9,9 @@ phases:
       - fullstack-dev
     spawn_strategy: single
     plan_approval: false
+    gate:
+      checklist: implement
+      blocking: false
     outputs:
       - source code changes
       - test files

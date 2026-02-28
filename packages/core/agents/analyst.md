@@ -10,6 +10,7 @@ tools:
   - WebFetch
 write_scope:
   - "docs/"
+  - ".sniper/"
 ---
 
 # Analyst

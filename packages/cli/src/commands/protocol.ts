@@ -325,6 +325,11 @@ const validateSubcommand = defineCommand({
       process.exit(1);
     }
 
+    if (!/^[a-z][a-z0-9-]*$/.test(args.name as string)) {
+      p.log.error("Protocol name must be lowercase alphanumeric with hyphens");
+      process.exit(1);
+    }
+
     const filePath = join(cwd, CUSTOM_PROTOCOLS_DIR, `${args.name}.yaml`);
 
     let raw: string;

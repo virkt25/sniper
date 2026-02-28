@@ -82,7 +82,7 @@ export async function ingestFromPR(
       type: "pr_review_comment",
       source: `pr-${prNumber}`,
       timestamp: review.submittedAt,
-      summary: `PR #${prNumber} review (${review.state}) by ${review.author.login}`,
+      summary: `PR #${prNumber} review (${review.state}) by ${review.author?.login ?? "unknown"}`,
       details: review.body,
       relevance_tags: ["pr-review", review.state.toLowerCase()],
     };
@@ -95,7 +95,7 @@ export async function ingestFromPR(
       type: "pr_review_comment",
       source: `pr-${prNumber}`,
       timestamp: comment.createdAt,
-      summary: `PR #${prNumber} comment by ${comment.author.login}`,
+      summary: `PR #${prNumber} comment by ${comment.author?.login ?? "unknown"}`,
       details: comment.body,
       relevance_tags: ["pr-comment"],
     };
@@ -186,7 +186,7 @@ export async function clearSignals(cwd: string): Promise<number> {
   }
 
   const files = await readdir(dir);
-  const yamlFiles = files.filter((f) => f.endsWith(".yaml"));
+  const yamlFiles = files.filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
   for (const file of yamlFiles) {
     await rm(join(dir, file));

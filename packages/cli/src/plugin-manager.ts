@@ -168,6 +168,10 @@ export async function installPlugin(
     const contentRoot = pkgJson.sniper?.packDir
       ? join(pkgDir, pkgJson.sniper.packDir)
       : pkgDir;
+    // Validate packDir doesn't escape the package directory
+    if (pkgJson.sniper?.packDir) {
+      assertSafePath(pkgDir, pkgJson.sniper.packDir);
+    }
 
     // Copy knowledge files if they exist
     const knowledgeDir = join(contentRoot, "knowledge");

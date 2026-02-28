@@ -75,7 +75,19 @@ export async function createLock(
   };
 
   const lockPath = join(dir, encodeLockFilename(file));
-  await writeFile(lockPath, YAML.stringify(lock, { lineWidth: 0 }), "utf-8");
+  try {
+    await writeFile(lockPath, YAML.stringify(lock, { lineWidth: 0 }), {
+      encoding: "utf-8",
+      flag: "wx",
+    });
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "code" in err && (err as NodeJS.ErrnoException).code === "EEXIST") {
+      throw new Error(
+        `Lock already exists for "${file}". Another agent may be modifying this file.`,
+      );
+    }
+    throw err;
+  }
 }
 
 /**
@@ -85,10 +97,20 @@ export async function createLock(
 export async function releaseLock(
   workspaceRoot: string,
   file: string,
+  owner?: string,
 ): Promise<boolean> {
   const lockPath = join(locksDir(workspaceRoot), encodeLockFilename(file));
 
   if (await pathExists(lockPath)) {
+    if (owner) {
+      const raw = await readFile(lockPath, "utf-8");
+      const lock = YAML.parse(raw) as FileLock;
+      if (lock?.locked_by?.agent !== owner && lock?.locked_by?.project !== owner) {
+        throw new Error(
+          `Cannot release lock for "${file}": owned by agent "${lock?.locked_by?.agent}" / project "${lock?.locked_by?.project}", not "${owner}"`,
+        );
+      }
+    }
     await rm(lockPath);
     return true;
   }

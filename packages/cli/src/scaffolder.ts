@@ -188,7 +188,13 @@ export async function scaffoldProject(
 
   if (isUpdate && (await fileExists(settingsPath))) {
     const raw = await readFile(settingsPath, "utf-8");
-    settings = JSON.parse(raw);
+    try {
+      settings = JSON.parse(raw);
+    } catch {
+      // If settings.json is corrupted, log warning and start fresh
+      log.push("Warning: .claude/settings.json was invalid JSON; starting with empty settings");
+      settings = {};
+    }
   }
 
   // Read core hooks
@@ -202,7 +208,7 @@ export async function scaffoldProject(
   if (!settings.env || typeof settings.env !== "object") {
     settings.env = {};
   }
-  (settings.env as Record<string, unknown>).CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = 1;
+  (settings.env as Record<string, unknown>).CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
 
   const settingsExisted = isUpdate && (await fileExists(settingsPath));
   await writeFile(settingsPath, JSON.stringify(settings, null, 2), "utf-8");

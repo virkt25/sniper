@@ -7,6 +7,10 @@ import { execFileSync } from "node:child_process";
 import YAML from "yaml";
 import { pathExists } from "../fs-utils.js";
 
+function isValidSha(sha: string): boolean {
+  return /^[0-9a-f]{7,40}$/i.test(sha);
+}
+
 interface CheckpointCommit {
   sha: string;
   message: string;
@@ -173,6 +177,9 @@ export const revertCommand = defineCommand({
 
     try {
       for (const commit of commits) {
+        if (!isValidSha(commit.sha)) {
+          throw new Error(`Invalid commit SHA: ${commit.sha}`);
+        }
         execFileSync("git", ["revert", "--no-commit", commit.sha], { cwd });
       }
 

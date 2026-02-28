@@ -116,8 +116,7 @@ export function isV2Config(data: unknown): data is SniperConfigV2 {
   return (
     "review_gates" in cfg ||
     "agent_teams" in cfg ||
-    "domain_packs" in cfg ||
-    "state" in cfg
+    "domain_packs" in cfg
   );
 }
 
@@ -162,14 +161,17 @@ function validateV3Config(data: unknown): SniperConfigV3 {
   const project = cfg.project as Record<string, unknown>;
   assertField(project, "project", "name", "string");
   assertField(project, "project", "type", "string");
+  assertField(project, "project", "description", "string");
 
   // Validate agents
   const agents = cfg.agents as Record<string, unknown>;
   assertField(agents, "agents", "max_teammates", "number");
+  assertField(agents, "agents", "default_model", "string");
 
   // Validate stack
   const stack = cfg.stack as Record<string, unknown>;
   assertField(stack, "stack", "language", "string");
+  assertField(stack, "stack", "package_manager", "string");
 
   // Normalize optional sections
   if (!cfg.plugins || !Array.isArray(cfg.plugins)) {
@@ -229,7 +231,7 @@ export async function writeConfig(
 
 // ── Default Budgets ──
 
-export const DEFAULT_BUDGETS: Record<string, number> = {
+export const DEFAULT_BUDGETS = Object.freeze({
   full: 2000000,
   feature: 800000,
   patch: 200000,
@@ -237,7 +239,7 @@ export const DEFAULT_BUDGETS: Record<string, number> = {
   explore: 500000,
   refactor: 600000,
   hotfix: 100000,
-};
+} as const);
 
 // ── Core Path Resolution ──
 

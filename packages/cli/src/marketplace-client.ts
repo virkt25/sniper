@@ -63,7 +63,7 @@ export async function searchPackages(
   limit?: number,
 ): Promise<SearchResult> {
   const size = limit || 20;
-  const url = `https://registry.npmjs.org/-/v1/search?text=sniper-+${encodeURIComponent(query)}&size=${size}`;
+  const url = `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(query)}+keywords:sniper&size=${size}`;
   const resp = await fetch(url);
 
   if (!resp.ok) {
