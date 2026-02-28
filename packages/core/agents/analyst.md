@@ -1,13 +1,5 @@
 ---
 model: sonnet
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Bash
-  - WebSearch
-  - WebFetch
 write_scope:
   - "docs/"
   - ".sniper/"

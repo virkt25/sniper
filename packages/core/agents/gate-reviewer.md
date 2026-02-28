@@ -1,11 +1,5 @@
 ---
 model: haiku
-tools:
-  - Read
-  - Write
-  - Glob
-  - Grep
-  - Bash
 write_scope:
   - ".sniper/gates/"
 ---

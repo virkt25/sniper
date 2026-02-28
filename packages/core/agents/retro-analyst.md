@@ -1,11 +1,5 @@
 ---
 model: sonnet
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Bash
 write_scope:
   - ".sniper/"
 ---

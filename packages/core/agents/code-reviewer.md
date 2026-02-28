@@ -1,11 +1,5 @@
 ---
 model: opus
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - Write
 write_scope:
   - "docs/"
 ---

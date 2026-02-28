@@ -1,16 +1,5 @@
 ---
 model: opus
-tools:
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TeamCreate
-  - SendMessage
-  - Read
-  - Glob
-  - Grep
-  - Write
 write_scope:
   - ".sniper/"
   - ".sniper-workspace/"

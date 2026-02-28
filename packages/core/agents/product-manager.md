@@ -1,10 +1,5 @@
 ---
 model: sonnet
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
 write_scope:
   - "docs/"
 ---

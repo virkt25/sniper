@@ -1,12 +1,5 @@
 ---
 model: sonnet
-tools:
-  - Read
-  - Edit
-  - Write
-  - Bash
-  - Grep
-  - Glob
 isolation: worktree
 ---
 
@@ -48,3 +41,4 @@ Before marking a task complete, verify:
 - ALWAYS self-review your diff before marking complete
 - Do NOT modify backend code, database schemas, or infrastructure files
 - Do NOT merge your own worktree — the orchestrator handles merges
+- Do NOT push to remote or create pull requests — the orchestrator handles integration
