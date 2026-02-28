@@ -22,6 +22,7 @@ export default withMermaid(defineConfig({
   description: 'AI-Powered Project Lifecycle Framework for Claude Code',
   base: '/',
   cleanUrls: true,
+  ignoreDeadLinks: true, // TODO: remove once all reference pages are regenerated for v3
   sitemap: { hostname: 'https://sniperai.dev' },
 
   buildEnd(siteConfig) {
@@ -74,7 +75,7 @@ export default withMermaid(defineConfig({
     siteTitle: 'SNIPER',
 
     nav: [
-      { text: 'Guide', link: '/guide/what-is-sniper' },
+      { text: 'Guide', link: '/guide/why-sniper' },
       { text: 'Reference', link: '/reference/commands/' },
       {
         text: 'GitHub',
@@ -87,9 +88,11 @@ export default withMermaid(defineConfig({
         {
           text: 'Introduction',
           items: [
+            { text: 'Why SNIPER?', link: '/guide/why-sniper' },
             { text: 'What is SNIPER?', link: '/guide/what-is-sniper' },
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
+            { text: 'Architecture', link: '/guide/architecture' },
           ],
         },
         {
@@ -98,6 +101,8 @@ export default withMermaid(defineConfig({
             { text: 'Configuration', link: '/guide/configuration' },
             { text: 'Full Lifecycle', link: '/guide/full-lifecycle' },
             { text: 'Review Gates', link: '/guide/review-gates' },
+            { text: 'Headless & CI/CD', link: '/guide/headless-ci' },
+            { text: 'Custom Protocols', link: '/guide/custom-protocols' },
           ],
         },
         {
@@ -108,6 +113,15 @@ export default withMermaid(defineConfig({
             { text: 'Domain Packs', link: '/guide/domain-packs' },
             { text: 'Workspace Mode', link: '/guide/workspace-mode' },
             { text: 'Memory System', link: '/guide/memory' },
+            { text: 'Signals & Learning', link: '/guide/signals-and-learning' },
+            { text: 'Advanced Features', link: '/guide/advanced-features' },
+          ],
+        },
+        {
+          text: 'Extending',
+          items: [
+            { text: 'Plugin Development', link: '/guide/plugin-development' },
+            { text: 'Migration from v2', link: '/guide/migration-from-v2' },
           ],
         },
         {

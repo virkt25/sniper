@@ -11,7 +11,13 @@ export async function generateWorkflows(frameworkDir, outputDir) {
   const outDir = join(outputDir, 'workflows');
   await mkdir(outDir, { recursive: true });
 
-  const files = (await readdir(workflowsDir)).filter((f) => f.endsWith('.md'));
+  let files;
+  try {
+    files = (await readdir(workflowsDir)).filter((f) => f.endsWith('.md'));
+  } catch {
+    console.warn('  ⚠ workflows/ directory not found, skipping workflows generation');
+    return [];
+  }
   const sidebarItems = [];
 
   for (const file of files) {

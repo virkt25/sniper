@@ -93,15 +93,21 @@ stack:
 
 Override any values that do not match your project by providing key=value pairs when prompted (e.g., `language=python backend=fastapi database=mongodb frontend=null`).
 
-## Run Your First Discovery
+## Run Your First Protocol
 
-With SNIPER initialized, start the discovery phase:
+With SNIPER initialized, launch the core execution engine:
 
 ```
-/sniper-discover
+/sniper-flow
 ```
 
-This spawns the [discover](/reference/teams/discover) team -- three agents working in parallel:
+SNIPER auto-detects the right protocol based on your project state. For a new project, it selects the **full** protocol and starts with discovery. You can also be explicit:
+
+```
+/sniper-flow --protocol full
+```
+
+The discovery phase spawns the [discover](/reference/teams/discover) team -- three agents working in parallel:
 
 | Agent | Process | Cognitive | Output |
 |-------|---------|-----------|--------|
@@ -115,12 +121,26 @@ Since the discovery gate defaults to <span class="gate-flexible">FLEXIBLE</span>
 
 ## Continue the Lifecycle
 
-After discovery completes, the lifecycle continues through:
+After discovery completes, the lifecycle continues through plan, solve, and sprint phases. You have two ways to advance:
+
+### Option A: Use `/sniper-flow` (Recommended)
+
+`/sniper-flow` remembers your protocol state. Just run it again and it picks up from where you left off:
 
 ```
-/sniper-plan      # Phase 2: PRD, architecture, UX spec, security
-/sniper-solve     # Phase 3: Break PRD into epics and stories
-/sniper-sprint    # Phase 4: Implement selected stories
+/sniper-flow              # Auto-detects next phase
+/sniper-flow --resume     # Explicitly resume from last checkpoint
+```
+
+### Option B: Use Phase Commands
+
+Individual phase commands are convenience shortcuts that invoke `/sniper-flow` with the appropriate protocol and phase:
+
+```
+/sniper-discover    # Equivalent to /sniper-flow --protocol full --phase discover
+/sniper-plan        # Equivalent to /sniper-flow --protocol full --phase plan
+/sniper-solve       # Equivalent to /sniper-flow --protocol full --phase solve
+/sniper-sprint      # Equivalent to /sniper-flow --protocol full --phase sprint
 ```
 
 Each command is run explicitly -- SNIPER never auto-advances to the next phase. You control the pace.

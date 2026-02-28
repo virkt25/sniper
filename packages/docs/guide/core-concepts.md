@@ -12,12 +12,14 @@ A phase is a distinct stage in the project lifecycle. Each phase has a specific 
 
 ### Standard Phases
 
+All phases are executed through `/sniper-flow`, the core protocol engine. Individual phase commands (`/sniper-discover`, `/sniper-plan`, etc.) are convenience shortcuts.
+
 | Phase | Command | Team Size | Outputs | Gate |
 |-------|---------|-----------|---------|------|
-| **Discover** | `/sniper-discover` | 3 agents (parallel) | brief, risks, personas | Flexible |
-| **Plan** | `/sniper-plan` | 4 agents (with dependencies) | PRD, architecture, UX spec, security | Strict |
-| **Solve** | `/sniper-solve` | 1 agent (sequential) | epics, stories | Flexible |
-| **Sprint** | `/sniper-sprint` | 2-5 agents (parallel) | source code, tests | Strict |
+| **Discover** | `/sniper-flow` or `/sniper-discover` | 3 agents (parallel) | brief, risks, personas | Flexible |
+| **Plan** | `/sniper-flow` or `/sniper-plan` | 4 agents (with dependencies) | PRD, architecture, UX spec, security | Strict |
+| **Solve** | `/sniper-flow` or `/sniper-solve` | 1 agent (sequential) | epics, stories | Flexible |
+| **Sprint** | `/sniper-flow` or `/sniper-sprint` | 2-5 agents (parallel) | source code, tests | Strict |
 
 ### Additional Phases
 

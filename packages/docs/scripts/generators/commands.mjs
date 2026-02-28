@@ -3,27 +3,56 @@ import { join } from 'node:path';
 
 /**
  * Generate reference pages for SNIPER commands.
- * Source: packages/core/framework/commands/*.md
- * Output: packages/docs/generated/commands/*.md
+ * Source: packages/core/skills/{name}/SKILL.md
+ * Output: packages/docs/generated/commands/{name}.md
  */
 export async function generateCommands(frameworkDir, outputDir) {
-  const commandsDir = join(frameworkDir, 'commands');
+  const skillsDir = join(frameworkDir, 'skills');
   const outDir = join(outputDir, 'commands');
   await mkdir(outDir, { recursive: true });
 
-  const files = (await readdir(commandsDir)).filter((f) => f.endsWith('.md'));
+  let skillDirs;
+  try {
+    skillDirs = await readdir(skillsDir);
+  } catch {
+    console.warn('  ⚠ skills/ directory not found, skipping commands generation');
+    return [];
+  }
+
   const sidebarItems = [];
 
-  for (const file of files) {
+  for (const dir of skillDirs) {
+    const skillFile = join(skillsDir, dir, 'SKILL.md');
     try {
-      const content = await readFile(join(commandsDir, file), 'utf-8');
-      const slug = file.replace(/\.md$/, '');
+      const content = await readFile(skillFile, 'utf-8');
+      const slug = dir;
 
-      // Parse first line: # /sniper-{name} -- {description}
-      const firstLine = content.split('\n')[0] || '';
-      const match = firstLine.match(/^#\s+(\/\S+)\s+--\s+(.+)$/);
-      const commandName = match ? match[1] : `/${slug}`;
-      const description = match ? match[2].trim() : '';
+      // Strip YAML frontmatter to get the body
+      let body = content;
+      let commandName = `/${slug}`;
+      let description = '';
+
+      if (content.startsWith('---')) {
+        const fmEnd = content.indexOf('---', 3);
+        if (fmEnd !== -1) {
+          const frontmatter = content.slice(3, fmEnd);
+          body = content.slice(fmEnd + 3).trim();
+
+          // Extract name and description from frontmatter
+          const nameMatch = frontmatter.match(/^name:\s*(.+)$/m);
+          const descMatch = frontmatter.match(/^description:\s*(.+)$/m);
+          if (nameMatch) commandName = `/${nameMatch[1].trim()}`;
+          if (descMatch) description = descMatch[1].trim();
+        }
+      }
+
+      // Also try parsing first heading: # /sniper-{name}
+      const firstLine = body.split('\n')[0] || '';
+      const headingMatch = firstLine.match(/^#\s+(\/\S+)(?:\s+--\s+(.+))?$/);
+      if (headingMatch) {
+        commandName = headingMatch[1];
+        if (headingMatch[2]) description = headingMatch[2].trim();
+      }
 
       // Build the generated page — wrap in v-pre to prevent Vue from
       // parsing curly braces and HTML comments in command source
@@ -37,7 +66,7 @@ export async function generateCommands(frameworkDir, outputDir) {
         '',
         '<div v-pre>',
         '',
-        content,
+        body,
         '',
         '</div>',
       ].join('\n');
@@ -49,8 +78,9 @@ export async function generateCommands(frameworkDir, outputDir) {
         link: `/reference/commands/${slug}`,
         description,
       });
-    } catch (err) {
-      console.error(`  Error processing command ${file}: ${err.message}`);
+    } catch {
+      // SKILL.md not found in this directory, skip
+      continue;
     }
   }
 

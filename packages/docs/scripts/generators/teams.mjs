@@ -12,7 +12,13 @@ export async function generateTeams(frameworkDir, outputDir) {
   const outDir = join(outputDir, 'teams');
   await mkdir(outDir, { recursive: true });
 
-  const files = (await readdir(teamsDir)).filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'));
+  let files;
+  try {
+    files = (await readdir(teamsDir)).filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'));
+  } catch {
+    console.warn('  ⚠ teams/ directory not found, skipping teams generation');
+    return [];
+  }
   const sidebarItems = [];
 
   for (const file of files) {

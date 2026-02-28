@@ -21,7 +21,7 @@ import { generateSidebar } from './generators/sidebar.mjs';
 import { generateLlmsTxt } from './generators/llmstxt.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const frameworkDir = resolve(__dirname, '../../core/framework');
+const frameworkDir = resolve(__dirname, '../../core');
 const outputDir = resolve(__dirname, '../generated');
 const docsDir = resolve(__dirname, '..');
 

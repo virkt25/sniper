@@ -10,6 +10,7 @@ Quick reference for every SNIPER command. Jump to a command or browse by categor
 
 | Command | Description | Gate |
 |---------|-------------|------|
+| [`flow`](#flow) | Core execution engine -- runs any protocol | per-protocol |
 | [`init`](#init) | Scaffold `.sniper/` directory and config | -- |
 | [`ingest`](#ingest) | Reverse-engineer artifacts from existing code | <span class="gate-flexible">FLEXIBLE</span> |
 | [`discover`](#discover) | Research market, risks, and users | <span class="gate-flexible">FLEXIBLE</span> |
@@ -25,6 +26,50 @@ Quick reference for every SNIPER command. Jump to a command or browse by categor
 | [`doc`](#doc) | Generate or update project documentation | <span class="gate-flexible">FLEXIBLE</span> |
 | [`status`](#status) | Show lifecycle status and artifact state | -- |
 | [`memory`](#memory) | Manage conventions, anti-patterns, decisions | -- |
+
+---
+
+## Core Engine
+
+### `flow` {#flow}
+
+The core protocol execution engine. `/sniper-flow` orchestrates agent teams through structured phases. It auto-detects the appropriate protocol based on your request, or you can specify one explicitly.
+
+<table class="inverted">
+<tr><th>Phase</th><td>Any (executes entire protocol)</td></tr>
+<tr><th>Protocols</th><td><code>full</code> · <code>feature</code> · <code>patch</code> · <code>ingest</code> · <code>explore</code> · <code>refactor</code> · <code>hotfix</code></td></tr>
+<tr><th>Arguments</th><td><code>--protocol &lt;name&gt;</code> · <code>--resume</code> · <code>--phase &lt;name&gt;</code></td></tr>
+<tr><th>Team</th><td>Varies by protocol and phase</td></tr>
+<tr><th>Reference</th><td><a href="/reference/commands/sniper-flow">Full command reference</a></td></tr>
+</table>
+
+**Usage examples:**
+
+```
+/sniper-flow                        # Auto-detect protocol
+/sniper-flow --protocol full        # Explicit full lifecycle
+/sniper-flow --protocol feature     # Feature mini-lifecycle
+/sniper-flow --protocol patch       # Quick bug fix
+/sniper-flow --resume               # Resume from last checkpoint
+/sniper-flow --phase plan           # Start from a specific phase
+```
+
+**Auto-detection rules:**
+
+| Scope | Protocol |
+|-------|----------|
+| New project (no source files) | `full` |
+| Critical/urgent fix | `hotfix` |
+| Bug fix or small change (< 5 files) | `patch` |
+| New feature (5--20 files) | `feature` |
+| Major rework (20+ files) | `full` |
+| Understand existing codebase | `ingest` |
+| Exploratory analysis | `explore` |
+| Code improvement, no new features | `refactor` |
+
+::: info Phase Commands as Shortcuts
+Individual phase commands like `/sniper-discover`, `/sniper-plan`, `/sniper-solve`, and `/sniper-sprint` are convenience shortcuts that invoke `/sniper-flow` with the appropriate protocol and phase. You can use either approach.
+:::
 
 ---
 
@@ -468,18 +513,40 @@ Most phase commands accept these flags:
 
 ## CLI Commands
 
-The `sniper` binary provides project scaffolding and management:
+The `sniper` binary provides project scaffolding, management, and CI/CD support:
 
 ```bash
-sniper init                    # Scaffold .sniper/ directory
-sniper status                  # Show lifecycle status
-sniper update                  # Update framework files to latest version
-sniper add-pack <pack-name>    # Add a domain pack
-sniper remove-pack <pack-name> # Remove a domain pack
-sniper list-packs              # List installed and available packs
-sniper memory                  # Manage agent memory
-sniper workspace               # Workspace management
+# Core
+sniper init                             # Scaffold .sniper/ directory
+sniper status                           # Show lifecycle status
+sniper migrate                          # Migrate v2 config to v3
+
+# Plugins & Packs
+sniper plugin install <package>         # Install a language plugin
+sniper plugin remove <name>             # Remove a plugin
+sniper plugin list                      # List installed plugins
+
+# Protocols
+sniper protocol create <name>           # Create a custom protocol
+sniper protocol list                    # List built-in and custom protocols
+sniper protocol validate <name>         # Validate custom protocol YAML
+
+# CI/CD
+sniper run <protocol>                   # Run protocol headlessly
+sniper run <protocol> --auto-approve    # Auto-approve gates
+sniper run <protocol> --output json     # Output format: json, yaml, text
+sniper run <protocol> --timeout 30      # Timeout in minutes
+
+# Workspace
+sniper workspace init [name]            # Initialize multi-repo workspace
+
+# Marketplace
+sniper marketplace search <query>       # Search for plugins and packs
 ```
+
+::: tip
+See the [Headless & CI/CD](/guide/headless-ci) guide for integrating SNIPER into your pipelines.
+:::
 
 ## Phase Flow
 
