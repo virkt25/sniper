@@ -1,0 +1,98 @@
+# ─────────────────────────────────────────────────────────────
+# SNIPER Custom Protocol Template
+# ─────────────────────────────────────────────────────────────
+# Copy this file to .sniper/protocols/<name>.yaml and customize.
+# Run `sniper protocol validate <name>` to check your protocol.
+# See built-in protocols in @sniper.ai/core/protocols/ for examples.
+# ─────────────────────────────────────────────────────────────
+
+# name (required): Unique identifier for your protocol.
+# Used in --protocol flag: /sniper-flow --protocol my-protocol
+name: my-protocol
+
+# description (required): What this protocol accomplishes.
+description: Describe the goal of your custom protocol
+
+# budget (required): Maximum token budget for the entire execution.
+# Common ranges: 100K (hotfix), 800K (feature), 2M (full lifecycle)
+budget: 500000
+
+# phases (required): Ordered list of phases. Each phase runs sequentially.
+# The protocol engine executes phases top-to-bottom, gating between each.
+phases:
+  # ── Phase 1: Plan ──────────────────────────────────────────
+  - name: plan
+    # description (required): What this phase accomplishes.
+    description: Design the approach and break down into tasks
+
+    # agents (required): Which agent personas to assign.
+    # Available built-in agents: analyst, architect, product-manager,
+    #   fullstack-dev, backend-dev, frontend-dev, qa-engineer,
+    #   code-reviewer, retro-analyst
+    agents:
+      - architect
+
+    # spawn_strategy (required): How to launch agents.
+    #   "single" — one agent works alone
+    #   "team"   — multiple agents coordinate via TeamCreate
+    spawn_strategy: single
+
+    # gate (optional): Quality gate evaluated before moving to next phase.
+    # Omit to skip gating (like hotfix protocol).
+    gate:
+      # checklist: Name of checklist from packages/core/checklists/
+      # Available: discover, plan, implement, review
+      checklist: plan
+      # human_approval: If true, a human must approve before proceeding.
+      human_approval: true
+
+    # outputs (optional): Expected artifacts this phase produces.
+    # Used for tracking and checkpoint reporting.
+    outputs:
+      - docs/design.md
+
+  # ── Phase 2: Implement ─────────────────────────────────────
+  - name: implement
+    description: Build the feature according to the plan
+
+    agents:
+      - fullstack-dev
+      - qa-engineer
+    spawn_strategy: team
+
+    # plan_approval (optional): If true, each agent must get their
+    # execution plan approved before writing code.
+    plan_approval: true
+
+    gate:
+      checklist: implement
+      human_approval: false
+
+    outputs:
+      - source code changes
+      - test files
+
+    # coordination (optional): Constraints between agents in team phases.
+    # Only meaningful when spawn_strategy is "team".
+    # coordination:
+    #   - between: [fullstack-dev, qa-engineer]
+    #     topic: Tests must cover all new public APIs
+
+  # ── Phase 3: Review ────────────────────────────────────────
+  - name: review
+    description: Code review and final quality check
+
+    agents:
+      - code-reviewer
+    spawn_strategy: single
+
+    gate:
+      checklist: review
+      human_approval: true
+
+    outputs:
+      - docs/review-report.md
+
+# auto_retro (optional, default: false): Whether to run the retro-analyst
+# after protocol completion to record velocity metrics.
+auto_retro: true

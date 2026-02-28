@@ -1,0 +1,28 @@
+name: review
+description: Review phase quality gate
+
+checks:
+  - id: gate_checks_pass
+    description: Implementation gate passed
+    check: grep:.sniper/gates/implement-*.yaml:"result: pass"
+    blocking: true
+
+  - id: spec_reconciliation
+    description: Review report confirms spec compliance
+    check: file:docs/review-report.md
+    blocking: true
+
+  - id: no_regressions
+    description: No test regressions introduced
+    command: "${test_command}"
+    blocking: true
+
+  - id: no_blocking_findings
+    description: No blocking findings in review report
+    check: "!grep:docs/review-report.md:### Blocking"
+    blocking: true
+
+  - id: spec_reconciled
+    description: Spec has been reconciled with implementation
+    check: "grep:docs/spec.md:Last reconciled:"
+    blocking: false

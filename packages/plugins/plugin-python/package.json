@@ -1,0 +1,27 @@
+{
+  "name": "@sniper.ai/plugin-python",
+  "version": "1.0.0",
+  "description": "Python language plugin for the SNIPER framework. Provides test, lint, typecheck, and format commands, coding conventions, review checks, and agent knowledge mixins.",
+  "type": "module",
+  "files": [
+    "plugin.yaml",
+    "mixins"
+  ],
+  "keywords": [
+    "sniper",
+    "plugin",
+    "python"
+  ],
+  "sniper": {
+    "type": "plugin"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virkt25/sniper.git",
+    "directory": "packages/plugins/plugin-python"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

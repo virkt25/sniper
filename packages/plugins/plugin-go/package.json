@@ -1,0 +1,27 @@
+{
+  "name": "@sniper.ai/plugin-go",
+  "version": "1.0.0",
+  "description": "Go language plugin for the SNIPER framework. Provides test, lint, vet, and build commands, coding conventions, review checks, and agent knowledge mixins.",
+  "type": "module",
+  "files": [
+    "plugin.yaml",
+    "mixins"
+  ],
+  "keywords": [
+    "sniper",
+    "plugin",
+    "go"
+  ],
+  "sniper": {
+    "type": "plugin"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virkt25/sniper.git",
+    "directory": "packages/plugins/plugin-go"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

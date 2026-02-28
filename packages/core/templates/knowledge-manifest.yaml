@@ -1,0 +1,32 @@
+# Knowledge Manifest — domain knowledge sources for agent injection
+# Place this file at .sniper/knowledge/manifest.yaml
+# Agents consult this manifest to load relevant domain context before execution
+
+# Each source entry declares a Markdown file containing domain expertise.
+# During protocol execution, agents match their task context against topics
+# and tags to selectively load only the knowledge they need.
+
+sources:
+  # topic:       Short identifier for the knowledge domain
+  # file:        Path relative to .sniper/knowledge/
+  # tokens:      Estimated token count (used for budget planning — measure with `wc -w file | awk '{print int($1 * 1.3)}'`)
+  # tags:        Searchable labels for contextual matching (optional)
+  # description: What this knowledge covers, so agents know when to load it (optional)
+
+  - topic: "telephony"
+    file: "telephony-protocols.md"
+    tokens: 2500
+    tags: [voip, sip, pbx, otp]
+    description: "VoIP telephony protocols, SIP signaling, and PBX integration patterns"
+
+  - topic: "compliance"
+    file: "tcpa-rules.md"
+    tokens: 1800
+    tags: [tcpa, compliance, legal, consent]
+    description: "TCPA compliance rules for outbound dialing and consent management"
+
+  - topic: "crm"
+    file: "crm-integration.md"
+    tokens: 1200
+    tags: [salesforce, hubspot, api, leads]
+    description: "CRM integration patterns, lead lifecycle, and API conventions"

@@ -1,0 +1,28 @@
+name: implement
+description: Implementation phase quality gate
+
+checks:
+  - id: tests_pass
+    description: All tests pass
+    command: "${test_command}"
+    blocking: true
+
+  - id: lint_clean
+    description: No linting errors
+    command: "${lint_command}"
+    blocking: true
+
+  - id: typecheck
+    description: Type checking passes (if applicable)
+    command: "${typecheck_command}"
+    blocking: false
+
+  - id: self_reviews_exist
+    description: Each developer ran a self-review (git diff checked)
+    check: glob:.sniper/self-reviews/*.md
+    blocking: true
+
+  - id: diff_nonempty
+    description: Implementation produced actual code changes
+    command: "git diff --stat HEAD~1 | grep -q ."
+    blocking: false

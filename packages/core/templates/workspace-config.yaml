@@ -1,0 +1,44 @@
+# SNIPER Workspace Configuration
+# Place this file at .sniper-workspace/config.yaml in your workspace root.
+# A workspace coordinates multiple SNIPER-enabled projects that share
+# conventions, architectural decisions, and memory.
+
+# Workspace name — used in status output and logs
+name: "my-workspace"
+
+# Projects managed by this workspace.
+# Each entry maps a logical name to a relative directory path.
+projects:
+  - name: api
+    path: ./services/api       # relative to workspace root
+    type: api                  # optional label (api, frontend, library, cli, etc.)
+  - name: web
+    path: ./apps/web
+    type: frontend
+
+# Shared conventions and decisions applied to every project in the workspace.
+# These supplement (not replace) each project's own .sniper/config.yaml.
+shared:
+  # Coding conventions enforced across all projects
+  conventions:
+    - "All public APIs must have OpenAPI specs"
+    - "Use structured logging (JSON) in all services"
+    - "Error responses follow RFC 7807 Problem Details"
+
+  # Patterns to avoid workspace-wide
+  anti_patterns:
+    - "No direct database access from frontend projects"
+    - "No shared mutable state between services"
+
+  # Architecture Decision Records
+  architectural_decisions:
+    - id: ADR-001
+      title: Event-driven communication between services
+      decision: Use an event bus for inter-service communication instead of direct HTTP calls.
+      rationale: Reduces coupling and improves resilience when services are unavailable.
+      date: "2025-12-01"
+
+# Shared memory directory for cross-project context.
+# Agents can read from this directory to understand workspace-wide patterns.
+memory:
+  directory: .sniper-workspace/memory

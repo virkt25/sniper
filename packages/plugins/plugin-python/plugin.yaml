@@ -1,0 +1,58 @@
+# SNIPER Python Language Plugin
+# Provides Python-specific tooling, conventions, review checks,
+# and agent knowledge mixins for SNIPER-managed projects.
+
+name: python
+version: 1.0.0
+description: >
+  Python language plugin for SNIPER. Adds test, lint, typecheck, and format
+  commands, enforces Python conventions, and injects backend knowledge
+  into agent personas via mixins.
+
+commands:
+  test:
+    run: "pytest"
+    description: Run the test suite using pytest.
+  lint:
+    run: "ruff check ."
+    description: Lint all Python files with ruff.
+  typecheck:
+    run: "mypy ."
+    description: Run mypy for static type checking.
+  format:
+    run: "ruff format ."
+    description: Format all Python files with ruff.
+
+conventions:
+  - "Follow PEP 8 style guidelines for all Python code."
+  - "Add type hints on all public functions, methods, and class attributes."
+  - "Use pathlib.Path over os.path for filesystem operations."
+  - "Use dataclasses or Pydantic models for structured data, not raw dicts."
+  - "Prefer f-strings over str.format() or % formatting."
+  - "Include if __name__ == '__main__' guard in executable modules."
+
+review_checks:
+  - id: no-bare-except
+    description: "Ensure no bare except clauses exist (use specific exception types)."
+    command: "! grep -rn 'except:' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v 'except:  #'"
+    blocking: true
+
+  - id: type-annotations
+    description: "Ensure public functions have type annotations."
+    command: "! grep -rn 'def [a-z]' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v '\\->' | grep -v '__' | grep -v 'def _'"
+    blocking: false
+
+  - id: no-print
+    description: "Prefer logging over print statements in production code."
+    command: "! grep -rn 'print(' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v 'test_' | grep -v '#.*print'"
+    blocking: false
+
+agent_mixins:
+  backend-dev:
+    - mixins/python-backend.md
+
+hooks:
+  PreToolUse:
+    - "ruff check --quiet 2>&1 | head -20"
+  Stop:
+    - "pytest --tb=short -q"

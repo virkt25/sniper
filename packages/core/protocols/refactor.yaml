@@ -1,0 +1,41 @@
+name: refactor
+description: Code improvement — analyze, refactor, and review
+budget: 600000  # 600K tokens
+
+phases:
+  - name: analyze
+    description: Analyze code structure and identify refactoring targets
+    agents:
+      - analyst
+    spawn_strategy: single
+    gate:
+      checklist: refactor-analyze
+      human_approval: false
+    outputs:
+      - docs/spec.md
+
+  - name: implement
+    description: Apply refactoring changes
+    agents:
+      - fullstack-dev
+    spawn_strategy: single
+    plan_approval: false
+    gate:
+      checklist: implement
+      human_approval: false
+    outputs:
+      - source code changes
+      - test files
+
+  - name: review
+    description: Review refactored code
+    agents:
+      - code-reviewer
+    spawn_strategy: single
+    gate:
+      checklist: review
+      human_approval: true
+    outputs:
+      - docs/review-report.md
+
+auto_retro: true

@@ -1,0 +1,63 @@
+name: full
+description: Complete project lifecycle — discovery through review
+budget: 2000000  # 2M tokens
+
+phases:
+  - name: discover
+    description: Research, analyze codebase, produce discovery spec
+    agents:
+      - analyst
+    spawn_strategy: single  # One agent, no team needed
+    gate:
+      checklist: discover
+      human_approval: false
+    outputs:
+      - docs/spec.md
+      - docs/codebase-overview.md
+
+  - name: plan
+    description: Architecture design, PRD creation, story breakdown
+    agents:
+      - architect
+      - product-manager
+    spawn_strategy: team  # Multiple agents, use TeamCreate
+    coordination:
+      - between: [architect, product-manager]
+        topic: Architecture must be approved before stories reference it
+    gate:
+      checklist: plan
+      human_approval: true  # Human reviews the plan before implementation
+    outputs:
+      - docs/architecture.md
+      - docs/prd.md
+      - docs/stories/
+
+  - name: implement
+    description: Code implementation with worktree isolation
+    agents:
+      - fullstack-dev
+      - qa-engineer
+    spawn_strategy: team
+    plan_approval: true  # Each agent must get plan approved before coding
+    gate:
+      checklist: implement
+      human_approval: false
+    outputs:
+      - source code changes
+      - test files
+
+  - name: review
+    description: Code review and final quality gate
+    agents:
+      - code-reviewer
+    spawn_strategy: single
+    gate:
+      # Uses multi-faceted-review checklist when review.multi_model is enabled in config;
+      # otherwise falls back to standard review checklist
+      checklist: review
+      multi_model_checklist: multi-faceted-review
+      human_approval: true  # Human final sign-off
+    outputs:
+      - docs/review-report.md
+
+auto_retro: true  # Trigger retro-analyst after completion

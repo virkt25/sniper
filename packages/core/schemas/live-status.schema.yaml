@@ -1,0 +1,122 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/live-status"
+title: Live Status
+description: Schema for SNIPER real-time progress tracking across the project lifecycle.
+type: object
+required:
+  - protocol
+  - status
+properties:
+  protocol:
+    type: string
+    description: The SNIPER protocol version identifier.
+  status:
+    type: string
+    enum:
+      - idle
+      - running
+      - paused
+      - completed
+      - failed
+    description: Overall lifecycle execution status.
+  current_phase:
+    type: string
+    description: The phase currently being executed.
+  started_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the lifecycle run started.
+  updated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the most recent status update.
+  phases:
+    type: array
+    description: Per-phase status and progress.
+    items:
+      type: object
+      required:
+        - name
+        - status
+        - progress
+      properties:
+        name:
+          type: string
+          description: Phase name.
+        status:
+          type: string
+          enum:
+            - pending
+            - running
+            - paused
+            - completed
+            - failed
+          description: Current status of this phase.
+        agents:
+          type: array
+          description: Agents active in this phase.
+          items:
+            type: object
+            required:
+              - name
+              - status
+            properties:
+              name:
+                type: string
+                description: Agent persona name.
+              status:
+                type: string
+                enum:
+                  - active
+                  - completed
+                  - failed
+                description: Current status of the agent.
+        progress:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Phase completion percentage.
+  gate_results:
+    type: array
+    description: Results from completed gate reviews.
+    items:
+      type: object
+      required:
+        - phase
+        - result
+        - timestamp
+      properties:
+        phase:
+          type: string
+          description: Phase that was reviewed.
+        result:
+          type: string
+          enum:
+            - pass
+            - fail
+          description: Gate review outcome.
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the gate review completed.
+  cost:
+    type: object
+    description: Current cost snapshot.
+    properties:
+      tokens_used:
+        type: integer
+        minimum: 0
+        description: Total tokens consumed so far.
+      budget:
+        type: number
+        minimum: 0
+        description: Total token budget.
+      percent:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: Percentage of budget consumed.
+  next_action:
+    type: string
+    description: Description of the next expected action or step.
+additionalProperties: false

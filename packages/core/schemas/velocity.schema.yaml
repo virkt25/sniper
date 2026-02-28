@@ -1,0 +1,52 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/velocity"
+title: Velocity
+description: Protocol execution history and calibrated budgets for adaptive budget selection.
+type: object
+required:
+  - executions
+properties:
+  executions:
+    type: array
+    description: History of protocol executions with timing and token data.
+    items:
+      type: object
+      required:
+        - protocol
+        - completed_at
+        - tokens_used
+      properties:
+        protocol:
+          type: string
+          description: Protocol name that was executed.
+        completed_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the execution completed.
+        wall_clock_seconds:
+          type: number
+          minimum: 0
+          description: Wall clock duration of the execution in seconds.
+        tokens_used:
+          type: integer
+          minimum: 0
+          description: Total tokens consumed during the execution.
+        tokens_per_phase:
+          type: object
+          description: Token usage broken down by phase name.
+          additionalProperties:
+            type: integer
+            minimum: 0
+  calibrated_budgets:
+    type: object
+    description: p75 of token usage from last 5+ executions, keyed by protocol name.
+    additionalProperties:
+      type: integer
+      minimum: 0
+  rolling_averages:
+    type: object
+    description: Exponential moving average of token usage, keyed by protocol name.
+    additionalProperties:
+      type: number
+      minimum: 0
+additionalProperties: false

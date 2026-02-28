@@ -1,0 +1,40 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/revert-plan"
+title: Revert Plan
+description: Schema for SNIPER logical revert plans that track which commits to revert.
+type: object
+required:
+  - protocol
+  - commits_to_revert
+  - backup_branch
+  - target_state
+properties:
+  protocol:
+    type: string
+    description: Protocol ID being reverted.
+  phase:
+    type: string
+    description: Optional specific phase being reverted.
+  commits_to_revert:
+    type: array
+    items:
+      type: object
+      required: [sha, message, agent]
+      properties:
+        sha: { type: string }
+        message: { type: string }
+        agent: { type: string }
+    description: Commits to revert in reverse chronological order.
+  backup_branch:
+    type: string
+    description: Branch name for backup before revert.
+  target_state:
+    type: string
+    description: Description of the target state after revert.
+  created_at:
+    type: string
+    format: date-time
+  dry_run:
+    type: boolean
+    description: Whether this was a dry run only.
+additionalProperties: false

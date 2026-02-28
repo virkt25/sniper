@@ -1,0 +1,18 @@
+name: explore
+description: Exploratory analysis — understand a codebase or problem space
+budget: 500000  # 500K tokens
+
+phases:
+  - name: discover
+    description: Research, analyze, and document findings
+    agents:
+      - analyst
+    spawn_strategy: single
+    gate:
+      checklist: discover
+      human_approval: false
+    outputs:
+      - docs/spec.md
+      - docs/codebase-overview.md
+
+auto_retro: false  # Exploration doesn't need retros

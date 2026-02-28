@@ -1,0 +1,39 @@
+name: ingest
+description: Codebase ingestion — scan, document, extract conventions
+budget: 1000000  # 1M tokens
+
+phases:
+  - name: scan
+    description: Deep scan of existing codebase
+    agents:
+      - analyst
+    spawn_strategy: single
+    gate:
+      checklist: ingest-scan
+      human_approval: false
+    outputs:
+      - docs/codebase-overview.md
+
+  - name: document
+    description: Generate documentation from code analysis
+    agents:
+      - analyst
+    spawn_strategy: single
+    gate:
+      checklist: ingest-document
+      human_approval: false
+    outputs:
+      - docs/spec.md
+
+  - name: extract
+    description: Extract conventions, patterns, and anti-patterns
+    agents:
+      - analyst
+    spawn_strategy: single
+    gate:
+      checklist: ingest-extract
+      human_approval: false
+    outputs:
+      - .sniper/conventions.yaml
+
+auto_retro: false

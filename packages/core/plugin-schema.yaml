@@ -1,0 +1,133 @@
+# SNIPER Plugin Schema
+# JSON Schema (in YAML format) defining the contract for plugin.yaml files.
+# All SNIPER plugins must conform to this schema.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: SNIPER Plugin Manifest
+description: >
+  Defines the structure and validation rules for SNIPER plugin.yaml files.
+  Plugins extend the framework with language-specific tooling, conventions,
+  review checks, and agent knowledge mixins.
+type: object
+
+required:
+  - name
+  - version
+
+properties:
+  type:
+    type: string
+    enum: [plugin, agent, mixin, pack]
+    description: Package type — determines how the package is installed and where its files are placed.
+    default: plugin
+
+  name:
+    type: string
+    description: Unique plugin identifier (lowercase, hyphen-separated).
+    pattern: "^[a-z][a-z0-9-]*$"
+
+  version:
+    type: string
+    description: Semantic version of the plugin.
+    pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+
+  description:
+    type: string
+    description: Human-readable summary of what this plugin provides.
+
+  commands:
+    type: object
+    description: >
+      Map of command names to their definitions. Each command represents a
+      development workflow action (build, test, lint, etc.) that agents can invoke.
+    additionalProperties:
+      type: object
+      required:
+        - run
+      properties:
+        run:
+          type: string
+          description: The shell command to execute.
+        description:
+          type: string
+          description: Human-readable explanation of what this command does.
+
+  conventions:
+    type: array
+    description: >
+      Coding conventions and style rules that agents must follow when working
+      in projects using this plugin. Injected into agent context.
+    items:
+      type: string
+
+  review_checks:
+    type: array
+    description: >
+      Automated checks executed during /sniper-review gates. Each check runs
+      a command and reports pass/fail. Blocking checks prevent phase advancement.
+    items:
+      type: object
+      required:
+        - id
+        - description
+        - command
+        - blocking
+      properties:
+        id:
+          type: string
+          description: Unique check identifier (lowercase, hyphen-separated).
+          pattern: "^[a-z][a-z0-9-]*$"
+        description:
+          type: string
+          description: Human-readable explanation of what this check validates.
+        command:
+          type: string
+          description: Shell command to run. Exit code 0 = pass, non-zero = fail.
+        blocking:
+          type: boolean
+          description: >
+            When true, a failing check blocks phase advancement.
+            When false, the check is advisory only.
+
+  agent_mixins:
+    type: object
+    description: >
+      Map of agent persona names to arrays of mixin file paths. Mixins inject
+      domain-specific knowledge into agent prompts at spawn time. Paths are
+      relative to the plugin root directory.
+    additionalProperties:
+      type: array
+      items:
+        type: string
+        description: Relative path to a mixin Markdown file.
+
+  hooks:
+    type: object
+    description: >
+      Lifecycle hooks that run at specific points during agent execution.
+      Each hook type maps to an array of shell commands executed in order.
+    properties:
+      PreToolUse:
+        type: array
+        description: >
+          Commands executed before an agent invokes a tool (e.g., pre-build
+          validation, environment checks).
+        items:
+          type: string
+      PostToolUse:
+        type: array
+        description: >
+          Commands executed after an agent invokes a tool (e.g., signal
+          capture, self-healing CI detection).
+        items:
+          type: string
+      Stop:
+        type: array
+        description: >
+          Commands executed when an agent completes or is stopped (e.g.,
+          cleanup, artifact collection, report generation).
+        items:
+          type: string
+    additionalProperties: false
+
+additionalProperties: false

@@ -6,3 +6,13 @@ packages/docs/generated/
 **/.vitepress/dist/
 **/.vitepress/cache/
 packages/docs/public/llms.txt
+
+# SNIPER runtime data
+.sniper/checkpoints/
+.sniper/gates/
+.sniper/retros/
+.sniper/self-reviews/
+.sniper/live-status.yaml
+.sniper/cost.yaml
+.sniper/pending-gate.yaml
+.sniper/protocol-complete.yaml

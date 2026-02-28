@@ -1,0 +1,58 @@
+# SNIPER Go Language Plugin
+# Provides Go-specific tooling, conventions, review checks,
+# and agent knowledge mixins for SNIPER-managed projects.
+
+name: go
+version: 1.0.0
+description: >
+  Go language plugin for SNIPER. Adds test, lint, vet, and build
+  commands, enforces Go conventions, and injects backend knowledge
+  into agent personas via mixins.
+
+commands:
+  test:
+    run: "go test ./..."
+    description: Run all tests in the module.
+  lint:
+    run: "golangci-lint run"
+    description: Run golangci-lint for comprehensive linting.
+  vet:
+    run: "go vet ./..."
+    description: Run go vet for static analysis.
+  build:
+    run: "go build ./..."
+    description: Compile all packages in the module.
+
+conventions:
+  - "Follow Effective Go guidelines and Go code review comments."
+  - "Always handle errors — never assign to _ for error returns."
+  - "Use context.Context as the first parameter for functions that do I/O or may be cancelled."
+  - "Write table-driven tests with t.Run subtests."
+  - "Keep interfaces small — prefer 1-2 method interfaces."
+  - "Accept interfaces, return structs — depend on behavior, not implementation."
+
+review_checks:
+  - id: no-fmt-println
+    description: "Ensure fmt.Println is not used in production code (use structured logging)."
+    command: "! grep -rn 'fmt.Println' . --include='*.go' | grep -v '_test.go' | grep -v 'vendor/'"
+    blocking: true
+
+  - id: error-handling
+    description: "Ensure errors are not silently discarded."
+    command: "! grep -rn 'err\\s*=' . --include='*.go' | grep '_ =' | grep -v '_test.go' | grep -v 'vendor/'"
+    blocking: false
+
+  - id: context-first
+    description: "Verify context.Context is the first parameter where applicable."
+    command: "! grep -rn 'func.*context.Context' . --include='*.go' | grep -v 'ctx context.Context' | grep -v '_test.go'"
+    blocking: false
+
+agent_mixins:
+  backend-dev:
+    - mixins/go-backend.md
+
+hooks:
+  PreToolUse:
+    - "go vet ./... 2>&1 | head -20"
+  Stop:
+    - "go test ./... -count=1"

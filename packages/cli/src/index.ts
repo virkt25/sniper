@@ -2,12 +2,17 @@ import { createRequire } from "node:module";
 import { defineCommand, runMain } from "citty";
 import { initCommand } from "./commands/init.js";
 import { statusCommand } from "./commands/status.js";
-import { addPackCommand } from "./commands/add-pack.js";
-import { removePackCommand } from "./commands/remove-pack.js";
-import { listPacksCommand } from "./commands/list-packs.js";
-import { updateCommand } from "./commands/update.js";
-import { memoryCommand } from "./commands/memory.js";
+import { migrateCommand } from "./commands/migrate.js";
+import { pluginCommand } from "./commands/plugin.js";
+import { protocolCommand } from "./commands/protocol.js";
+import { dashboardCommand } from "./commands/dashboard.js";
 import { workspaceCommand } from "./commands/workspace.js";
+import { revertCommand } from "./commands/revert.js";
+import { runCommand } from "./commands/run.js";
+import { marketplaceCommand } from "./commands/marketplace.js";
+import { signalCommand } from "./commands/signal.js";
+import { knowledgeCommand } from "./commands/knowledge.js";
+import { sphereCommand } from "./commands/sphere.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json");
@@ -16,17 +21,22 @@ const main = defineCommand({
   meta: {
     name: "sniper",
     version,
-    description: "SNIPER — Spawn, Navigate, Implement, Parallelize, Evaluate, Release",
+    description: "SNIPER v3 — AI-Powered Project Lifecycle Framework",
   },
   subCommands: {
     init: initCommand,
     status: statusCommand,
-    "add-pack": addPackCommand,
-    "remove-pack": removePackCommand,
-    "list-packs": listPacksCommand,
-    update: updateCommand,
-    memory: memoryCommand,
+    migrate: migrateCommand,
+    plugin: pluginCommand,
+    protocol: protocolCommand,
+    dashboard: dashboardCommand,
     workspace: workspaceCommand,
+    revert: revertCommand,
+    run: runCommand,
+    marketplace: marketplaceCommand,
+    signal: signalCommand,
+    knowledge: knowledgeCommand,
+    sphere: sphereCommand,
   },
 });
 

@@ -1,0 +1,37 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/dependency-graph"
+title: Cross-Project Dependency Graph
+description: Schema for tracking API dependencies between projects in a SNIPER workspace.
+type: object
+required:
+  - projects
+properties:
+  projects:
+    type: array
+    items:
+      type: object
+      required: [name, exports, imports]
+      properties:
+        name:
+          type: string
+        exports:
+          type: array
+          items:
+            type: object
+            required: [api, file]
+            properties:
+              api: { type: string, description: "API endpoint or export name" }
+              file: { type: string, description: "Source file path" }
+              version: { type: string }
+        imports:
+          type: array
+          items:
+            type: object
+            required: [api, from_project]
+            properties:
+              api: { type: string }
+              from_project: { type: string }
+  updated_at:
+    type: string
+    format: date-time
+additionalProperties: false

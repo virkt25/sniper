@@ -1,0 +1,56 @@
+name: multi-faceted-review
+description: Multi-dimensional review gate — scope, standards, and risk
+
+checks:
+  # Scope Validation — does the implementation match requirements?
+  - id: scope_spec_match
+    description: Implementation addresses all spec requirements
+    check: file:docs/spec.md
+    blocking: true
+
+  - id: scope_acceptance_criteria
+    description: All acceptance criteria from stories are addressed
+    check: "grep:docs/stories/:shall"
+    blocking: true
+
+  - id: scope_no_creep
+    description: No undocumented features added beyond spec
+    check: file:docs/review-report.md
+    blocking: false
+
+  # Standards Enforcement — does the code follow conventions?
+  - id: standards_conventions
+    description: Code follows project conventions
+    check: file:.sniper/conventions.yaml
+    blocking: false
+
+  - id: standards_test_coverage
+    description: Tests exist for new functionality
+    command: "find . -name '*.test.*' -o -name '*.spec.*' | grep -q ."
+    blocking: true
+
+  - id: standards_lint_clean
+    description: No lint errors in changed files
+    command: "${lint_command}"
+    blocking: true
+
+  # Risk Scoring — are there security, performance, or reliability risks?
+  - id: risk_security
+    description: No OWASP Top 10 vulnerabilities detected
+    check: 'grep:docs/review-report.md:"## Security"'
+    blocking: true
+
+  - id: risk_performance
+    description: No obvious performance regressions
+    check: 'grep:docs/review-report.md:"## Performance"'
+    blocking: false
+
+  - id: risk_error_handling
+    description: Error cases are handled gracefully
+    check: 'grep:docs/review-report.md:"## Error Handling"'
+    blocking: false
+
+  - id: risk_data_integrity
+    description: No data loss or corruption risks
+    check: 'grep:docs/review-report.md:"## Data Integrity"'
+    blocking: true

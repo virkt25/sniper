@@ -1,0 +1,101 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/gate-result"
+title: Gate Result
+description: Schema for SNIPER gate review results that determine whether a phase passes its quality gate.
+type: object
+required:
+  - gate
+  - timestamp
+  - result
+  - blocking_failures
+  - total_checks
+properties:
+  gate:
+    type: string
+    description: The phase name this gate review applies to.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the gate review was performed.
+  result:
+    type: string
+    enum:
+      - pass
+      - fail
+    description: Overall gate review result.
+  checks:
+    type: array
+    description: Individual check results that make up the gate review.
+    items:
+      type: object
+      required:
+        - id
+        - status
+        - blocking
+        - output
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this check.
+        status:
+          type: string
+          enum:
+            - pass
+            - fail
+          description: Whether this individual check passed or failed.
+        blocking:
+          type: boolean
+          description: Whether this check is a blocking check (failure prevents gate pass).
+        output:
+          type: string
+          description: Descriptive output or message from the check.
+  blocking_failures:
+    type: integer
+    minimum: 0
+    description: Number of blocking checks that failed.
+  total_checks:
+    type: integer
+    minimum: 0
+    description: Total number of checks that were evaluated.
+  model_results:
+    type: array
+    description: Individual model assessments when multi-model review is enabled.
+    items:
+      type: object
+      required:
+        - model
+        - result
+        - timestamp
+      properties:
+        model:
+          type: string
+          description: Model identifier used for this assessment.
+        result:
+          type: string
+          enum:
+            - pass
+            - fail
+          description: This model's gate result.
+        checks:
+          type: array
+          description: Check results from this model's assessment.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+                enum:
+                  - pass
+                  - fail
+              output:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+          description: When this model's assessment was performed.
+  consensus:
+    type: boolean
+    description: Whether all models agreed on the result. Only present when multi-model review is enabled.
+additionalProperties: false

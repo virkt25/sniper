@@ -1,0 +1,39 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/knowledge-manifest"
+title: Knowledge Manifest
+description: Schema for SNIPER knowledge manifest files that declare domain knowledge sources available to agents.
+type: object
+required:
+  - sources
+properties:
+  sources:
+    type: array
+    description: List of domain knowledge sources available for agent injection.
+    minItems: 1
+    items:
+      type: object
+      required:
+        - topic
+        - file
+        - tokens
+      properties:
+        topic:
+          type: string
+          description: Short identifier for the knowledge domain (e.g. telephony, compliance, crm).
+        file:
+          type: string
+          description: Path to the knowledge file, relative to .sniper/knowledge/.
+        tokens:
+          type: integer
+          minimum: 1
+          description: Estimated token count of the knowledge file, used for budget planning.
+        tags:
+          type: array
+          description: Searchable tags for matching knowledge to agent context.
+          items:
+            type: string
+        description:
+          type: string
+          description: Human-readable summary of what this knowledge source covers.
+      additionalProperties: false
+additionalProperties: false
