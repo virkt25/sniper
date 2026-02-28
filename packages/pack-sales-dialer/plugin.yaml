@@ -24,22 +24,22 @@ conventions:
 review_checks:
   - id: tcpa-compliance
     description: "Verify timezone-aware TCPA calling hour enforcement."
-    command: "grep -rn 'timezone\\|calling.hours\\|tcpa\\|TCPA' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No TCPA references found — verify compliance is handled'"
+    command: "grep -rn 'timezone\\|calling.hours\\|tcpa\\|TCPA' . --include='*.ts' --include='*.py' --include='*.go' --exclude-dir=node_modules --exclude-dir=dist || echo 'No TCPA references found — verify compliance is handled'"
     blocking: true
 
   - id: dnc-check
     description: "Verify DNC list verification before outbound calls."
-    command: "grep -rn 'dnc\\|DNC\\|do.not.call\\|doNotCall' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No DNC references found — verify compliance is handled'"
+    command: "grep -rn 'dnc\\|DNC\\|do.not.call\\|doNotCall' . --include='*.ts' --include='*.py' --include='*.go' --exclude-dir=node_modules --exclude-dir=dist || echo 'No DNC references found — verify compliance is handled'"
     blocking: true
 
   - id: recording-consent
     description: "Verify recording consent disclosure is implemented."
-    command: "grep -rn 'recording.*consent\\|consent.*recording\\|disclosure' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No recording consent references found'"
+    command: "grep -rn 'recording.*consent\\|consent.*recording\\|disclosure' . --include='*.ts' --include='*.py' --include='*.go' --exclude-dir=node_modules --exclude-dir=dist || echo 'No recording consent references found'"
     blocking: false
 
   - id: pci-recording-pause
     description: "Verify recording pause during payment data collection."
-    command: "grep -rn 'pause.*recording\\|recording.*pause\\|pci\\|PCI' src/ --include='*.ts' --include='*.py' --include='*.go' || echo 'No PCI recording pause references found'"
+    command: "grep -rn 'pause.*recording\\|recording.*pause\\|pci\\|PCI' . --include='*.ts' --include='*.py' --include='*.go' --exclude-dir=node_modules --exclude-dir=dist || echo 'No PCI recording pause references found'"
     blocking: false
 
 agent_mixins:

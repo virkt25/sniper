@@ -14,6 +14,7 @@ checks:
 
   - id: open_questions
     description: No unresolved open questions remain
+    # '|' separates alternation patterns (grep -E style)
     check: "!grep:docs/:**TBD**|**TODO**|**OPEN**"
     blocking: false
 

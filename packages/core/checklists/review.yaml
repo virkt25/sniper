@@ -4,7 +4,7 @@ description: Review phase quality gate
 checks:
   - id: gate_checks_pass
     description: Implementation gate passed
-    check: file:.sniper/gates/implement-*.yaml
+    check: grep:.sniper/gates/implement-*.yaml:"passed: true"
     blocking: true
 
   - id: spec_reconciliation

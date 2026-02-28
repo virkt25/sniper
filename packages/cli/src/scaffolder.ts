@@ -204,13 +204,9 @@ export async function scaffoldProject(
   }
   (settings.env as Record<string, unknown>).CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = 1;
 
-  if (!isUpdate || !(await fileExists(settingsPath))) {
-    await writeFile(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
-    log.push("Created .claude/settings.json");
-  } else {
-    await writeFile(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
-    log.push("Updated .claude/settings.json hooks");
-  }
+  const settingsExisted = isUpdate && (await fileExists(settingsPath));
+  await writeFile(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
+  log.push(settingsExisted ? "Updated .claude/settings.json hooks" : "Created .claude/settings.json");
 
   // Generate CLAUDE.md from template
   if (!isUpdate || !(await fileExists(join(cwd, "CLAUDE.md")))) {

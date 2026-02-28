@@ -43,10 +43,22 @@ export async function ingestSignal(
   return filename;
 }
 
+function assertGhAvailable(): void {
+  try {
+    execFileSync("gh", ["--version"], { stdio: "pipe" });
+  } catch {
+    throw new Error(
+      'GitHub CLI (gh) is not installed or not on PATH. Install it from https://cli.github.com/',
+    );
+  }
+}
+
 export async function ingestFromPR(
   cwd: string,
   prNumber: number,
 ): Promise<Signal[]> {
+  assertGhAvailable();
+
   const raw = execFileSync("gh", [
     "pr",
     "view",

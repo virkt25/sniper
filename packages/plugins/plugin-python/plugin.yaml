@@ -34,17 +34,17 @@ conventions:
 review_checks:
   - id: no-bare-except
     description: "Ensure no bare except clauses exist (use specific exception types)."
-    command: "! grep -rn 'except:' src/ --include='*.py' | grep -v 'except:  #'"
+    command: "! grep -rn 'except:' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v 'except:  #'"
     blocking: true
 
   - id: type-annotations
     description: "Ensure public functions have type annotations."
-    command: "! grep -rn 'def [a-z]' src/ --include='*.py' | grep -v '\\->' | grep -v '__' | grep -v 'def _'"
+    command: "! grep -rn 'def [a-z]' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v '\\->' | grep -v '__' | grep -v 'def _'"
     blocking: true
 
   - id: no-print
     description: "Prefer logging over print statements in production code."
-    command: "! grep -rn 'print(' src/ --include='*.py' | grep -v 'test_' | grep -v '#.*print'"
+    command: "! grep -rn 'print(' . --include='*.py' --exclude-dir=.venv --exclude-dir=venv | grep -v 'test_' | grep -v '#.*print'"
     blocking: false
 
 agent_mixins:

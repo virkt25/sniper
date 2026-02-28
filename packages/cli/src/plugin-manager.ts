@@ -226,7 +226,8 @@ export async function installPlugin(
     for (const [, mixinPaths] of Object.entries(manifest.agent_mixins)) {
       for (const mixinPath of mixinPaths) {
         const src = assertSafePath(pkgDir, mixinPath);
-        const filename = mixinPath.split("/").pop()!;
+        const parts = mixinPath.split("/");
+        const filename = parts[parts.length - 1];
         const dest = join(mixinsDir, filename);
         await cp(src, dest, { force: true });
       }

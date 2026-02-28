@@ -227,6 +227,18 @@ export async function writeConfig(
   await writeFile(join(cwd, CONFIG_PATH), content, "utf-8");
 }
 
+// ── Default Budgets ──
+
+export const DEFAULT_BUDGETS: Record<string, number> = {
+  full: 2000000,
+  feature: 800000,
+  patch: 200000,
+  ingest: 1000000,
+  explore: 500000,
+  refactor: 600000,
+  hotfix: 100000,
+};
+
 // ── Core Path Resolution ──
 
 export function getCorePath(): string {
@@ -234,9 +246,10 @@ export function getCorePath(): string {
   try {
     const corePkgPath = require.resolve("@sniper.ai/core/package.json");
     return dirname(corePkgPath);
-  } catch {
+  } catch (err) {
     throw new Error(
       '@sniper.ai/core is not installed. Run "pnpm add -D @sniper.ai/core" first.',
+      { cause: err },
     );
   }
 }

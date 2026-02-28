@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
-import { sniperConfigExists, readRawConfig, isV2Config } from "../config.js";
+import { sniperConfigExists, readRawConfig, isV2Config, DEFAULT_BUDGETS } from "../config.js";
 import type { SniperConfigV3 } from "../config.js";
 import { scaffoldProject } from "../scaffolder.js";
 import { pathExists } from "../fs-utils.js";
@@ -178,15 +178,7 @@ export const initCommand = defineCommand({
           feature_max_files: 20,
         },
         default: "feature",
-        budgets: {
-          full: 2000000,
-          feature: 800000,
-          patch: 200000,
-          ingest: 1000000,
-          explore: 500000,
-          refactor: 600000,
-          hotfix: 100000,
-        },
+        budgets: { ...DEFAULT_BUDGETS },
       },
       cost: {
         warn_threshold: 0.7,

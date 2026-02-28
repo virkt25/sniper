@@ -124,13 +124,14 @@ export async function addProject(
 
 /**
  * Sync shared conventions to individual projects.
- * Currently a no-op stub for future implementation.
+ * Currently returns projects that have a SNIPER config (candidates for sync).
+ * TODO: Actually write workspace conventions into each project's config.
  */
 export async function syncConventions(
   workspaceRoot: string,
 ): Promise<string[]> {
   const config = await readWorkspaceConfig(workspaceRoot);
-  const synced: string[] = [];
+  const candidates: string[] = [];
 
   for (const project of config.projects) {
     const projectConfigPath = join(
@@ -140,11 +141,11 @@ export async function syncConventions(
       "config.yaml",
     );
     if (await pathExists(projectConfigPath)) {
-      synced.push(project.name);
+      candidates.push(project.name);
     }
   }
 
-  return synced;
+  return candidates;
 }
 
 /**

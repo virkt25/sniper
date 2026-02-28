@@ -275,12 +275,12 @@ const listSubcommand = defineCommand({
     }
 
     if (builtInFiles.length > 0) {
+      const corePathForList = getCorePath();
       p.log.step("Built-in protocols:");
       for (const file of builtInFiles) {
         const name = file.replace(/\.yaml$/, "");
         try {
-          const corePath = getCorePath();
-          const raw = await readFile(join(corePath, "protocols", file), "utf-8");
+          const raw = await readFile(join(corePathForList, "protocols", file), "utf-8");
           const data = YAML.parse(raw) as Record<string, unknown>;
           console.log(`  - ${name}: ${data.description || "(no description)"}`);
         } catch {

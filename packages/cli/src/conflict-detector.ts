@@ -43,7 +43,8 @@ export interface ApiDependency {
 // ── Helpers ──
 
 function encodeLockFilename(file: string): string {
-  return file.replace(/\//g, "__").replace(/\\/g, "__") + ".yaml";
+  // Use percent-encoding for separators to avoid collisions (e.g. "a/b" vs "a__b")
+  return file.replace(/%/g, "%25").replace(/\//g, "%2F").replace(/\\/g, "%5C") + ".yaml";
 }
 
 function locksDir(workspaceRoot: string): string {
@@ -134,10 +135,13 @@ export async function checkConflicts(
 ): Promise<Conflict[]> {
   const locks = await readLocks(workspaceRoot);
   const conflicts: Conflict[] = [];
+  // Normalize paths to forward-slash for consistent comparison
+  const normalizedFiles = filesToModify.map((f) => f.replace(/\\/g, "/"));
 
   for (const lock of locks) {
+    const normalizedLockFile = lock.file.replace(/\\/g, "/");
     if (
-      filesToModify.includes(lock.file) &&
+      normalizedFiles.includes(normalizedLockFile) &&
       lock.locked_by.project !== project
     ) {
       conflicts.push({

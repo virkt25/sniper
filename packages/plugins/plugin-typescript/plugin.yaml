@@ -34,12 +34,12 @@ conventions:
 review_checks:
   - id: no-any
     description: "Ensure no untyped 'any' annotations exist in source files."
-    command: "! grep -rn ': any' src/ --include='*.ts' --include='*.tsx'"
+    command: "! grep -rn ': any' . --include='*.ts' --include='*.tsx' --exclude-dir=node_modules --exclude-dir=dist"
     blocking: true
 
   - id: no-ts-ignore
     description: "Ensure @ts-ignore is not used to suppress compiler errors."
-    command: "! grep -rn '@ts-ignore' src/ --include='*.ts' --include='*.tsx'"
+    command: "! grep -rn '@ts-ignore' . --include='*.ts' --include='*.tsx' --exclude-dir=node_modules --exclude-dir=dist"
     blocking: true
 
   - id: strict-null-checks
