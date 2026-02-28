@@ -39,6 +39,9 @@ export default withMermaid(defineConfig({
     ssr: {
       noExternal: ['mermaid'],
     },
+    server: {
+      hmr: { overlay: false },
+    },
     build: {
       rollupOptions: {
         external: [/\/pagefind\//],
@@ -76,6 +79,7 @@ export default withMermaid(defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/what-is-sniper' },
       { text: 'Reference', link: '/reference/commands/' },
+      { text: 'Playground', link: '/playground/commands' },
       {
         text: 'GitHub',
         link: 'https://github.com/virkt25/sniper',
@@ -173,6 +177,16 @@ export default withMermaid(defineConfig({
           items: [
             { text: 'Overview', link: '/reference/workflows/' },
             ...(generated.workflows ?? []),
+          ],
+        },
+      ],
+      '/playground/': [
+        {
+          text: 'Playground',
+          items: [
+            { text: 'Command Playground', link: '/playground/commands' },
+            { text: 'Persona Composer', link: '/playground/personas' },
+            { text: 'Team Builder', link: '/playground/teams' },
           ],
         },
       ],

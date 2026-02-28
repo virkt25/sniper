@@ -19,6 +19,7 @@ import { generateTemplates } from './generators/templates.mjs';
 import { generateWorkflows } from './generators/workflows.mjs';
 import { generateSidebar } from './generators/sidebar.mjs';
 import { generateLlmsTxt } from './generators/llmstxt.mjs';
+import { generatePlayground } from './generators/playground.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const frameworkDir = resolve(__dirname, '../../core/framework');
@@ -43,6 +44,9 @@ async function main() {
     generateTemplates(frameworkDir, outputDir),
     generateWorkflows(frameworkDir, outputDir),
   ]);
+
+  // Generate playground data
+  const playgroundPath = await generatePlayground(frameworkDir, outputDir);
 
   // Write sidebar data
   const sidebarPath = await generateSidebar(outputDir, {
@@ -75,6 +79,7 @@ async function main() {
   console.log(`  Templates:  ${templateCount}`);
   console.log(`  Workflows:  ${workflowCount}`);
   console.log(`  Sidebar:    ${sidebarPath}`);
+  console.log(`  Playground: ${playgroundPath}`);
   console.log(`  llms.txt:   ${llmsPath}`);
   console.log('');
   console.log('Done.');

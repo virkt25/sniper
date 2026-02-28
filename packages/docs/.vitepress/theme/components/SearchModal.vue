@@ -107,7 +107,8 @@ watch(activeCategory, () => {
 async function initPagefind() {
   if (pagefind || !isProduction) return
   try {
-    pagefind = await import(/* @vite-ignore */ '/pagefind/pagefind.js')
+    const pagefindPath = '/pagefind/pagefind.js'
+    pagefind = await import(/* @vite-ignore */ pagefindPath)
     await pagefind.init()
     const filters = await pagefind.filters()
     if (filters.category) {

@@ -1,7 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import { useData } from 'vitepress'
-import { nextTick, provide } from 'vue'
+import { defineAsyncComponent, nextTick, provide } from 'vue'
 import PersonaCard from './components/PersonaCard.vue'
 import TeamDiagram from './components/TeamDiagram.vue'
 import PhaseTimeline from './components/PhaseTimeline.vue'
@@ -29,6 +29,9 @@ export default {
     app.component('HomePage', HomePage)
     app.component('PrevNextCards', PrevNextCards)
     app.component('MermaidViewer', MermaidViewer)
+    app.component('CommandPlayground', defineAsyncComponent(() => import('./components/playground/CommandPlayground.vue')))
+    app.component('PersonaComposer', defineAsyncComponent(() => import('./components/playground/PersonaComposer.vue')))
+    app.component('TeamBuilder', defineAsyncComponent(() => import('./components/playground/TeamBuilder.vue')))
   },
   setup() {
     const { isDark } = useData()
