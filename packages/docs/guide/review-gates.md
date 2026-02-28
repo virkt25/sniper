@@ -1,5 +1,6 @@
 ---
 title: Review Gates
+description: Strict and flexible quality gates, multi-faceted review, and multi-model consensus
 ---
 
 # Review Gates

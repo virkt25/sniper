@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+description: Install SNIPER, scaffold your project, and run your first protocol in under five minutes
 ---
 
 # Getting Started

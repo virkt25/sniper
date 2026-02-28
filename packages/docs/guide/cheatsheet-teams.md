@@ -1,5 +1,6 @@
 ---
 title: Teams Cheatsheet
+description: Quick reference for all pre-configured agent team compositions
 ---
 
 # Teams Cheatsheet

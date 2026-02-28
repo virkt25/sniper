@@ -1,5 +1,6 @@
 ---
 title: Advanced Features
+description: Trigger tables, multi-model review, spec sync, logical revert, and velocity calibration
 ---
 
 # Advanced Features

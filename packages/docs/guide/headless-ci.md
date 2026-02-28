@@ -1,5 +1,6 @@
 ---
 title: Headless & CI/CD
+description: Run SNIPER protocols headlessly in CI/CD pipelines with sniper run
 ---
 
 # Headless & CI/CD

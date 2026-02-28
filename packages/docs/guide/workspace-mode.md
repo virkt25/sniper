@@ -1,5 +1,6 @@
 ---
 title: Workspace Mode
+description: Orchestrate multiple repositories with shared conventions and cross-project coordination
 ---
 
 # Workspace Mode

@@ -1,5 +1,6 @@
 ---
 title: Plugin Development
+description: Build language plugins and domain packs with the plugin.yaml manifest format
 ---
 
 # Plugin Development

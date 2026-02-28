@@ -1,5 +1,6 @@
 ---
 title: Commands Cheatsheet
+description: Quick reference for all SNIPER slash commands and CLI subcommands
 ---
 
 # Commands Cheatsheet

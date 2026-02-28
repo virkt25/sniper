@@ -49,10 +49,51 @@ export default withMermaid(defineConfig({
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/logo.png' }],
+    ['meta', { name: 'theme-color', content: '#6366f1' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'SNIPER' }],
+    ['meta', { property: 'og:image', content: 'https://sniperai.dev/og.png' }],
+    ['meta', { property: 'og:image:width', content: '1200' }],
+    ['meta', { property: 'og:image:height', content: '630' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:image', content: 'https://sniperai.dev/og.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap', rel: 'stylesheet' }],
+    ['script', { type: 'application/ld+json' }, JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'SNIPER',
+      url: 'https://sniperai.dev',
+      description: 'AI-Powered Project Lifecycle Framework for Claude Code',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://sniperai.dev/?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
+    })],
   ],
+
+  transformPageData(pageData) {
+    const canonicalUrl = `https://sniperai.dev/${pageData.relativePath}`
+      .replace(/index\.md$/, '')
+      .replace(/\.md$/, '')
+
+    const description = pageData.frontmatter.description
+      || pageData.description
+      || 'AI-Powered Project Lifecycle Framework for Claude Code'
+
+    pageData.frontmatter.head ??= []
+    pageData.frontmatter.head.push(
+      ['link', { rel: 'canonical', href: canonicalUrl }],
+      ['meta', { property: 'og:url', content: canonicalUrl }],
+      ['meta', { property: 'og:title', content: `${pageData.title} | SNIPER` }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { name: 'twitter:title', content: `${pageData.title} | SNIPER` }],
+      ['meta', { name: 'twitter:description', content: description }],
+    )
+  },
 
   rewrites: {
     'generated/commands/:slug.md': 'reference/commands/:slug.md',

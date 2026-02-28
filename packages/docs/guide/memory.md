@@ -1,5 +1,6 @@
 ---
 title: Memory System
+description: How SNIPER agents persist learnings across sessions with the memory system
 ---
 
 # Memory System

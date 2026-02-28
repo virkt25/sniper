@@ -1,5 +1,6 @@
 ---
 title: Custom Protocols
+description: Create, validate, and manage custom protocol YAML files for specialized workflows
 ---
 
 # Custom Protocols

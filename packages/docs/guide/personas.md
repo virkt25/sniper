@@ -1,5 +1,6 @@
 ---
 title: Personas
+description: Process, technical, and cognitive persona layers that shape how agents think and work
 ---
 
 # Personas

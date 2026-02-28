@@ -1,5 +1,6 @@
 ---
 title: Signals & Learning
+description: Auto-capture CI failures, PR feedback, and production errors as learning signals
 ---
 
 # Signals & Learning

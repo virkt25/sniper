@@ -1,5 +1,6 @@
 ---
 title: Migration from v2
+description: Step-by-step guide to migrating SNIPER v2 projects to the v3 architecture
 ---
 
 # Migration from v2

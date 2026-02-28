@@ -1,5 +1,6 @@
 ---
 title: Full Lifecycle
+description: Walk through a complete SNIPER lifecycle from discovery to release with parallel agent teams
 ---
 
 # Full Lifecycle Walkthrough

@@ -1,5 +1,6 @@
 ---
 title: Configuration
+description: Configure .sniper/config.yaml — agents, protocols, budgets, gates, triggers, and plugins
 ---
 
 # Configuration

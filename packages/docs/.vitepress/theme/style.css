@@ -270,6 +270,43 @@ div[class*="language-"] .copy.copied {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   FOCUS STYLES — keyboard navigation
+   ═══════════════════════════════════════════════════ */
+
+:focus-visible {
+  outline: 2px solid var(--sniper-brand);
+  outline-offset: 2px;
+  border-radius: var(--sniper-radius-sm);
+}
+
+/* Buttons and interactive elements */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.cta-link:focus-visible {
+  outline: 2px solid var(--sniper-brand-light);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--sniper-glow);
+}
+
+/* Bento grid cells and cards */
+.bento-cell:focus-visible,
+.path-card:focus-visible,
+.stat-card:focus-visible {
+  outline: 2px solid var(--sniper-brand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--sniper-glow);
+}
+
+/* Search input override — restore visible focus */
+.search-input:focus-visible {
+  outline: 2px solid var(--sniper-brand) !important;
+  outline-offset: -2px;
 }
 
 /* ═══════════════════════════════════════════════════

@@ -1,5 +1,6 @@
 ---
 title: Architecture
+description: How SNIPER maps to Claude Code primitives — agents, skills, hooks, and the lead-orchestrator pattern
 ---
 
 # Architecture

@@ -1,5 +1,6 @@
 ---
 title: Glossary
+description: Definitions of SNIPER terminology — protocols, phases, gates, agents, and more
 ---
 
 # Glossary

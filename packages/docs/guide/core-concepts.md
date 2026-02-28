@@ -1,5 +1,6 @@
 ---
 title: Core Concepts
+description: Protocols, agents, phases, gates, and the primitives that make SNIPER work
 ---
 
 # Core Concepts

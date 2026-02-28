@@ -1,5 +1,6 @@
 ---
 title: Teams
+description: Pre-configured agent team compositions for each lifecycle phase
 ---
 
 # Teams

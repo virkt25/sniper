@@ -1,5 +1,6 @@
 ---
 title: Why SNIPER?
+description: Why existing AI coding tools fall short and how SNIPER's protocol-driven approach fixes it
 ---
 
 # Why SNIPER?

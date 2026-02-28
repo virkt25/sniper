@@ -1,5 +1,6 @@
 ---
 title: Personas Cheatsheet
+description: Quick reference for all persona layers across process, technical, and cognitive types
 ---
 
 # Personas Cheatsheet

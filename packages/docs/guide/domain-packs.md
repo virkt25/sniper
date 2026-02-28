@@ -1,5 +1,6 @@
 ---
 title: Domain Packs
+description: Inject business domain knowledge into agent personas with domain packs
 ---
 
 # Domain Packs

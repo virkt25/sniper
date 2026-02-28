@@ -1,5 +1,6 @@
 ---
 title: Troubleshooting
+description: Common issues and solutions when using SNIPER
 ---
 
 # Troubleshooting

@@ -1,5 +1,6 @@
 ---
 title: What is SNIPER?
+description: Overview of SNIPER — the AI-powered project lifecycle framework for Claude Code agent teams
 ---
 
 # What is SNIPER?
