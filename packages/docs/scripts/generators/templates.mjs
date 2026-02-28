@@ -26,9 +26,12 @@ export async function generateTemplates(frameworkDir, outputDir) {
       // Derive title
       let title;
       if (isYaml) {
-        // YAML templates: use first comment line or slug
-        const commentMatch = content.match(/^#\s+(.+)/m);
-        title = commentMatch ? commentMatch[1].trim() : slug;
+        // YAML templates: use first meaningful comment line (skip decorative lines like ───)
+        const commentLines = content.match(/^#\s+(.+)/gm) || [];
+        const meaningful = commentLines
+          .map((l) => l.replace(/^#\s+/, '').trim())
+          .find((l) => l.length > 0 && !/^[─\-=*~]+$/.test(l));
+        title = meaningful || slug;
       } else {
         // Markdown templates: parse first heading
         const headingMatch = content.match(/^#\s+(.+)/m);

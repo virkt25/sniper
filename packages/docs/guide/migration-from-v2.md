@@ -34,21 +34,21 @@ The CLI reads your v2 `.sniper/config.yaml`, maps fields to the v3 schema, and w
 
 | v2 Command | v3 Equivalent |
 |------------|---------------|
-| `/sniper-discover` | `/sniper-flow --protocol full --phase discover` or `/sniper-discover` |
-| `/sniper-plan` | `/sniper-flow --protocol full --phase plan` or `/sniper-plan` |
-| `/sniper-solve` | `/sniper-flow --protocol full --phase solve` or `/sniper-solve` |
-| `/sniper-sprint` | `/sniper-flow --protocol full --phase sprint` or `/sniper-sprint` |
+| `/sniper-discover` | `/sniper-flow --protocol full` (runs discover phase automatically) |
+| `/sniper-plan` | `/sniper-flow --protocol full` (runs plan phase automatically) |
+| `/sniper-solve` | Removed — story sharding is now part of the implement phase |
+| `/sniper-sprint` | `/sniper-flow --protocol full` (runs implement phase automatically) |
 | `/sniper-init` | `/sniper-init` (unchanged) |
 | `/sniper-status` | `/sniper-status` (unchanged) |
 | `/sniper-review` | `/sniper-review` (unchanged) |
-| (new) | `/sniper-flow` -- core protocol engine |
-| (new) | `/sniper-feature` -- scoped feature lifecycle |
-| (new) | `/sniper-ingest` -- codebase reverse-engineering |
-| (new) | `/sniper-debug` -- structured bug investigation |
-| (new) | `/sniper-audit` -- targeted audits |
-| (new) | `/sniper-doc` -- documentation generation |
-| (new) | `/sniper-compose` -- manual persona composition |
-| (new) | `/sniper-memory` -- memory management |
+| (new) | `/sniper-flow` — unified protocol engine that replaces all phase commands |
+| (new) | `/sniper-flow --protocol feature` — scoped feature lifecycle |
+| (new) | `/sniper-flow --protocol ingest` — codebase reverse-engineering |
+| (new) | `/sniper-flow --protocol hotfix` — emergency fixes without gates |
+| (new) | `/sniper-flow --protocol refactor` — refactoring with safety analysis |
+| (new) | `/sniper-flow --protocol explore` — discovery/research only |
+| (new) | `/sniper-flow --protocol patch` — small changes and bug fixes |
+| (new) | `/sniper-flow-headless` — CI/CD non-interactive execution |
 
 ### Configuration Changes
 

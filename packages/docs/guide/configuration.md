@@ -98,7 +98,7 @@ Domain packs provide industry-specific knowledge files, custom personas, checkli
 
 ## Documentation
 
-Controls the `/sniper-doc` command behavior:
+Controls documentation generation behavior:
 
 ```yaml
 documentation:
@@ -183,7 +183,7 @@ ownership:
 ```
 
 ::: tip
-After running `/sniper-ingest`, the convention-miner agent automatically updates ownership paths to match your actual project structure. Review the updated paths after ingestion.
+After running `/sniper-flow --protocol ingest`, the framework automatically updates ownership paths to match your actual project structure. Review the updated paths after ingestion.
 :::
 
 Customize these paths to match your project layout. During sprints, each teammate is mapped to an ownership key via the `owns_from_config` field in the team YAML.

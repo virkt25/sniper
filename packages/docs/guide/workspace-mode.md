@@ -122,7 +122,7 @@ A contract designer agent creates interface contracts for all cross-repo communi
 
 ### Phase 3: Per-Repo Story Generation
 
-For each affected repository, scoped `/sniper-feature` runs produce stories within each repo's own SNIPER structure, referencing the approved contracts.
+For each affected repository, scoped `/sniper-flow --protocol feature` runs produce stories within each repo's own SNIPER structure, referencing the approved contracts.
 
 ### Phase 4: Wave-Based Sprint Orchestration
 

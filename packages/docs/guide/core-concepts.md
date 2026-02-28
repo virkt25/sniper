@@ -9,135 +9,128 @@ SNIPER is built on a set of interlocking concepts. Understanding these will help
 
 ## Phases
 
-A phase is a distinct stage in the project lifecycle. Each phase has a specific purpose, a team composition, defined outputs, and a review gate.
+A phase is a distinct stage in the project lifecycle. Each phase has a specific purpose, agents assigned to it, defined outputs, and a review gate.
 
-### Standard Phases
+All phases are executed through `/sniper-flow`, the core protocol engine. There are no standalone phase commands -- `/sniper-flow` auto-detects the appropriate protocol or you specify one explicitly with `--protocol <name>`.
 
-All phases are executed through `/sniper-flow`, the core protocol engine. Individual phase commands (`/sniper-discover`, `/sniper-plan`, etc.) are convenience shortcuts.
+### Phase Catalog
 
-| Phase | Command | Team Size | Outputs | Gate |
-|-------|---------|-----------|---------|------|
-| **Discover** | `/sniper-flow` or `/sniper-discover` | 3 agents (parallel) | brief, risks, personas | Flexible |
-| **Plan** | `/sniper-flow` or `/sniper-plan` | 4 agents (with dependencies) | PRD, architecture, UX spec, security | Strict |
-| **Solve** | `/sniper-flow` or `/sniper-solve` | 1 agent (sequential) | epics, stories | Flexible |
-| **Sprint** | `/sniper-flow` or `/sniper-sprint` | 2-5 agents (parallel) | source code, tests | Strict |
-
-### Additional Phases
-
-| Phase | Command | Purpose |
-|-------|---------|---------|
-| **Ingest** | `/sniper-ingest` | Reverse-engineer artifacts from existing code |
-| **Feature** | `/sniper-feature` | Scoped mini-lifecycle for a single feature |
-| **Debug** | `/sniper-debug` | Structured bug investigation and fix |
-| **Audit** | `/sniper-audit` | Refactoring, reviews, tests, security, performance |
+| Phase | Used In | Agents | Outputs | Gate |
+|-------|---------|--------|---------|------|
+| **discover** | full, explore | analyst | spec, codebase overview | Flexible |
+| **plan** | full, feature | architect, product-manager | architecture, PRD, stories | Strict |
+| **implement** | full, feature, patch, refactor, hotfix | fullstack-dev, qa-engineer | source code, tests | Flexible |
+| **review** | full, feature, patch, refactor | code-reviewer | review report | Strict |
+| **scan** | ingest | analyst | codebase overview | Auto |
+| **document** | ingest | analyst | spec | Auto |
+| **extract** | ingest | analyst | conventions | Auto |
+| **analyze** | refactor | analyst | spec | Auto |
 
 Phases are tracked in the `state.phase_log` array in `.sniper/config.yaml`. Each entry records when it started, when it completed, and who approved it.
 
-## Personas
+## Protocols
 
-Personas define who an agent is. They are composed from four independent layers, each stored as a markdown file:
+A protocol is a YAML state machine that chains phases together into a complete workflow. SNIPER ships seven built-in protocols:
 
-### Process Layer (Required)
+| Protocol | Command | Phases | Use Case |
+|----------|---------|--------|----------|
+| **full** | `/sniper-flow` | discover &rarr; plan &rarr; implement &rarr; review | Greenfield projects, major features |
+| **feature** | `/sniper-flow --protocol feature` | plan &rarr; implement &rarr; review | Incremental feature on an existing codebase |
+| **patch** | `/sniper-flow --protocol patch` | implement &rarr; review | Bug fix or small change |
+| **ingest** | `/sniper-flow --protocol ingest` | scan &rarr; document &rarr; extract | Reverse-engineer artifacts from existing code |
+| **explore** | `/sniper-flow --protocol explore` | discover | Read-only codebase analysis |
+| **refactor** | `/sniper-flow --protocol refactor` | analyze &rarr; implement &rarr; review | Code improvement and cleanup |
+| **hotfix** | `/sniper-flow --protocol hotfix` | implement | Critical fix, no gates |
 
-Defines the agent's role in the project lifecycle. Examples:
+When you run `/sniper-flow` without `--protocol`, the lead-orchestrator auto-detects the best protocol based on your intent. Use `--protocol <name>` to override. Interrupted protocols can be resumed with `/sniper-flow --resume`.
 
-- [**analyst**](/reference/personas/process/analyst) -- researches markets, competitors, and user needs
-- [**architect**](/reference/personas/process/architect) -- designs system architecture and component boundaries
-- [**developer**](/reference/personas/process/developer) -- implements stories following architecture patterns
-- [**qa-engineer**](/reference/personas/process/qa-engineer) -- writes and runs tests, validates acceptance criteria
-- [**product-manager**](/reference/personas/process/product-manager) -- writes PRDs and requirement specifications
-- [**scrum-master**](/reference/personas/process/scrum-master) -- shards PRDs into epics and stories
-- [**ux-designer**](/reference/personas/process/ux-designer) -- defines information architecture and user flows
+See [Custom Protocols](/guide/custom-protocols) for how to define your own.
 
-### Technical Layer (Optional)
+## Agents
 
-Adds domain-specific technical expertise:
+In v3, agents are defined as standalone files in `packages/core/agents/`. Each agent has a YAML frontmatter specifying its model, tools, and constraints, followed by Markdown instructions. The 11 built-in agents are:
 
-- [**backend**](/reference/personas/technical/backend) -- Node.js/TypeScript, Express, PostgreSQL, Redis, queues
-- [**frontend**](/reference/personas/technical/frontend) -- React, component hierarchy, responsive design
-- [**infrastructure**](/reference/personas/technical/infrastructure) -- Docker, Terraform, CI/CD, cloud providers
-- [**security**](/reference/personas/technical/security) -- auth models, encryption, compliance, threat modeling
-- [**ai-ml**](/reference/personas/technical/ai-ml) -- AI pipelines, model integration, real-time APIs
-- [**database**](/reference/personas/technical/database) -- schema design, migrations, query optimization
-- [**api-design**](/reference/personas/technical/api-design) -- REST contracts, versioning, validation
+- **lead-orchestrator** — coordinates agent teams, read-only (only writes to `.sniper/`)
+- **analyst** — researches markets, competitors, and user needs during discovery
+- **architect** — designs system architecture and component boundaries
+- **product-manager** — writes PRDs and requirement specifications
+- **backend-dev** — implements backend logic, APIs, and data layers
+- **frontend-dev** — implements UI components, client-side logic
+- **fullstack-dev** — handles cross-cutting concerns spanning front and back
+- **qa-engineer** — writes and runs tests, validates acceptance criteria
+- **code-reviewer** — reviews code quality, patterns, and standards
+- **gate-reviewer** — evaluates phase artifacts against quality checklists
+- **retro-analyst** — records execution metrics and produces retrospectives
 
-### Cognitive Layer (Optional)
+## Cognitive Personas
 
-Shapes how the agent thinks and prioritizes:
+Cognitive personas are optional mixins that shape _how_ an agent thinks. They overlay a reasoning style onto any agent:
 
-- [**systems-thinker**](/reference/personas/cognitive/systems-thinker) -- focuses on boundaries, interfaces, dependencies, and scaling
-- [**devils-advocate**](/reference/personas/cognitive/devils-advocate) -- challenges assumptions, identifies what could go wrong
-- [**user-empathetic**](/reference/personas/cognitive/user-empathetic) -- prioritizes user experience, friction points, accessibility
-- [**security-first**](/reference/personas/cognitive/security-first) -- evaluates every decision through a security lens
-- [**performance-focused**](/reference/personas/cognitive/performance-focused) -- optimizes for speed, efficiency, and resource usage
-- [**mentor-explainer**](/reference/personas/cognitive/mentor-explainer) -- produces clear, educational documentation
+- [**devils-advocate**](/reference/personas/cognitive/devils-advocate) — challenges assumptions, identifies what could go wrong
+- [**security-first**](/reference/personas/cognitive/security-first) — evaluates every decision through a security lens
+- [**performance-focused**](/reference/personas/cognitive/performance-focused) — optimizes for speed, efficiency, and resource usage
 
-### Domain Layer (Optional)
+### Domain Packs
 
-Injects industry-specific knowledge from a domain pack. For example, the `sales-dialer` pack provides telephony, CRM integration, and compliance context.
+Domain packs inject industry-specific knowledge into agents. For example, the `sales-dialer` pack provides telephony, CRM integration, and compliance context.
 
-### Composition
+### Applying Cognitive Personas
 
-The `/sniper-compose` command merges these layers into a single spawn prompt using a template:
+Configure a cognitive persona on any agent in `.sniper/config.yaml`:
 
+```yaml
+agents:
+  architect:
+    cognitive: security-first
 ```
-/sniper-compose --process architect --technical backend --cognitive security-first --name "Backend Architect" --ownership backend
-```
 
-This reads each persona file, fills the spawn prompt template, and saves the composed prompt to `.sniper/spawn-prompts/backend-architect.md`.
+When a phase launches the architect agent, the lead-orchestrator merges the `security-first` cognitive mixin into the agent's spawn prompt at runtime.
 
 ## Teams
 
-A team is a YAML definition that specifies which agents to spawn for a phase, what tasks they perform, and how they coordinate.
+When a protocol phase requires multiple agents, SNIPER spawns a team using Claude Code's `TeamCreate` and `Task` tools. The protocol YAML defines which agents participate and how they coordinate.
 
 ```yaml
-# Example: discover.yaml
-team_name: sniper-discover
-phase: discover
-
-teammates:
-  - name: analyst
-    compose:
-      process: analyst
-      technical: null
-      cognitive: systems-thinker
-      domain: null
-    tasks:
-      - id: market-research
-        name: "Market Research & Competitive Analysis"
-        output: "docs/brief.md"
-        template: ".sniper/templates/brief.md"
-
-  - name: risk-researcher
-    compose:
-      process: analyst
-      technical: infrastructure
-      cognitive: devils-advocate
-      domain: null
-    tasks:
-      - id: risk-assessment
-        output: "docs/risks.md"
+# From protocols/full.yaml — plan phase
+- name: plan
+  description: Architecture design, PRD creation, story breakdown
+  agents:
+    - architect
+    - product-manager
+  spawn_strategy: team  # Multiple agents, use TeamCreate
+  coordination:
+    - between: [architect, product-manager]
+      topic: Architecture must be approved before stories reference it
+  gate:
+    checklist: plan
+    human_approval: true
+  outputs:
+    - docs/architecture.md
+    - docs/prd.md
+    - docs/stories/
 ```
 
 Key fields:
 
-- **compose** -- which persona layers to merge for this teammate
-- **tasks** -- what they produce, with output paths and template references
-- **blocked_by** -- task dependencies (the architect is blocked by the PRD)
-- **plan_approval** -- whether the team lead must approve the agent's approach first
-- **coordination** -- pairs of teammates that need to align (e.g., architect and security analyst)
+- **agents** -- which agent definitions to spawn for this phase
+- **spawn_strategy** -- `single` (one agent, no team) or `team` (multiple agents via TeamCreate)
+- **coordination** -- pairs of agents that must align before proceeding
+- **plan_approval** -- whether the lead-orchestrator must approve each agent's approach before coding
+- **gate** -- the quality checklist and whether human sign-off is required
 
 ## Spawn Prompts
 
-A spawn prompt is the fully assembled instruction given to an agent when it is created. It contains:
+A spawn prompt is the fully assembled instruction given to an agent when it is created. It combines:
 
-1. The merged persona layers (process + technical + cognitive + domain)
-2. Project memory (conventions, anti-patterns, decisions)
-3. File ownership boundaries
-4. Task-specific instructions and context
-5. Sprint rules and coordination partners
+1. The agent definition (from `packages/core/agents/`)
+2. An optional cognitive mixin (e.g., `security-first`, `devils-advocate`)
+3. An optional domain pack (e.g., `sales-dialer`)
+4. Project memory (conventions, anti-patterns, decisions from `.sniper/memory/`)
+5. File ownership boundaries
+6. Task-specific instructions and context
+7. Coordination partners from the protocol definition
 
-The spawn prompt template lives at `.sniper/spawn-prompts/_template.md` and has placeholders like `{process_layer}`, `{technical_layer}`, `{ownership}` that get filled during composition.
+The lead-orchestrator assembles spawn prompts at runtime when launching agents for each phase.
 
 ## Artifacts
 
@@ -145,11 +138,13 @@ Artifacts are the documents and code produced by each phase. They persist on dis
 
 | Phase | Artifacts |
 |-------|-----------|
-| Discover | `docs/brief.md`, `docs/risks.md`, `docs/personas.md` |
-| Plan | `docs/prd.md`, `docs/architecture.md`, `docs/ux-spec.md`, `docs/security.md` |
-| Solve | `docs/epics/E01-*.md` through `docs/epics/ENN-*.md`, `docs/stories/S01-*.md` through `docs/stories/SNN-*.md` |
-| Sprint | Source code and test files in the project's source directories |
-| Ingest | `docs/brief.md`, `docs/architecture.md`, `docs/conventions.md` |
+| discover | `docs/spec.md`, `docs/codebase-overview.md` |
+| plan | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| implement | Source code and test files in the project's source directories |
+| review | `docs/review-report.md` |
+| ingest (scan) | `docs/codebase-overview.md` |
+| ingest (document) | `docs/spec.md` |
+| ingest (extract) | `.sniper/conventions.yaml` |
 
 Each artifact's status (null, draft, approved) and version number are tracked in `state.artifacts` in the config file.
 
@@ -173,7 +168,7 @@ Review gates are quality checkpoints between phases. Each gate has:
 | **flexible** | Auto-advance if no failures. Human reviews asynchronously. |
 | **auto** | No gate. Advances immediately. Not recommended for architecture or code. |
 
-The default configuration uses **strict** gates for planning and sprint phases (where bad decisions are costly) and **flexible** gates for discovery and solve phases (where output can be refined later).
+The default configuration uses **strict** gates for plan and review phases (where bad decisions are costly) and **flexible** gates for discover and implement phases (where output can be refined later).
 
 See [Review Gates](/guide/review-gates) for detailed configuration and checklist examples.
 
@@ -197,7 +192,7 @@ ownership:
     - "*.test.*"
 ```
 
-When a sprint teammate is spawned, their ownership boundaries are injected into their spawn prompt. The agent is instructed to only modify files within those boundaries.
+When an implement-phase agent is spawned, their ownership boundaries are injected into their spawn prompt. The agent is instructed to only modify files within those boundaries.
 
 ## Next Steps
 

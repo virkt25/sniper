@@ -223,4 +223,4 @@ Domain packs can extend teams via `team_overrides` in their `pack.yaml`. For exa
 
 - [Personas](/guide/personas) -- understand the persona layers that compose into teammates
 - [Full Lifecycle](/guide/full-lifecycle) -- see teams in action across the lifecycle
-- [Reference: Teams](/reference/teams/) -- browse all team definitions
+- [Architecture](/guide/architecture) -- how agents map to Claude Code primitives

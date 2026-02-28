@@ -13,10 +13,8 @@ import { mkdir, rm } from 'node:fs/promises';
 
 import { generateCommands } from './generators/commands.mjs';
 import { generatePersonas } from './generators/personas.mjs';
-import { generateTeams } from './generators/teams.mjs';
 import { generateChecklists } from './generators/checklists.mjs';
 import { generateTemplates } from './generators/templates.mjs';
-import { generateWorkflows } from './generators/workflows.mjs';
 import { generateCliCommands } from './generators/cli-commands.mjs';
 import { generateSchemas } from './generators/schemas.mjs';
 import { generateHooks } from './generators/hooks.mjs';
@@ -41,13 +39,11 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   // Run all generators in parallel
-  const [commands, personas, teams, checklists, templates, workflows, cli, schemas, hooks, config] = await Promise.all([
+  const [commands, personas, checklists, templates, cli, schemas, hooks, config] = await Promise.all([
     generateCommands(frameworkDir, outputDir),
     generatePersonas(frameworkDir, outputDir),
-    generateTeams(frameworkDir, outputDir),
     generateChecklists(frameworkDir, outputDir),
     generateTemplates(frameworkDir, outputDir),
-    generateWorkflows(frameworkDir, outputDir),
     generateCliCommands(cliDir, outputDir),
     generateSchemas(frameworkDir, outputDir),
     generateHooks(frameworkDir, outputDir),
@@ -58,10 +54,10 @@ async function main() {
   const sidebarPath = await generateSidebar(outputDir, {
     commands,
     personas,
-    teams,
+    teams: [],
     checklists,
     templates,
-    workflows,
+    workflows: [],
     cli,
     schemas,
     hooks,
@@ -74,24 +70,20 @@ async function main() {
   // Summary
   const commandCount = commands.length;
   const personaCount = personas.reduce((sum, layer) => sum + (layer.items?.length || 0), 0);
-  const teamCount = teams.length;
   const checklistCount = checklists.length;
   const templateCount = templates.length;
-  const workflowCount = workflows.length;
   const cliCount = cli.length;
   const schemaCount = schemas.length;
   const hookCount = hooks.length;
   const configCount = config.length;
-  const total = commandCount + personaCount + teamCount + checklistCount + templateCount + workflowCount + cliCount + schemaCount + hookCount + configCount;
+  const total = commandCount + personaCount + checklistCount + templateCount + cliCount + schemaCount + hookCount + configCount;
 
   console.log('');
   console.log(`Generated ${total} reference pages:`);
   console.log(`  Commands:   ${commandCount}`);
   console.log(`  Personas:   ${personaCount}`);
-  console.log(`  Teams:      ${teamCount}`);
   console.log(`  Checklists: ${checklistCount}`);
   console.log(`  Templates:  ${templateCount}`);
-  console.log(`  Workflows:  ${workflowCount}`);
   console.log(`  CLI:        ${cliCount}`);
   console.log(`  Schemas:    ${schemaCount}`);
   console.log(`  Hooks:      ${hookCount}`);

@@ -108,15 +108,14 @@ SNIPER auto-detects the right protocol based on your project state. For a new pr
 /sniper-flow --protocol full
 ```
 
-The discovery phase spawns the [discover](/reference/teams/discover) team -- three agents working in parallel:
+The discovery phase spawns three agents working in parallel:
 
-| Agent | Process | Cognitive | Output |
-|-------|---------|-----------|--------|
-| analyst | [analyst](/reference/personas/process/analyst) | [systems-thinker](/reference/personas/cognitive/systems-thinker) | `docs/brief.md` |
-| risk-researcher | [analyst](/reference/personas/process/analyst) | [devils-advocate](/reference/personas/cognitive/devils-advocate) | `docs/risks.md` |
-| user-researcher | [analyst](/reference/personas/process/analyst) | [user-empathetic](/reference/personas/cognitive/user-empathetic) | `docs/personas.md` |
+| Agent | Role | Cognitive Mixin | Output |
+|-------|------|-----------------|--------|
+| analyst | Research & analysis | [devils-advocate](/reference/personas/cognitive/devils-advocate) | `docs/spec.md` |
+| analyst | Codebase scanning | [performance-focused](/reference/personas/cognitive/performance-focused) | `docs/codebase-overview.md` |
 
-The team lead (you) enters delegate mode. The agents research independently and produce their artifacts. When all three complete, a review gate evaluates the output against the [discover-review](/reference/checklists/discover-review) checklist.
+The lead-orchestrator enters delegate mode. The agents research independently and produce their artifacts. When all complete, a review gate evaluates the output against the [discover](/reference/checklists/discover) checklist.
 
 Since the discovery gate defaults to <span class="gate-flexible">FLEXIBLE</span>, it auto-advances if there are no critical failures. You can review the artifacts asynchronously.
 
@@ -133,18 +132,17 @@ After discovery completes, the lifecycle continues through plan, solve, and spri
 /sniper-flow --resume     # Explicitly resume from last checkpoint
 ```
 
-### Option B: Use Phase Commands
+### Option B: Specify the Protocol Explicitly
 
-Individual phase commands are convenience shortcuts that invoke `/sniper-flow` with the appropriate protocol and phase:
+You can also target a specific protocol directly:
 
 ```
-/sniper-discover    # Equivalent to /sniper-flow --protocol full --phase discover
-/sniper-plan        # Equivalent to /sniper-flow --protocol full --phase plan
-/sniper-solve       # Equivalent to /sniper-flow --protocol full --phase solve
-/sniper-sprint      # Equivalent to /sniper-flow --protocol full --phase sprint
+/sniper-flow --protocol full        # Run the full lifecycle (discover → plan → implement → review)
+/sniper-flow --protocol feature     # Scoped feature work (plan → implement → review)
+/sniper-flow --protocol patch       # Quick fix (implement → review)
 ```
 
-Each command is run explicitly -- SNIPER never auto-advances to the next phase. You control the pace.
+Each phase requires an explicit `/sniper-flow` invocation -- SNIPER never auto-advances to the next phase. You control the pace.
 
 ::: tip
 Run `/sniper-status` at any time to see where you are in the lifecycle, which artifacts exist, and what to do next.
@@ -155,7 +153,7 @@ Run `/sniper-status` at any time to see where you are in the lifecycle, which ar
 If you have an existing codebase and want to use SNIPER for incremental features, start with ingestion instead of discovery:
 
 ```
-/sniper-ingest
+/sniper-flow --protocol ingest
 ```
 
 This spawns a team that reverse-engineers your codebase into SNIPER artifacts:
@@ -164,7 +162,7 @@ This spawns a team that reverse-engineers your codebase into SNIPER artifacts:
 - `docs/architecture.md` -- system architecture as-built
 - `docs/conventions.md` -- coding patterns and conventions
 
-After ingestion, use `/sniper-feature` to add incremental features with scoped planning and implementation.
+After ingestion, use `/sniper-flow --protocol feature` to add incremental features with scoped planning and implementation.
 
 ## Project Structure After Init
 
@@ -178,8 +176,8 @@ your-project/
     teams/              # Team YAML definitions
     ...
   docs/                 # Artifacts produced by phases
-    epics/              # Epic files (from /sniper-solve)
-    stories/            # Story files (from /sniper-solve)
+    epics/              # Epic files (from plan phase)
+    stories/            # Story files (from plan phase)
   CLAUDE.md             # Claude Code instructions referencing SNIPER
 ```
 

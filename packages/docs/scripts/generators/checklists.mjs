@@ -36,7 +36,9 @@ export async function generateChecklists(frameworkDir, outputDir) {
         // Parse YAML checklist: extract name, description, checks
         const nameMatch = content.match(/^name:\s*(.+)$/m);
         const descMatch = content.match(/^description:\s*(.+)$/m);
-        title = nameMatch ? nameMatch[1].trim() : slug;
+        const rawName = nameMatch ? nameMatch[1].trim() : slug;
+        // Convert slug-style names to Title Case (e.g. "ingest-scan" -> "Ingest Scan")
+        title = rawName.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
         const description = descMatch ? descMatch[1].trim() : '';
 
         // Extract checks for display

@@ -98,10 +98,8 @@ export default withMermaid(defineConfig({
   rewrites: {
     'generated/commands/:slug.md': 'reference/commands/:slug.md',
     'generated/personas/:layer/:slug.md': 'reference/personas/:layer/:slug.md',
-    'generated/teams/:slug.md': 'reference/teams/:slug.md',
     'generated/checklists/:slug.md': 'reference/checklists/:slug.md',
     'generated/templates/:slug.md': 'reference/templates/:slug.md',
-    'generated/workflows/:slug.md': 'reference/workflows/:slug.md',
     'generated/cli/:slug.md': 'reference/cli/:slug.md',
     'generated/schemas/:slug.md': 'reference/schemas/:slug.md',
     'generated/hooks/:slug.md': 'reference/hooks/:slug.md',
@@ -204,14 +202,6 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: 'Teams',
-          collapsed: false,
-          items: [
-            { text: 'Overview', link: '/reference/teams/' },
-            ...(generated.teams ?? []),
-          ],
-        },
-        {
           text: 'Checklists',
           collapsed: false,
           items: [
@@ -225,14 +215,6 @@ export default withMermaid(defineConfig({
           items: [
             { text: 'Overview', link: '/reference/templates/' },
             ...(generated.templates ?? []),
-          ],
-        },
-        {
-          text: 'Workflows',
-          collapsed: false,
-          items: [
-            { text: 'Overview', link: '/reference/workflows/' },
-            ...(generated.workflows ?? []),
           ],
         },
         {

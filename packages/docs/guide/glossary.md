@@ -27,7 +27,7 @@ A markdown file containing quality criteria for evaluating phase artifacts. Each
 One of the four persona layers. Shapes how an agent thinks and what it prioritizes. Examples: systems-thinker, devils-advocate, user-empathetic, security-first, performance-focused, mentor-explainer.
 
 ### Compose
-The process of merging persona layers into a spawn prompt. The `/sniper-compose` command reads persona files, fills a template, and produces a complete agent instruction. Composition happens automatically during phase commands.
+The process of merging persona layers into a spawn prompt. `/sniper-flow` reads persona files, fills a template, and produces a complete agent instruction. Composition happens automatically during protocol execution.
 
 ### Convention
 A rule tracked in the memory system that agents must follow. Conventions have enforcement levels (spawn_prompt, review_gate, or both), applicability (which roles), and status (confirmed or candidate). Example: "All API routes use Zod validation middleware."
@@ -54,7 +54,7 @@ A large unit of work produced during the solve phase. Each epic contains 3-8 sto
 ## F
 
 ### Feature Lifecycle
-A scoped mini-lifecycle for adding a single feature to an existing project. Runs through 5 phases: scoping, planning (2-agent team), story generation, sprint, and merge-back. Tracked in `state.features[]` with SNPR-XXXX IDs. Invoked with `/sniper-feature`.
+A scoped mini-lifecycle for adding a single feature to an existing project. Runs through plan, implement, and review phases. Invoked with `/sniper-flow --protocol feature`.
 
 ### File Ownership
 Directory-level boundaries that restrict which files each agent can modify. Defined in the `ownership` section of config.yaml and injected into spawn prompts. Prevents teammates from stepping on each other's work during sprints.
@@ -65,7 +65,7 @@ A review gate mode that auto-advances if no critical failures. Warnings are note
 ## I
 
 ### Ingest
-A phase that reverse-engineers SNIPER artifacts from an existing codebase. Spawns a 3-agent team (code-archaeologist, architecture-cartographer, convention-miner) to produce brief, architecture, and conventions documents. Invoked with `/sniper-ingest`.
+A protocol that reverse-engineers SNIPER artifacts from an existing codebase. Runs scan, document, and extract phases to produce project documentation and conventions. Invoked with `/sniper-flow --protocol ingest`.
 
 ## L
 
@@ -75,7 +75,7 @@ A component of the persona composition system. There are four layers: process (r
 ## M
 
 ### Memory
-The system that tracks learned conventions, anti-patterns, and decisions across sprints. Memory content is filtered by role and injected into spawn prompts, allowing agents to improve over time. Managed with `/sniper-memory`.
+The system that tracks learned conventions, anti-patterns, and decisions across executions. Memory content is filtered by role and injected into spawn prompts, allowing agents to improve over time. Managed automatically by the framework and stored in `.sniper/memory/`.
 
 ### Merge-Back
 The final phase of a feature lifecycle where the architecture delta is merged into the main `docs/architecture.md`. Includes conflict detection if the architecture doc was modified since the feature started.
@@ -88,7 +88,7 @@ A named group of directory patterns in the `ownership` section of config.yaml (e
 ## P
 
 ### Phase
-A distinct stage in the project lifecycle with a specific purpose, team, outputs, and review gate. Standard phases: discover, plan, solve, sprint. Additional phases: ingest, feature, debug, audit.
+A distinct stage in a protocol with a specific purpose, agents, outputs, and review gate. Phases vary by protocol -- for example, the full protocol runs discover, plan, implement, and review.
 
 ### Phase Log
 The `state.phase_log` array in config.yaml that records every phase execution with context, start time, completion time, and approval status.
@@ -113,7 +113,7 @@ A quality checkpoint between phases. Evaluates artifacts against a checklist and
 The fully assembled instruction given to an agent when created. Contains merged persona layers, project memory, file ownership boundaries, task instructions, and coordination rules. Stored in `.sniper/spawn-prompts/`.
 
 ### Sprint
-The implementation phase where development agents write code and tests for selected stories. Sprints are repeating -- you run `/sniper-sprint` multiple times until all stories are complete.
+The implement phase where development agents write code and tests for selected stories. Run via `/sniper-flow`, which advances through the protocol's phases including implementation.
 
 ### Sprint Rules
 Guidelines defined in `sprint.yaml` that apply to all sprint agents. Include requirements like reading stories before coding, agreeing on API contracts, including tests, and messaging the lead on completion.

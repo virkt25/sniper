@@ -10,9 +10,11 @@ The full lifecycle workflow takes a project from initial research through implem
 ## Overview
 
 ```
-/sniper-init  -->  /sniper-discover  -->  /sniper-plan  -->  /sniper-solve  -->  /sniper-sprint
-   Setup           Phase 1               Phase 2            Phase 3             Phase 4 (repeating)
+/sniper-init  -->  /sniper-flow
+   Setup           Phases 1-4 (discover → plan → implement → review)
 ```
+
+`/sniper-flow` is the unified protocol engine that drives all four phases automatically. It auto-detects the appropriate protocol scope, or you can specify one explicitly with `--protocol <name>` (e.g., `--protocol full`).
 
 ## Step 1: Initialize
 
@@ -27,8 +29,10 @@ See [Getting Started](/guide/getting-started) for the full init walkthrough.
 ## Step 2: Discover (Phase 1)
 
 ```
-/sniper-discover
+/sniper-flow --protocol full
 ```
+
+The discover phase is the first phase executed by `/sniper-flow` when running the `full` protocol.
 
 **Team:** 3 parallel agents
 
@@ -60,9 +64,7 @@ If artifacts already exist from a previous run, agents enter amendment mode -- t
 
 ## Step 3: Plan (Phase 2)
 
-```
-/sniper-plan
-```
+After the discover phase completes and its gate passes, `/sniper-flow` automatically advances to the plan phase.
 
 **Team:** 4 agents with dependencies
 
@@ -91,15 +93,13 @@ The plan gate cannot be skipped, even with arguments. Bad architecture decisions
 
 **Model override:** The plan phase uses the `opus` model for all teammates, producing higher-quality output for these critical artifacts.
 
-## Step 4: Solve (Phase 3)
+## Step 4: Implement (Phase 3)
 
-```
-/sniper-solve
-```
+Once the plan gate passes, `/sniper-flow` advances to the implement phase.
 
 **Agent:** Single agent (you adopt the scrum-master persona)
 
-Unlike the other phases, solve does not spawn a team. You work directly as a scrum master, reading all Phase 2 artifacts and breaking them into implementable units.
+Unlike the other phases, the implement phase does not spawn a team. You work directly as a scrum master, reading all Phase 2 artifacts and breaking them into implementable units.
 
 **What it produces:**
 
@@ -122,11 +122,9 @@ Story format includes:
 
 A self-review runs against the story checklist before completing.
 
-## Step 5: Sprint (Phase 4 -- Repeating)
+## Step 5: Review (Phase 4 -- Repeating)
 
-```
-/sniper-sprint
-```
+After implementation completes, `/sniper-flow` advances to the review phase.
 
 **Team:** Dynamic based on story requirements
 
@@ -162,24 +160,25 @@ Available teammates:
 
 After the sprint review passes, a retrospective automatically runs if memory is enabled. Findings are codified into the memory system for future sprints.
 
-Repeat `/sniper-sprint` with new story selections until all stories are complete.
+Repeat `/sniper-flow --resume` or start a new `/sniper-flow` run with new story selections until all stories are complete.
 
 ## Recovery
 
 If any phase produces poor output:
 
-- Re-run the phase command to enter amendment mode
+- Use `/sniper-flow --resume` to resume an interrupted protocol from its last checkpoint
 - Completed files persist on disk -- only the conversation resets
-- Sprint failures affect only the current sprint's stories
+- Review failures affect only the current sprint's stories
 
 ## Alternative Workflows
 
 Not every project needs the full lifecycle. SNIPER also provides:
 
-- **`/sniper-ingest`** -- bootstrap artifacts from an existing codebase
-- **`/sniper-feature`** -- scoped mini-lifecycle for a single feature
-- **`/sniper-debug`** -- structured bug investigation
-- **`/sniper-audit`** -- refactoring, PR reviews, test audits, security audits, performance profiling
+- **`/sniper-flow --protocol ingest`** -- bootstrap artifacts from an existing codebase
+- **`/sniper-flow --protocol feature`** -- scoped mini-lifecycle for a single feature
+- **`/sniper-flow --protocol hotfix`** -- structured bug investigation and hot fixes
+- **`/sniper-flow --protocol refactor`** -- analyze, implement, and review refactoring changes
+- **`/sniper-flow --protocol explore`** -- discovery-only investigation (no implementation)
 
 ## Next Steps
 

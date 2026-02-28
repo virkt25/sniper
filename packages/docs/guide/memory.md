@@ -78,45 +78,40 @@ The `token_budget` controls how much memory context is included in each spawn pr
 
 ## Managing Memory
 
-Use `/sniper-memory` to view and manage memory:
+Memory is stored as YAML files in `.sniper/memory/` and managed automatically by the framework. You can also edit the files directly.
 
-### View Summary
+### Viewing Memory
 
-```
-/sniper-memory
-```
-
-Shows counts of conventions, anti-patterns, decisions, and retrospective history.
-
-### List Entries
+Run `/sniper-status` to see a summary of memory entries, or inspect the YAML files directly:
 
 ```
-/sniper-memory --conventions
-/sniper-memory --anti-patterns
-/sniper-memory --decisions
+.sniper/memory/
+  conventions.yaml      # Coding conventions
+  anti-patterns.yaml    # Known anti-patterns to avoid
+  decisions.yaml        # Architecture/design decisions
+  retros/               # Sprint retrospective reports
+  velocity.yaml         # Protocol execution history
 ```
 
-### Add Entries
+### Adding Entries
 
-```
-/sniper-memory --add convention "Use barrel exports for all module directories"
-/sniper-memory --add anti-pattern "Direct database queries in route handlers"
-/sniper-memory --add decision "Use Zod for validation" --rationale "Type-safe runtime validation"
-```
+Add entries directly to the YAML files. Each entry follows this format:
 
-### Remove and Promote
-
-```
-/sniper-memory --remove conv-003
-/sniper-memory --promote ap-002    # Promote candidate to confirmed
+```yaml
+# .sniper/memory/conventions.yaml
+- id: conv-001
+  text: "Use barrel exports for all module directories"
+  status: confirmed       # confirmed | candidate
+  source: manual
+  created: 2026-01-15
 ```
 
-### Export and Import
+### Automatic Memory Updates
 
-```
-/sniper-memory --export            # Export to sniper-memory-export.yaml
-/sniper-memory --import pack.yaml  # Import from file (deduplicates)
-```
+The retro-analyst agent automatically updates memory after protocol completion:
+- **High-confidence findings** (appeared in 3+ files) are added with `status: confirmed`
+- **Medium-confidence findings** are added with `status: candidate`
+- Duplicate entries are skipped
 
 ## Sprint Retrospectives
 
@@ -143,16 +138,12 @@ When `auto_retro` is enabled, a retrospective runs automatically after each spri
 When `auto_codify` is enabled:
 
 - **High-confidence findings** (appeared in 3+ files, consistent pattern) are automatically added to memory with `status: confirmed`
-- **Medium-confidence findings** are added with `status: candidate` -- they need manual promotion via `/sniper-memory --promote`
+- **Medium-confidence findings** are added with `status: candidate` -- promote them by changing `status` to `confirmed` in the YAML file
 - Duplicate entries are skipped
 
 ### Manual Retrospectives
 
-Trigger a retrospective manually:
-
-```
-/sniper-memory --retro
-```
+Retrospectives run automatically when `auto_retro` is enabled. If disabled, the retro-analyst agent can be triggered by re-running the protocol's review phase.
 
 ## Memory in Spawn Prompts
 

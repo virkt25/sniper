@@ -16,10 +16,8 @@ const pageCategory = computed(() => {
   if (path.startsWith('/guide/')) return 'Guide'
   if (path.startsWith('/reference/commands/')) return 'Commands'
   if (path.startsWith('/reference/personas/')) return 'Personas'
-  if (path.startsWith('/reference/teams/')) return 'Teams'
   if (path.startsWith('/reference/templates/')) return 'Templates'
   if (path.startsWith('/reference/checklists/')) return 'Checklists'
-  if (path.startsWith('/reference/workflows/')) return 'Workflows'
   return ''
 })
 </script>

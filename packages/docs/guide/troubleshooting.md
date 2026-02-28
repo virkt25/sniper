@@ -59,13 +59,13 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** The ownership section in config.yaml uses default paths (`src/backend/`, `src/frontend/`) that do not match your project.
 
-**Solution:** Update the `ownership` section manually, or run `/sniper-ingest` which auto-detects your project structure and updates ownership paths.
+**Solution:** Update the `ownership` section manually, or run `/sniper-flow --protocol ingest` which auto-detects your project structure and updates ownership paths.
 
 ### Stories assigned to wrong teammate
 
 **Problem:** During a sprint, stories are assigned to a teammate whose ownership does not match the story's file touches.
 
-**Solution:** The sprint command maps stories to teammates based on the "File Ownership" field in each story. If stories were created with incorrect ownership fields, edit the story files in `docs/stories/` to correct the ownership, then re-run `/sniper-sprint`.
+**Solution:** The sprint command maps stories to teammates based on the "File Ownership" field in each story. If stories were created with incorrect ownership fields, edit the story files in `docs/stories/` to correct the ownership, then re-run `/sniper-flow`.
 
 ## Review Gate Issues
 
@@ -104,7 +104,7 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** A warning appears about memory being truncated.
 
-**Solution:** Increase `memory.token_budget` in config.yaml (default: 2000). Alternatively, clean up low-priority entries with `/sniper-memory --remove {id}`.
+**Solution:** Increase `memory.token_budget` in config.yaml (default: 2000). Low-priority entries are automatically pruned by the retro-analyst agent during protocol retrospectives.
 
 ### Retrospective not running
 
@@ -113,7 +113,7 @@ Common issues and their solutions when working with SNIPER.
 **Solutions:**
 - Verify `memory.auto_retro: true` in config.yaml
 - Check that `memory.enabled: true`
-- If `auto_retro` is disabled, run manually with `/sniper-memory --retro`
+- If `auto_retro` is disabled, the retro-analyst agent will not run automatically after protocol completion
 
 ## Sprint Issues
 
@@ -121,7 +121,7 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** Sprint agents ask questions about requirements that should be in the story file.
 
-**Solution:** The solve phase should embed all context from PRD, architecture, and UX spec into each story. If stories reference other documents instead of embedding content, re-run `/sniper-solve` or manually edit the story files to embed the missing context.
+**Solution:** The solve phase should embed all context from PRD, architecture, and UX spec into each story. If stories reference other documents instead of embedding content, manually edit the story files to embed the missing context, or re-run the protocol with `/sniper-flow`.
 
 ### API contract misalignment
 
