@@ -1,0 +1,13 @@
+name: ingest-extract
+description: Ingest extract phase quality gate — verifies conventions were extracted
+
+checks:
+  - id: conventions_exist
+    description: Conventions file exists
+    check: file:.sniper/conventions.yaml
+    blocking: true
+
+  - id: conventions_nonempty
+    description: Conventions file is not empty
+    command: "test -s .sniper/conventions.yaml"
+    blocking: true

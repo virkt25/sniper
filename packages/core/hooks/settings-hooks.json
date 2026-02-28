@@ -4,7 +4,7 @@
       {
         "matcher": "Write",
         "description": "Enforce lead orchestrator write scope restriction",
-        "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q '\"file_path\"' && ! echo \"$CLAUDE_TOOL_INPUT\" | grep -q '.sniper/'; then echo 'BLOCK: Lead orchestrator can only write to .sniper/ directory'; exit 1; fi",
+        "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q '\"file_path\"' && ! echo \"$CLAUDE_TOOL_INPUT\" | grep -q '.sniper/'; then echo 'BLOCK: Lead orchestrator can only write to .sniper/ directory'; exit 2; fi",
         "agent": "lead-orchestrator"
       }
     ],

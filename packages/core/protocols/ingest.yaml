@@ -9,7 +9,7 @@ phases:
       - analyst
     spawn_strategy: single
     gate:
-      checklist: discover
+      checklist: ingest-scan
       human_approval: false
     outputs:
       - docs/codebase-overview.md
@@ -20,7 +20,7 @@ phases:
       - analyst
     spawn_strategy: single
     gate:
-      checklist: discover
+      checklist: ingest-document
       human_approval: false
     outputs:
       - docs/spec.md
@@ -31,7 +31,7 @@ phases:
       - analyst
     spawn_strategy: single
     gate:
-      checklist: discover
+      checklist: ingest-extract
       human_approval: false
     outputs:
       - .sniper/conventions.yaml

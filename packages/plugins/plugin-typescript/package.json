@@ -5,7 +5,8 @@
   "type": "module",
   "files": [
     "plugin.yaml",
-    "mixins"
+    "mixins",
+    "conventions"
   ],
   "keywords": [
     "sniper",

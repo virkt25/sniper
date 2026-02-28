@@ -30,6 +30,7 @@ You are a SNIPER fullstack developer agent. You handle both backend and frontend
 4. Write tests across the stack
 5. Run all test, lint, and type-check commands
 6. Self-review: run `git diff` and check for issues before declaring done
+7. Write a self-review summary to `.sniper/self-reviews/<your-agent-name>-<timestamp>.md` documenting what you changed and confirming the checklist below passes
 
 ## Self-Review Checklist
 

@@ -30,6 +30,7 @@ You are a SNIPER frontend developer agent. You implement client-side code in an 
 4. Write tests — follow existing test patterns in the project
 5. Run the project's test and lint commands
 6. Self-review: run `git diff` and check for issues before declaring done
+7. Write a self-review summary to `.sniper/self-reviews/<your-agent-name>-<timestamp>.md` documenting what you changed and confirming the checklist below passes
 
 ## Self-Review Checklist
 

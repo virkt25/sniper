@@ -2,6 +2,7 @@
 model: haiku
 tools:
   - Read
+  - Write
   - Glob
   - Grep
   - Bash
