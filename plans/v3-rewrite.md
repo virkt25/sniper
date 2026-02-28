@@ -245,17 +245,36 @@ Human declares intent (natural language or spec file)
   → Human intervenes only at approval gates and when asked
 ```
 
-**Read-only orchestrator** (inspired by Roo Code, adapted): The lead agent can inspect but never implement.
+**Read-only orchestrator with scoped writes** (inspired by Roo Code, adapted): The lead agent can inspect freely and write coordination artifacts, but never implement project code.
 
-| Tool | Lead access | Why |
-|---|---|---|
-| `Task` | Yes | Core delegation mechanism |
-| `SendMessage` | Yes | Agent coordination |
-| `Read`, `Glob`, `Grep` | Yes | Informed routing decisions — read specs to assign the right agent, check artifacts exist before advancing |
-| `Edit`, `Write` | **No** | Prevents "I'll just do it myself" instead of delegating |
-| `Bash` | **No** | Prevents running builds/tests instead of delegating — hooks and qa-engineer handle verification |
+| Tool | Lead access | Scope | Why |
+|---|---|---|---|
+| `Task` | Yes | Unrestricted | Core delegation mechanism |
+| `SendMessage` | Yes | Unrestricted | Agent coordination |
+| `Read`, `Glob`, `Grep` | Yes | Unrestricted | Informed routing decisions — read specs to assign the right agent, check artifacts exist before advancing |
+| `Write` | **Scoped** | `.sniper/` paths only | Write checkpoints, status files, task breakdowns, coordination artifacts. Enforced by `PreToolUse` hook (see below). |
+| `Edit` | **No** | — | No editing project code. Prevents "I'll just do it myself" instead of delegating |
+| `Bash` | **No** | — | No running builds/tests. Hooks and qa-engineer handle verification |
 
-This prevents context poisoning from implementation details (diffs, build output) while allowing the orchestrator to make informed decisions. Implementation agents still return concise summaries via the boomerang pattern — the lead reads artifacts only when it needs to make a routing or gating decision, not to review code.
+**Why scoped writes instead of no writes:** A fully read-only orchestrator creates unnecessary overhead. The lead needs to write coordination artifacts — checkpoint updates, task decomposition files, live status — and delegating each of these to a full implementation agent adds latency and cost for trivial operations. Restricting writes to `.sniper/` preserves the core benefit (no context poisoning from implementation code) while eliminating the awkwardness.
+
+**Enforcement via PreToolUse hook:**
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "description": "Lead orchestrator can only write to .sniper/ paths",
+        "command": "bash -c 'if [[ \"$TOOL_INPUT\" != *\".sniper/\"* ]]; then echo \"Lead agent blocked: Write only allowed to .sniper/ paths\" >&2; exit 2; fi'"
+      }
+    ]
+  }
+}
+```
+
+This prevents context poisoning from implementation details (diffs, build output) while allowing the orchestrator to make informed decisions and manage its own coordination state. Implementation agents still return concise summaries via the boomerang pattern — the lead reads artifacts only when it needs to make a routing or gating decision, not to review code.
 
 ### 3.3 Protocol Selection (Automatic)
 
@@ -282,6 +301,83 @@ Protocol selection happens in the `/sniper-flow` skill. The human can override w
 **Large work (full, ingest)**: Full Agent Team via `TeamCreate`. Shared task list. Inter-agent messaging. Lead coordinates but does not implement.
 
 This eliminates the v2 problem of spinning up a full team for a 5-line fix.
+
+### 3.5 Merge Strategy for Parallel Worktrees
+
+When multiple agents work in isolated worktrees, their changes must be integrated. This is the hardest problem in parallel agent execution — textual merge is straightforward, but semantic conflicts (Agent A changes a return type that Agent B depends on) require understanding.
+
+**Three-layer merge resolution:**
+
+**Layer 1 — Conflict avoidance (routing):** The orchestrator uses the `routing` table in `config.yaml` to assign tasks to agents with minimal file overlap. Stories are decomposed with explicit file boundaries where possible. This eliminates ~70% of potential conflicts before they happen.
+
+**Layer 2 — Automated textual merge:** When agents complete their work, a `PostToolUse` hook on the final commit attempts `git merge --no-commit` of each worktree branch into the target branch. If the merge is clean, it proceeds. If there are textual conflicts, they're flagged.
+
+**Layer 3 — Agent-assisted semantic resolution:** When conflicts are detected (textual or semantic), the lead orchestrator spawns a dedicated `merge-resolver` subagent with:
+- The diff from both branches
+- The original stories/specs for both tasks
+- The conflict markers or type mismatches
+- Instructions to resolve in favor of the spec, not either implementation
+
+```yaml
+# Merge resolution flow
+agent_completes:
+  → hook: attempt git merge --no-commit into target branch
+  → if clean: fast-forward, done
+  → if textual conflict:
+      → spawn merge-resolver with both diffs + specs
+      → merge-resolver resolves and commits
+      → re-run tests on merged result
+  → if semantic conflict (detected by type checker / linter post-merge):
+      → spawn merge-resolver with type errors + both implementations
+      → merge-resolver fixes the integration
+      → re-run tests on merged result
+  → if merge-resolver fails after 2 attempts:
+      → flag to human with clear description of the conflict
+```
+
+**Semantic conflict detection:** After a clean textual merge, the hook runs the project's type checker and linter (from the language plugin's `commands.typecheck` and `commands.lint`). If these fail on the merged result but passed on each branch individually, that's a semantic conflict — the merge-resolver agent handles it.
+
+**Ordering matters:** Agents don't all finish simultaneously. The hook merges each agent's work as it completes, so later agents merge into an already-integrated base. This reduces N-way conflicts to a series of 2-way merges.
+
+### 3.6 Cost Guardrails
+
+For Sphere 6 autonomous execution, cost must be enforced, not just tracked. Agents can loop, explore excessively, or regenerate content — burning tokens with no human in the loop.
+
+**Three-tier cost enforcement:**
+
+| Tier | Threshold | Action |
+|---|---|---|
+| **Budget warning** | 70% of protocol budget consumed | Lead agent notified, human gets status update |
+| **Budget soft cap** | 100% of protocol budget consumed | Agents instructed to wrap up current unit of work and checkpoint. No new task spawning. |
+| **Budget hard cap** | 120% of protocol budget consumed | All agents halted. Checkpoint written. Human must `/sniper-flow --resume` with explicit budget extension. |
+
+**Configuration:**
+
+```yaml
+# config.yaml
+cost:
+  budgets:
+    full: 2000000      # 2M tokens max for full protocol
+    feature: 800000     # 800K tokens
+    patch: 200000       # 200K tokens
+    hotfix: 100000      # 100K tokens
+    explore: 500000     # 500K tokens
+    refactor: 600000    # 600K tokens
+    ingest: 1000000     # 1M tokens
+  hard_cap_multiplier: 1.2   # Hard cap = budget × multiplier
+  alert_threshold: 0.7       # Warn at 70% consumed
+```
+
+**Enforcement mechanism:** A `PostToolUse` hook on all agent tool calls increments a counter in `.sniper/checkpoints/<protocol-id>/cost.yaml`. The hook:
+1. Reads current cumulative token usage from the checkpoint
+2. Compares against the protocol budget from `config.yaml`
+3. At 70%: appends a warning to the agent's next prompt
+4. At 100%: exits with code 2 (blocks further tool use), writes checkpoint
+5. At 120%: kills agent processes, writes final checkpoint
+
+**Per-agent sub-budgets:** The protocol budget is divided across agents based on the spawning strategy. A `feature` protocol with 800K budget and 3 agents gets ~250K per agent (with 50K reserved for the lead's coordination). Individual agents hitting their sub-budget are halted and checkpointed without stopping other agents.
+
+**Loop detection:** If an agent makes >5 consecutive tool calls without producing a new file or meaningful diff (same files read repeatedly, same edits attempted), the hook flags it as a potential loop and pauses the agent. The lead is notified to reassign or refine the task.
 
 ---
 
@@ -524,7 +620,38 @@ Scan → Map → Document → Extract → Plan → Implement → Self-Review →
    - Level 1 (Quick): Directory structure, package.json/Cargo.toml/pyproject.toml, README, entry points
    - Level 2 (Standard): Key modules, API surface, database schema, test coverage, dependency graph
    - Level 3 (Deep): Control flow analysis, dead code detection, security surface, performance hotspots
-2. **Map** (inspired by Aider's RepoMap): Build a graph-ranked repository map. Uses code structure analysis to extract definitions/references, builds a dependency graph, and ranks files by relevance using PageRank with personalization. Output: `.sniper/artifacts/repo-map.md` — injected as Layer 1 context for all subsequent agent sessions. Includes trigger tables mapping file paths to appropriate agents (from Codified Context research).
+2. **Map** (inspired by Aider's RepoMap): Build a ranked repository map that helps agents navigate the codebase without expensive file exploration. Output: `.sniper/artifacts/repo-map.md` — injected as Layer 1 context for all subsequent agent sessions. Includes trigger tables mapping file paths to appropriate agents (from Codified Context research).
+
+   **Implementation strategy — three tiers, not PageRank:**
+
+   Aider's approach (tree-sitter + NetworkX + PageRank) requires native tooling that Claude Code agents don't have. SNIPER uses a pragmatic three-tier approach that achieves 80% of the value with tools agents already have:
+
+   **Tier 1 — Structure map (always available, ~500 tokens):** The code-archaeologist agent runs directory listing + file counting via Bash to produce a weighted directory tree. Files are annotated with type (entry point, config, test, component, route, model, migration) based on path patterns and naming conventions. This tier requires zero external tooling.
+
+   ```
+   src/
+     api/              [14 files, 2.1k LOC] — API routes (entry: index.ts)
+       routes/          [8 files] — Express route handlers
+       middleware/       [4 files] — Auth, validation, error handling
+     components/        [23 files, 4.8k LOC] — React components
+       auth/            [5 files] — Login, register, OAuth flows
+       dashboard/       [12 files] — Main dashboard views
+     db/                [6 files, 800 LOC] — Database (Prisma schema + migrations)
+     services/          [9 files, 1.5k LOC] — Business logic layer
+   ```
+
+   **Tier 2 — Symbol map (language plugin available, ~2000 tokens):** When a language plugin is installed, the code-archaeologist uses the plugin's `commands.symbols` command (e.g., `ctags -R --output-format=json` for TypeScript, `jedi` for Python, `gopls` for Go) to extract exported symbols — function names, class names, type definitions, API endpoints. These are grouped by module and ranked by reference count (how many other files import them). The language plugin is responsible for providing the symbol extraction command; the framework just runs it and formats the output.
+
+   ```yaml
+   # plugin.yaml addition for symbol extraction
+   provides:
+     commands:
+       symbols: "ctags -R --output-format=json --languages=typescript src/"
+   ```
+
+   **Tier 3 — Dependency graph (deep scan, ~3000 tokens):** For Level 3 scans, the code-archaeologist reads import/require statements via Grep across all source files, builds a simple adjacency list (file A imports file B), and identifies hub files (imported by >5 others) and leaf files (import nothing). No PageRank needed — hub count is sufficient for ranking. The top 20 hub files form the "critical path" of the codebase.
+
+   **Why not PageRank:** PageRank adds complexity (requires a graph library, matrix operations) for marginal benefit over simple hub-count ranking in codebases under 100K LOC. For larger codebases, the Tier 2 symbol map with reference counting achieves similar prioritization. If a project needs true PageRank (500K+ LOC monorepos), this can be added as a plugin that provides a custom `commands.repomap` command, keeping the core framework simple.
 3. **Document**: Produces AI-optimized codebase documentation:
    - `codebase-overview.md` — architecture, key modules, data flow
    - `api-surface.md` — all public APIs, endpoints, contracts
@@ -725,9 +852,244 @@ Token usage and wall-clock time per protocol type are tracked. After 5+ completi
 
 ---
 
-## 10. Seven Spheres Mapping
+## 10. Execution Visibility
 
-### 10.1 Sphere 6 — Concrete UX in SNIPER v3
+### 10.1 The Problem
+
+A `full` protocol implementation phase can run for 60+ minutes with multiple agents working in parallel. Without real-time visibility, the human has no idea whether agents are progressing, stuck, or burning tokens on dead ends. `/sniper-status` exists but is pull-based — the human has to remember to check.
+
+### 10.2 Live Progress Stream
+
+The lead orchestrator maintains a **live status file** at `.sniper/checkpoints/<protocol-id>/live-status.yaml`, updated after every significant event (task assigned, task completed, gate result, agent spawned/halted):
+
+```yaml
+# .sniper/checkpoints/feat-042/live-status.yaml
+protocol_id: feat-042
+protocol: feature
+phase: implement
+started: 2026-02-27T14:30:00Z
+elapsed_minutes: 23
+budget:
+  allocated: 800000
+  consumed: 312000
+  percent: 39%
+agents:
+  - name: backend-dev
+    status: in_progress
+    current_task: "Implement OAuth2 callback route"
+    files_modified: 3
+    last_activity: 2026-02-27T14:52:00Z
+  - name: frontend-dev
+    status: in_progress
+    current_task: "Add Google sign-in button to login page"
+    files_modified: 1
+    last_activity: 2026-02-27T14:51:00Z
+  - name: qa-engineer
+    status: waiting
+    current_task: "Write integration tests for OAuth flow"
+    blocked_by: [backend-dev]
+tasks:
+  total: 6
+  completed: 2
+  in_progress: 2
+  pending: 2
+recent_events:
+  - "14:45 — backend-dev completed: POST /auth/google/callback route"
+  - "14:47 — qa-engineer assigned: write integration tests (blocked on backend-dev)"
+  - "14:50 — frontend-dev started: Google sign-in button component"
+```
+
+### 10.3 Push Notifications
+
+The lead orchestrator sends the human a **status summary** at configurable intervals and on key events:
+
+| Event | Notification |
+|---|---|
+| Phase starts | "Implementation phase started. 3 agents spawned, 6 tasks queued." |
+| Task completed | "backend-dev completed OAuth callback route (2/6 tasks done, 39% budget used)" |
+| Budget warning (70%) | "Budget at 70%. 4/6 tasks complete. Estimated remaining: ~180K tokens." |
+| Agent stalled | "frontend-dev has not produced output in 10 minutes. Investigating." |
+| Gate result | "Review gate: PASS. Ready for final review." |
+| Budget cap hit | "Budget exhausted at 100%. 5/6 tasks complete. Run `/sniper-flow --resume` to continue." |
+
+Notifications use `SendMessage` to the human (in team mode) or direct output (in single-session mode). They're concise — one line per event, no implementation details.
+
+**Configuration:**
+
+```yaml
+# config.yaml
+visibility:
+  progress_interval_minutes: 10  # Periodic summary every N minutes (0 = off)
+  notify_on_task_complete: true   # Push on each task completion
+  notify_on_budget_threshold: true
+  notify_on_agent_stall: true
+  stall_timeout_minutes: 10       # How long without output = stalled
+```
+
+### 10.4 `/sniper-status` Enhancements
+
+The `/sniper-status` skill reads `live-status.yaml` and presents a formatted summary. For active protocols, it shows real-time state. For completed protocols, it shows the final checkpoint summary. This is the pull-based complement to push notifications — the human can check anytime without interrupting agents.
+
+---
+
+## 11. Review Gate Implementation
+
+The plan references hooks as the enforcement mechanism for review gates 20+ times. This section specifies the concrete implementation.
+
+### 11.1 Gate Types
+
+| Gate | Trigger | Runs When |
+|---|---|---|
+| **Self-review** | Agent-internal | Before an agent marks a task complete |
+| **Phase gate** | `Stop` hook | When all tasks in a phase are marked complete |
+| **Approval gate** | `Stop` hook + human prompt | On phases marked `plan_approval: true` or `human_review: true` |
+
+### 11.2 Self-Review (Agent-Internal)
+
+Every implementation agent's system prompt includes a mandatory self-review step. Before calling `TaskUpdate(status: completed)`, the agent must:
+
+1. Re-read every file it modified
+2. Run the project's test command (from plugin `commands.test`)
+3. Run the project's lint command (from plugin `commands.lint`)
+4. Check its changes against the story's acceptance criteria
+5. Write a self-review summary to `.sniper/artifacts/<protocol-id>/<task-id>-self-review.md`
+
+This is enforced by convention (in the agent prompt), not by hooks — the agent must do it before marking complete. The phase gate then validates that self-review artifacts exist.
+
+### 11.3 Phase Gate Hook (Concrete Implementation)
+
+The phase gate is a `Stop` hook registered in `.claude/settings.json`. It fires when the lead orchestrator's turn ends (all tasks complete, ready to advance).
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "agent",
+        "agent": ".claude/agents/gate-reviewer.md",
+        "description": "Review gate — validates phase completion before advancing"
+      }
+    ]
+  }
+}
+```
+
+The `gate-reviewer` agent is a dedicated agent (not the lead, not an implementation agent) that runs as a hook. It:
+
+```markdown
+---
+name: gate-reviewer
+description: Validates phase completion criteria before allowing advancement.
+model: haiku
+permissionMode: bypassPermissions
+allowed-tools: Read, Glob, Grep, Bash
+---
+
+You are a review gate validator. You validate that a phase is complete and meets quality criteria.
+
+## Process
+
+1. Read the active protocol checkpoint from `.sniper/checkpoints/`
+2. Identify the current phase and its checklist from `.sniper/checklists/`
+3. For each checklist item, verify:
+
+### Artifact checks (all phases)
+- [ ] All required artifacts exist at their expected paths
+- [ ] Artifacts are within token budget limits
+- [ ] Self-review artifacts exist for every completed task
+
+### Code checks (implement phase)
+- [ ] `{commands.test}` passes (run via Bash)
+- [ ] `{commands.lint}` passes (run via Bash)
+- [ ] `{commands.typecheck}` passes if available (run via Bash)
+- [ ] No files modified outside the agent's worktree
+- [ ] Git diff is non-empty (something was actually implemented)
+
+### Spec checks (plan phase)
+- [ ] Plan artifact contains all required sections (Context, Decisions, Specification)
+- [ ] EARS acceptance criteria are present and use correct notation
+- [ ] Open questions section is empty or explicitly deferred
+
+## Output
+
+Write result to `.sniper/checkpoints/<protocol-id>/gate-<phase>.yaml`:
+
+```yaml
+gate: implement
+result: PASS | FAIL
+timestamp: <now>
+checks:
+  - name: tests_pass
+    result: PASS
+  - name: lint_clean
+    result: PASS
+  - name: self_reviews_exist
+    result: FAIL
+    detail: "Missing self-review for task-003 (frontend-dev)"
+failures: 1
+blocking_failures:
+  - "Missing self-review for task-003"
+```
+
+## Decision
+
+- If all checks PASS: exit 0 (allows the lead to continue)
+- If any check FAIL: exit 2 (blocks the lead from continuing)
+  - The lead reads the gate result file and routes feedback to the failing agent
+```
+
+### 11.4 Approval Gate (Human-in-the-Loop)
+
+For phases marked with human gates (e.g., `plan-approval`, `final-review`), the phase gate hook writes `result: PENDING_APPROVAL` instead of PASS/FAIL. The lead orchestrator then:
+
+1. Reads the gate result
+2. Summarizes findings for the human
+3. Asks for explicit approval: "Plan is ready for review. Gate checks passed. Approve to continue, or provide feedback."
+4. On approval: writes `result: APPROVED` to gate file, advances
+5. On feedback: routes feedback to relevant agents, they revise, gate re-runs
+
+### 11.5 Gate Checklist Files
+
+Each phase has a checklist file in `packages/core/checklists/` that the gate-reviewer agent reads:
+
+```yaml
+# checklists/implement.yaml
+phase: implement
+checks:
+  - id: tests_pass
+    description: "All tests pass"
+    command: "{commands.test}"
+    blocking: true
+  - id: lint_clean
+    description: "No linting errors"
+    command: "{commands.lint}"
+    blocking: true
+  - id: typecheck
+    description: "Type checker passes"
+    command: "{commands.typecheck}"
+    blocking: true
+    optional: true  # Only if plugin provides typecheck command
+  - id: self_reviews_exist
+    description: "Self-review artifact exists for every completed task"
+    check: "glob:.sniper/artifacts/{protocol_id}/*-self-review.md"
+    blocking: true
+  - id: no_todo_comments
+    description: "No TODO or FIXME comments in new code"
+    check: "grep_diff:TODO|FIXME|HACK|XXX"
+    blocking: false  # Warning, not blocking
+  - id: diff_nonempty
+    description: "Changes were actually made"
+    check: "git_diff_nonempty"
+    blocking: true
+```
+
+The `{commands.*}` placeholders are resolved from the active language plugin. The `blocking` field determines whether a failure is a hard block (exit 2) or a warning included in the gate report.
+
+---
+
+## 12. Seven Spheres Mapping
+
+### 12.1 Sphere 6 — Concrete UX in SNIPER v3
 
 The human's interaction surface is reduced to three activities:
 
@@ -764,7 +1126,7 @@ The human never:
 - Manages agent lifecycle
 - Monitors agent progress (unless they want to)
 
-### 10.2 Sphere 7 — Aspirational
+### 12.2 Sphere 7 — Aspirational
 
 Multi-human coordination is the frontier. Concrete capabilities v3 should build toward:
 
@@ -776,7 +1138,7 @@ Multi-human coordination is the frontier. Concrete capabilities v3 should build 
 
 v3 MVP does not include Sphere 7 features. The architecture should not preclude them.
 
-### 10.3 Additional Innovations
+### 12.3 Additional Innovations
 
 **Multi-model review gate**: Inspired by Codev's 3-way consultation. The review gate skill can optionally invoke a secondary model (via MCP or headless Claude) to review agent output. Configuration:
 
@@ -794,9 +1156,9 @@ review:
 
 ---
 
-## 11. Migration Path
+## 13. Migration Path
 
-### 11.1 v2 → v3 Migration
+### 13.1 v2 → v3 Migration
 
 ```bash
 sniper migrate
@@ -814,7 +1176,7 @@ The migrate command:
 
 5. **Artifacts**: Existing artifacts in `.sniper/artifacts/` are preserved. The new protocol system can read them.
 
-### 11.2 Breaking Changes
+### 13.2 Breaking Changes
 
 - `/sniper-sprint` is replaced by `/sniper-flow` (the sprint concept is gone)
 - `/sniper-solve` is absorbed into `/sniper-flow` (story creation is a phase, not a command)
@@ -823,25 +1185,28 @@ The migrate command:
 - Spawn prompt template is replaced by agent definition files
 - `settings.template.json` is replaced by hooks configuration
 
-### 11.3 Compatibility
+### 13.3 Compatibility
 
 v2 commands will work for one major version after v3 ships, with deprecation warnings pointing to v3 equivalents. The `sniper migrate` command handles the structural migration.
 
 ---
 
-## 12. MVP Scope
+## 14. MVP Scope
 
-### 12.1 MVP (v3.0) — Ships First
+### 14.1 MVP (v3.0) — Ships First
 
 | Component | Scope |
 |---|---|
 | **Skills** | `/sniper-init`, `/sniper-flow`, `/sniper-status`, `/sniper-review` |
 | **Protocols** | `full`, `feature`, `patch`, `ingest` |
-| **Agents** | 8 core agents: analyst, architect, pm, backend-dev, frontend-dev, fullstack-dev, qa, code-reviewer + **read-only lead orchestrator** |
+| **Agents** | 8 core agents: analyst, architect, pm, backend-dev, frontend-dev, fullstack-dev, qa, code-reviewer + **read-only lead orchestrator** + **gate-reviewer** (hook agent) |
 | **Mixins** | 3 cognitive: security-first, performance-focused, devils-advocate |
 | **Checkpoints** | Event log + phase snapshots with resume support, structured artifact trail, Factory.ai-style context summaries |
 | **Token management** | Two-threshold compression (T_retained/T_max) per phase |
-| **Review gates** | Hook-based enforcement + **mandatory self-review before gate** |
+| **Cost guardrails** | Three-tier budget enforcement (warn/soft cap/hard cap) with per-protocol budgets, per-agent sub-budgets, loop detection |
+| **Review gates** | Concrete `gate-reviewer` hook agent + YAML checklists + **mandatory self-review before gate** + approval gates for human-in-the-loop phases |
+| **Merge strategy** | Three-layer merge resolution (routing avoidance → automated textual → agent-assisted semantic) with post-merge type checking |
+| **Execution visibility** | Live status file, push notifications on key events, configurable progress intervals, stall detection |
 | **Auto-retros** | Stop hook triggers retro after protocol completion |
 | **Memory** | Conventions, anti-patterns, decisions (carried from v2) |
 | **Lean templates** | Token-budgeted templates with **EARS acceptance criteria** |
@@ -851,7 +1216,7 @@ v2 commands will work for one major version after v3 ships, with deprecation war
 | **Plugin** | Plugin interface spec + TypeScript plugin |
 | **Docs** | Migration guide, getting started, protocol reference |
 
-### 12.2 v3.1 — Fast Follow
+### 14.2 v3.1 — Fast Follow
 
 | Component | Scope |
 |---|---|
@@ -865,7 +1230,7 @@ v2 commands will work for one major version after v3 ships, with deprecation war
 | **Self-healing CI** | PostToolUse hook for automatic lint-test-fix loops (Aider pattern) |
 | **Domain packs** | Updated sales-dialer pack for v3 plugin interface |
 
-### 12.3 v3.2+ — Roadmap
+### 14.3 v3.2+ — Roadmap
 
 | Component | Scope |
 |---|---|
@@ -914,10 +1279,15 @@ Based on comprehensive research across 12 frameworks and 7 academic/industry sou
 | Persona composition? | Config-driven mixin concatenation | Simpler than v2's read-4-files-and-interpolate-template approach. Transparent, debuggable, version-controlled. |
 | Sprint concept? | Removed entirely | Sprints are artificial ceremony. Protocols with phases achieve the same structure without the agile theater. |
 | Document length? | Two-threshold compression | More nuanced than hard caps. Factory.ai research shows structured summaries outperform both Anthropic and OpenAI's native compression. |
-| Lead agent capabilities? | Read-only (Task + Read/Glob/Grep, no Edit/Write/Bash) | Roo Code's zero-capability is too extreme — the lead needs to read artifacts for informed routing. But no implementation tools prevents "I'll just do it myself" and context poisoning from diffs/build output. |
+| Lead agent capabilities? | Read-only + scoped writes to `.sniper/` (Task + Read/Glob/Grep + Write to `.sniper/` only, no Edit/Bash) | Roo Code's zero-capability is too extreme — the lead needs to read artifacts and write coordination state (checkpoints, status, task breakdowns). PreToolUse hook enforces path restriction. No implementation tools prevents context poisoning. |
+| Repository map? | Three-tier pragmatic approach (structure → symbols → dependency graph), not PageRank | Aider's tree-sitter + NetworkX + PageRank requires native tooling agents don't have. Tier 1 (directory tree) needs zero tooling. Tier 2 (symbol extraction) uses language plugin commands. Tier 3 (import graph) uses Grep. Covers 80% of PageRank's value. Full PageRank available as plugin for 500K+ LOC monorepos. |
 | Acceptance criteria format? | EARS notation (mandatory) | Amazon Kiro's adoption proves this forces edge case coverage. Five patterns cover all requirement types. Low effort, high impact. |
 | Checkpoint format? | Event log + phase snapshots | OpenHands proves event sourcing enables recovery from any point. Phase snapshots provide fast respawn. Both needed. |
 | File tracking? | Separate structured trail | Factory.ai research proves ALL compression methods fail at artifact tracking (2.19-2.45/5.0). Must be tracked outside conversation context. |
+| Cost enforcement? | Three-tier budget with hard cap | Sphere 6 autonomous execution requires cost guardrails, not just tracking. Agents can loop and burn tokens with no human in the loop. Hard cap forces checkpoint and human re-authorization. |
+| Merge strategy? | Three-layer (avoidance → textual → semantic) | Parallel worktrees will conflict. Routing avoidance prevents most conflicts. Automated merge handles textual. Agent-assisted resolution handles semantic. Human escalation for failures. |
+| Execution visibility? | Push notifications + live status file | Sphere 6 means the human isn't watching. Push notifications surface key events without requiring the human to poll. Live status file enables pull-based inspection when desired. |
+| Review gate implementation? | Dedicated `gate-reviewer` hook agent + YAML checklists | Concrete, testable, auditable. The gate agent runs tests/lint/typecheck, validates artifacts exist, and writes structured results. Checklists are version-controlled and plugin-extensible. |
 
 ## Appendix B: File Structure After `sniper init`
 
@@ -933,16 +1303,26 @@ project/
       qa-engineer.md
       code-reviewer.md
       retro-analyst.md
+      gate-reviewer.md      # Hook agent for review gate validation
     skills/
       sniper-init/SKILL.md
       sniper-flow/SKILL.md
       sniper-status/SKILL.md
       sniper-review/SKILL.md
-    settings.json           # Hooks for review gates, auto-retro, formatting
+    settings.json           # Hooks for review gates, auto-retro, cost enforcement
     settings.local.json     # User-specific overrides (gitignored)
   .sniper/
-    config.yaml             # Project config (agents, protocols, routing)
+    config.yaml             # Project config (agents, protocols, routing, cost budgets)
+    checklists/             # Gate checklist definitions per phase
+      implement.yaml
+      plan.yaml
+      review.yaml
     checkpoints/            # Protocol execution state
+      <protocol-id>/
+        events.jsonl        # Append-only event log
+        cost.yaml           # Running cost tracker
+        live-status.yaml    # Real-time progress for visibility
+        gate-<phase>.yaml   # Gate results per phase
     artifacts/              # Generated specs, plans, stories
     memory/
       conventions.yaml
