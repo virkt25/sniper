@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const tagline = 'Write specs, not code. SNIPER orchestrates Claude Code agent teams through structured phases.'
+const tagline = 'Protocol-driven AI development. SNIPER orchestrates Claude Code agent teams through structured lifecycles.'
 const displayed = ref('')
 const showCursor = ref(true)
 const reducedMotion = ref(false)
@@ -44,6 +44,7 @@ onMounted(() => {
           <circle cx="60" cy="60" r="4" class="center-dot" />
         </svg>
       </div>
+      <span class="hero-version-badge">v3</span>
       <h1 class="hero-title">SNIPER</h1>
       <p class="hero-tagline">
         {{ displayed }}<span v-if="showCursor" class="cursor">|</span>
@@ -219,6 +220,20 @@ onMounted(() => {
   bottom: 32px;
   color: var(--vp-c-text-3);
   animation: fade-up 1s ease-out 1.5s both, bounce-down 2s ease-in-out 2.5s infinite;
+}
+
+.hero-version-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--sniper-brand-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+  font-family: var(--sniper-font-mono);
 }
 
 @keyframes bounce-down {

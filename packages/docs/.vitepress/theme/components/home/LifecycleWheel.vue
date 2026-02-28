@@ -2,12 +2,12 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const phases = [
-  { name: 'Spawn', letter: 'S', color: '#6366f1', desc: 'Initialize your project. SNIPER scaffolds config, personas, and teams tailored to your codebase.', cmd: '/sniper-init' },
-  { name: 'Navigate', letter: 'N', color: '#818cf8', desc: 'Discover & plan. Agent teams research the market, define architecture, and produce specs in parallel.', cmd: '/sniper-discover' },
-  { name: 'Implement', letter: 'I', color: '#a78bfa', desc: 'Shard into stories. A scrum master breaks specs into self-contained, dependency-ordered stories.', cmd: '/sniper-solve' },
-  { name: 'Parallelize', letter: 'P', color: '#c084fc', desc: 'Sprint with parallel agents. Backend, frontend, infra, and QA agents implement stories simultaneously.', cmd: '/sniper-sprint' },
-  { name: 'Evaluate', letter: 'E', color: '#f97316', desc: 'Quality gates. Strict and flexible gates ensure code review, tests, and spec compliance at every phase.', cmd: '/sniper-review' },
-  { name: 'Release', letter: 'R', color: '#fb923c', desc: 'Ship with confidence. All artifacts verified, PRs created, and documentation generated automatically.', cmd: '/sniper-doc' },
+  { name: 'Spawn', letter: 'S', color: '#6366f1', desc: 'Initialize your project. SNIPER scaffolds agents, protocols, and templates tailored to your codebase.', cmd: '/sniper-init' },
+  { name: 'Navigate', letter: 'N', color: '#818cf8', desc: 'Discover & plan. Agent teams research the domain, define architecture, and produce specs in parallel.', cmd: '/sniper-flow' },
+  { name: 'Implement', letter: 'I', color: '#a78bfa', desc: 'Build with parallel agents. Backend, frontend, and infra agents implement stories with file ownership boundaries.', cmd: '/sniper-flow' },
+  { name: 'Parallelize', letter: 'P', color: '#c084fc', desc: 'Self-healing CI. Hooks detect test and lint failures, instructing agents to fix before proceeding.', cmd: '/sniper-flow' },
+  { name: 'Evaluate', letter: 'E', color: '#f97316', desc: 'Multi-faceted review. Scope validation, standards enforcement, and risk scoring across three dimensions.', cmd: '/sniper-review' },
+  { name: 'Release', letter: 'R', color: '#fb923c', desc: 'Ship with confidence. Artifacts verified, specs reconciled, and retrospective metrics recorded for velocity calibration.', cmd: '/sniper-flow' },
 ]
 
 const activeIndex = ref(0)

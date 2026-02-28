@@ -23,37 +23,37 @@ const cells = [
   {
     id: 0,
     area: 'parallel',
-    title: 'Parallel Teams',
-    desc: 'Up to 5 agents work simultaneously with file ownership boundaries and dependency coordination.',
-    extended: 'Each agent owns specific directories. The lead coordinates API contracts and resolves conflicts. No merge chaos — ownership rules prevent collisions.',
+    title: 'Protocol Engine',
+    desc: 'One command runs an entire lifecycle. /sniper-flow auto-detects scope and picks the right protocol.',
+    extended: '7 protocols — full, feature, patch, ingest, explore, refactor, hotfix — each defining phases, agents, spawn strategy, and gate configuration.',
   },
   {
     id: 1,
     area: 'persona',
-    title: 'AI Personas',
-    desc: '42 composable persona layers create specialized agents for every task.',
-    extended: 'Combine process, technical, and cognitive layers. An "architect + backend + systems-thinker" agent thinks differently than a "frontend + UX + creative" one.',
+    title: '9 Specialized Agents',
+    desc: 'Each agent has a defined role, model preference, and tool constraints. The lead orchestrator is read-only.',
+    extended: 'Agents compose cognitive mixins (security-first, performance-focused, devil\'s advocate) for specialized thinking. Plugins inject language-specific knowledge.',
   },
   {
     id: 2,
     area: 'gates',
-    title: 'Review Gates',
-    desc: 'STRICT gates block until approved. FLEXIBLE gates auto-advance with async review.',
-    extended: '15 checklists cover code quality, spec compliance, security, accessibility, and performance. Nothing ships without scrutiny.',
+    title: 'Multi-Faceted Review',
+    desc: 'Three dimensions: scope validation, standards enforcement, and risk scoring with severity levels.',
+    extended: '9 checklists cover quality, spec compliance, and security. Optional multi-model review uses consensus or majority-wins across providers.',
   },
   {
     id: 3,
     area: 'packs',
-    title: 'Domain Packs',
-    desc: 'Plug in domain knowledge — telephony, CRM, payments — so agents understand your business.',
-    extended: 'Packs provide API schemas, terminology glossaries, and integration patterns. Agents reference domain knowledge when implementing stories.',
+    title: 'Plugin Ecosystem',
+    desc: 'Language plugins and domain packs extend agents with commands, conventions, and review checks.',
+    extended: 'TypeScript, Python, and Go plugins ship officially. Domain packs add business knowledge — telephony compliance, CRM patterns, and more.',
   },
   {
     id: 4,
     area: 'cmd',
-    title: '18 Slash Commands',
-    desc: 'Every phase is a single command. Type it and the right team spawns automatically.',
-    extended: '/sniper-discover, /sniper-plan, /sniper-solve, /sniper-sprint — plus utilities like /sniper-compose and /sniper-review.',
+    title: 'Headless CI/CD',
+    desc: 'Run any protocol headlessly with sniper run. Auto-approve gates, set budgets, export JSON results.',
+    extended: 'GitHub Actions integration out of the box. Self-healing CI detects test failures and instructs agents to fix before proceeding.',
   },
 ]
 </script>
@@ -88,7 +88,7 @@ const cells = [
         </template>
         <template v-else-if="cell.area === 'persona'">
           <div class="badge-stack">
-            <span class="role-badge" v-for="(role, j) in ['Architect', 'Backend', 'QA']" :key="role"
+            <span class="role-badge" v-for="(role, j) in ['Lead', 'Backend', 'Reviewer']" :key="role"
               :style="{ animationDelay: `${j * 1.2}s` }">
               {{ role }}
             </span>
@@ -113,8 +113,8 @@ const cells = [
         </template>
         <template v-else-if="cell.area === 'cmd'">
           <div class="cmd-snippet">
-            <span class="cmd-prompt">&gt;</span>
-            <span class="cmd-text">/sniper-sprint</span>
+            <span class="cmd-prompt">$</span>
+            <span class="cmd-text">sniper run --ci</span>
           </div>
         </template>
       </div>

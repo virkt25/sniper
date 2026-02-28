@@ -31,20 +31,20 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
     </section>
 
     <section class="home-section">
-      <h2 class="section-heading">Two Paths, One Framework</h2>
-      <p class="section-subtitle">Whether you're starting from scratch or working with an existing codebase, SNIPER has a workflow for you.</p>
+      <h2 class="section-heading">Seven Protocols, One Command</h2>
+      <p class="section-subtitle">/sniper-flow auto-detects your intent and runs the right protocol. Or pick one explicitly.</p>
       <div class="two-paths">
         <div class="path-card">
           <span class="path-tag">Full Lifecycle</span>
           <h3>Greenfield Projects</h3>
-          <p>Start with an idea. Discovery agents research the market and assess risks. Planning agents produce a PRD, architecture, UX spec, and security analysis. The solve phase shards everything into stories. Sprint teams implement with tests and PRs.</p>
-          <code class="path-cmds">/sniper-discover &rarr; /sniper-plan &rarr; /sniper-solve &rarr; /sniper-sprint</code>
+          <p>Start with an idea. The full protocol runs four phases: discover, plan, implement, review. Agent teams research, architect, build in parallel, and gate every transition.</p>
+          <code class="path-cmds">/sniper-flow &rarr; discover &rarr; plan &rarr; implement &rarr; review</code>
         </div>
         <div class="path-card">
-          <span class="path-tag">Ingest + Iterate</span>
-          <h3>Existing Codebases</h3>
-          <p>Already have code? SNIPER's ingest team reverse-engineers your architecture and extracts conventions. Then use scoped commands for additions, bug investigation, or security and performance audits.</p>
-          <code class="path-cmds">/sniper-ingest &rarr; /sniper-feature &rarr; /sniper-debug &rarr; /sniper-audit</code>
+          <span class="path-tag">Scoped Protocols</span>
+          <h3>Targeted Work</h3>
+          <p>Already have code? Use scoped protocols: feature (plan + implement), patch (implement only), ingest (scan + document + extract), refactor, explore, or hotfix.</p>
+          <code class="path-cmds">/sniper-flow --protocol feature | patch | ingest | refactor</code>
         </div>
       </div>
     </section>
@@ -62,7 +62,7 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
       <div class="cta-install">
         <code>npm install -g @sniper.ai/cli && sniper init</code>
       </div>
-      <p class="cta-desc">Then run <code>/sniper-discover</code> in Claude Code to kick off your first lifecycle.</p>
+      <p class="cta-desc">Then run <code>/sniper-flow</code> in Claude Code to kick off your first protocol.</p>
       <div class="cta-links">
         <a href="/guide/getting-started" class="cta-link primary">Get Started</a>
         <a href="/guide/cheatsheet-commands" class="cta-link">Commands Cheatsheet</a>
