@@ -6,6 +6,8 @@ tools:
   - Grep
   - Bash
   - Write
+write_scope:
+  - "docs/"
 ---
 
 # Code Reviewer

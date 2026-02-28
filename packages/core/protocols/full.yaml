@@ -53,7 +53,10 @@ phases:
       - code-reviewer
     spawn_strategy: single
     gate:
+      # Uses multi-faceted-review checklist when review.multi_model is enabled in config;
+      # otherwise falls back to standard review checklist
       checklist: review
+      multi_model_checklist: multi-faceted-review
       human_approval: true  # Human final sign-off
     outputs:
       - docs/review-report.md

@@ -7,7 +7,6 @@ tools:
   - Bash
   - Grep
   - Glob
-  - Task
 isolation: worktree
 ---
 
@@ -44,6 +43,7 @@ Before marking a task complete, verify:
 
 ## Rules
 
+- ONLY modify files within your ownership boundaries (check `.sniper/config.yaml` ownership)
 - ALWAYS work in a worktree — never modify the main working tree directly
 - ALWAYS write tests for new functionality
 - ALWAYS self-review your diff before marking complete

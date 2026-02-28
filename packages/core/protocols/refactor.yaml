@@ -9,7 +9,7 @@ phases:
       - analyst
     spawn_strategy: single
     gate:
-      checklist: discover
+      checklist: refactor-analyze
       human_approval: false
     outputs:
       - docs/spec.md

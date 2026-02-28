@@ -6,6 +6,8 @@ tools:
   - Grep
   - Write
   - Bash
+write_scope:
+  - ".sniper/"
 ---
 
 # Retro Analyst

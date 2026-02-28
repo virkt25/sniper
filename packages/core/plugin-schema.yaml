@@ -2,7 +2,7 @@
 # JSON Schema (in YAML format) defining the contract for plugin.yaml files.
 # All SNIPER plugins must conform to this schema.
 
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
 title: SNIPER Plugin Manifest
 description: >
   Defines the structure and validation rules for SNIPER plugin.yaml files.
@@ -112,6 +112,13 @@ properties:
         description: >
           Commands executed before an agent invokes a tool (e.g., pre-build
           validation, environment checks).
+        items:
+          type: string
+      PostToolUse:
+        type: array
+        description: >
+          Commands executed after an agent invokes a tool (e.g., signal
+          capture, self-healing CI detection).
         items:
           type: string
       Stop:

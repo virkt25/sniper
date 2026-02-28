@@ -29,7 +29,7 @@ properties:
       properties:
         name:
           type: string
-          description: Phase name (e.g. discover, plan, solve, sprint).
+          description: Phase name (e.g. discover, plan, implement, review).
         started_at:
           type: string
           format: date-time

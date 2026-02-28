@@ -9,14 +9,37 @@ import { indexKnowledgeDir, readIndex, writeIndex } from "./indexer.js";
 import { searchKnowledge } from "./search.js";
 import type { KnowledgeIndex } from "./types.js";
 import { join } from "node:path";
-import { access } from "node:fs/promises";
+import { access, readdir, stat } from "node:fs/promises";
 
 const INDEX_FILENAME = "knowledge-index.json";
+
+async function getNewestMtime(dir: string): Promise<number> {
+  let newest = 0;
+  try {
+    const files = await readdir(dir);
+    for (const file of files) {
+      const s = await stat(join(dir, file));
+      if (s.mtimeMs > newest) newest = s.mtimeMs;
+    }
+  } catch {
+    // Directory may not exist
+  }
+  return newest;
+}
 
 async function getIndex(knowledgeDir: string): Promise<KnowledgeIndex> {
   const indexPath = join(knowledgeDir, INDEX_FILENAME);
   try {
     await access(indexPath);
+    // Check if any knowledge files are newer than the index
+    const indexStat = await stat(indexPath);
+    const newestFile = await getNewestMtime(knowledgeDir);
+    if (newestFile > indexStat.mtimeMs) {
+      // Index is stale, rebuild
+      const index = await indexKnowledgeDir(knowledgeDir);
+      await writeIndex(indexPath, index);
+      return index;
+    }
     return await readIndex(indexPath);
   } catch {
     // Index doesn't exist, build it

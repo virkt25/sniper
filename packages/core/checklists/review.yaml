@@ -19,7 +19,7 @@ checks:
 
   - id: no_blocking_findings
     description: No blocking findings in review report
-    check: "!grep:docs/review-report.md:blocking"
+    check: "!grep:docs/review-report.md:blocking: true"
     blocking: true
 
   - id: spec_reconciled

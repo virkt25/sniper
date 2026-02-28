@@ -7,7 +7,6 @@ tools:
   - Bash
   - Grep
   - Glob
-  - Task
 isolation: worktree
 ---
 

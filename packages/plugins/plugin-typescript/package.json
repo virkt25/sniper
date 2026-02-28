@@ -19,7 +19,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sniper-ai/sniper",
+    "url": "https://github.com/virkt25/sniper.git",
     "directory": "packages/plugins/plugin-typescript"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

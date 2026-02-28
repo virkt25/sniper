@@ -3,6 +3,8 @@ $id: "https://sniper.ai/schemas/velocity"
 title: Velocity
 description: Protocol execution history and calibrated budgets for adaptive budget selection.
 type: object
+required:
+  - executions
 properties:
   executions:
     type: array

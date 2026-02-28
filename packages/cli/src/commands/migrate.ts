@@ -154,17 +154,17 @@ export const migrateCommand = defineCommand({
       process.exit(0);
     }
 
-    // Write v3 config and scaffold
-    await writeConfig(cwd, v3Config);
-    p.log.success("Wrote v3 config");
-
+    // Scaffold first, then write config — if scaffold fails, v2 config is preserved
     const s = p.spinner();
     s.start("Re-scaffolding with v3 structure...");
 
     try {
       const log = await scaffoldProject(cwd, v3Config, { update: true });
+      // Scaffold succeeded — now safe to write v3 config
+      await writeConfig(cwd, v3Config);
       s.stop("Done!");
 
+      p.log.success("Wrote v3 config");
       for (const entry of log) {
         p.log.success(entry);
       }
@@ -176,7 +176,7 @@ export const migrateCommand = defineCommand({
     } catch (err) {
       s.stop("Failed!");
       p.log.error(`Migration failed: ${err}`);
-      p.log.info("Your v2 config backup is at .sniper/config.v2.yaml");
+      p.log.info("Your v2 config is preserved at .sniper/config.yaml (backup also at .sniper/config.v2.yaml)");
       process.exit(1);
     }
   },

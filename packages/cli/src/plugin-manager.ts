@@ -10,6 +10,11 @@ import { join, resolve, sep } from "node:path";
 import { execFileSync } from "node:child_process";
 import YAML from "yaml";
 import { readConfig, writeConfig } from "./config.js";
+import type { SniperConfigV3 } from "./config.js";
+
+function getPackageManagerCommand(config?: SniperConfigV3): string {
+  return config?.stack?.package_manager || "pnpm";
+}
 
 /**
  * Validates that a resolved path stays within the expected base directory.
@@ -53,7 +58,7 @@ interface PluginManifest {
 interface PackageJson {
   name: string;
   version: string;
-  sniper?: { type: string };
+  sniper?: { type: string; packDir?: string };
 }
 
 function getPackageDir(pkgName: string, cwd: string): string {
@@ -84,8 +89,17 @@ export async function installPlugin(
   package: string;
   version: string;
 }> {
+  // Read config to determine the project's package manager
+  let projectConfig: SniperConfigV3 | undefined;
+  try {
+    projectConfig = await readConfig(cwd);
+  } catch {
+    // Config may not exist yet during init
+  }
+  const pm = getPackageManagerCommand(projectConfig);
+
   // Install the npm package
-  execFileSync("pnpm", ["add", "-D", packageName], { cwd, stdio: "pipe" });
+  execFileSync(pm, ["add", "-D", packageName], { cwd, stdio: "pipe" });
 
   // Read the installed package.json
   const pkgDir = getPackageDir(packageName, cwd);
@@ -94,7 +108,7 @@ export async function installPlugin(
 
   const validTypes = ["plugin", "agent", "mixin", "pack"];
   if (!pkgJson.sniper || !validTypes.includes(pkgJson.sniper.type)) {
-    execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
+    execFileSync(pm, ["remove", packageName], { cwd, stdio: "pipe" });
     throw new Error(
       `${packageName} is not a valid SNIPER package (missing sniper.type: one of ${validTypes.join(", ")})`,
     );
@@ -150,8 +164,13 @@ export async function installPlugin(
     const sniperDir = join(cwd, ".sniper");
     const claudeDir = join(cwd, ".claude");
 
+    // Use packDir if declared, otherwise use package root
+    const contentRoot = pkgJson.sniper?.packDir
+      ? join(pkgDir, pkgJson.sniper.packDir)
+      : pkgDir;
+
     // Copy knowledge files if they exist
-    const knowledgeDir = join(pkgDir, "knowledge");
+    const knowledgeDir = join(contentRoot, "knowledge");
     if (await pathExists(knowledgeDir)) {
       const dest = join(sniperDir, "knowledge");
       await mkdir(dest, { recursive: true });
@@ -159,7 +178,7 @@ export async function installPlugin(
     }
 
     // Copy personas if they exist
-    const personasDir = join(pkgDir, "personas");
+    const personasDir = join(contentRoot, "personas");
     if (await pathExists(personasDir)) {
       const dest = join(claudeDir, "personas", "cognitive");
       await mkdir(dest, { recursive: true });
@@ -167,7 +186,7 @@ export async function installPlugin(
     }
 
     // Copy checklists if they exist
-    const checklistsDir = join(pkgDir, "checklists");
+    const checklistsDir = join(contentRoot, "checklists");
     if (await pathExists(checklistsDir)) {
       const dest = join(sniperDir, "checklists");
       await mkdir(dest, { recursive: true });
@@ -175,7 +194,7 @@ export async function installPlugin(
     }
 
     // Copy templates if they exist
-    const templatesDir = join(pkgDir, "templates");
+    const templatesDir = join(contentRoot, "templates");
     if (await pathExists(templatesDir)) {
       const dest = join(sniperDir, "templates");
       await mkdir(dest, { recursive: true });
@@ -194,7 +213,7 @@ export async function installPlugin(
   // Default: plugin type — requires plugin.yaml
   const pluginYamlPath = join(pkgDir, "plugin.yaml");
   if (!(await pathExists(pluginYamlPath))) {
-    execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
+    execFileSync(pm, ["remove", packageName], { cwd, stdio: "pipe" });
     throw new Error(`${packageName} is missing plugin.yaml`);
   }
   const manifest = await validatePluginYaml(pluginYamlPath);
@@ -237,8 +256,9 @@ export async function removePlugin(
   const packageName = entry?.package || `@sniper.ai/plugin-${pluginName}`;
 
   // Remove npm package
+  const pm = getPackageManagerCommand(config);
   try {
-    execFileSync("pnpm", ["remove", packageName], { cwd, stdio: "pipe" });
+    execFileSync(pm, ["remove", packageName], { cwd, stdio: "pipe" });
   } catch {
     // Package may not be installed
   }

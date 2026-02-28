@@ -72,17 +72,15 @@ export async function searchPackages(
 
   const data = (await resp.json()) as NpmSearchResponse;
 
-  const packages: MarketplacePackage[] = [];
-  for (const obj of data.objects) {
-    const pkg = obj.package;
-    // Fetch full metadata to check sniper field
-    const info = await getPackageInfo(pkg.name);
-    if (info) {
-      packages.push(info);
-    }
-  }
+  // Fetch full metadata in parallel instead of sequentially
+  const results = await Promise.all(
+    data.objects.map((obj) => getPackageInfo(obj.package.name)),
+  );
+  const packages = results.filter(
+    (info): info is MarketplacePackage => info !== null,
+  );
 
-  return { packages, total: data.total };
+  return { packages, total: packages.length };
 }
 
 export async function getPackageInfo(

@@ -6,10 +6,18 @@ import {
   access,
   cp,
 } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 import YAML from "yaml";
 import { getCorePath } from "./config.js";
 import type { SniperConfigV3 } from "./config.js";
+
+function assertSafeName(name: string, kind: string): void {
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) {
+    throw new Error(
+      `Invalid ${kind} name "${name}": must start with a letter and contain only lowercase letters, digits, and hyphens`,
+    );
+  }
+}
 
 async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });
@@ -138,15 +146,17 @@ export async function scaffoldProject(
   // Copy and compose agent definitions
   const agentsSrc = join(corePath, "agents");
   for (const agentName of config.agents.base) {
+    assertSafeName(agentName, "agent");
     const srcFile = join(agentsSrc, `${agentName}.md`);
     if (!(await fileExists(srcFile))) continue;
 
     const mixinNames = config.agents.mixins[agentName] || [];
     if (mixinNames.length > 0) {
       // Compose agent with mixins
-      const mixinPaths = mixinNames.map((m) =>
-        join(corePath, "personas", "cognitive", `${m}.md`),
-      );
+      const mixinPaths = mixinNames.map((m) => {
+        assertSafeName(m, "mixin");
+        return join(corePath, "personas", "cognitive", `${m}.md`);
+      });
       const composed = await composeMixin(srcFile, mixinPaths);
       await writeFile(join(claudeDir, "agents", `${agentName}.md`), composed, "utf-8");
     } else {

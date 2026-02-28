@@ -14,7 +14,7 @@ properties:
     description: The SNIPER protocol version identifier.
   phase:
     type: string
-    description: The lifecycle phase this checkpoint belongs to (e.g. discover, plan, solve, sprint).
+    description: The lifecycle phase this checkpoint belongs to (e.g. discover, plan, implement, review).
   timestamp:
     type: string
     format: date-time

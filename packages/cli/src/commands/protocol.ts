@@ -130,8 +130,15 @@ const createSubcommand = defineCommand({
       process.exit(1);
     }
 
+    // Sanitize protocol name — only allow lowercase, digits, hyphens
+    const protocolName = args.name as string;
+    if (!/^[a-z][a-z0-9-]*$/.test(protocolName)) {
+      p.log.error('Protocol name must start with a letter and contain only lowercase letters, digits, and hyphens.');
+      process.exit(1);
+    }
+
     const protocolsDir = join(cwd, CUSTOM_PROTOCOLS_DIR);
-    const targetPath = join(protocolsDir, `${args.name}.yaml`);
+    const targetPath = join(protocolsDir, `${protocolName}.yaml`);
 
     // Check if protocol already exists
     try {
@@ -201,20 +208,30 @@ const createSubcommand = defineCommand({
       });
     }
 
-    // Replace template values with user input
-    const content = templateContent
-      .replace(/^name: .+$/m, `name: ${args.name}`)
-      .replace(/^description: .+$/m, `description: ${description as string}`)
-      .replace(/^budget: .+$/m, `budget: ${budget}`);
+    // Replace template values safely using YAML parse/stringify
+    let content: string;
+    try {
+      const parsed = YAML.parse(templateContent) as Record<string, unknown>;
+      parsed.name = protocolName;
+      parsed.description = description as string;
+      parsed.budget = budget;
+      content = YAML.stringify(parsed, { lineWidth: 0 });
+    } catch {
+      // Fallback to regex substitution for non-standard templates
+      content = templateContent
+        .replace(/^name: .+$/m, `name: ${protocolName}`)
+        .replace(/^description: .+$/m, `description: ${YAML.stringify(description as string).trim()}`)
+        .replace(/^budget: .+$/m, `budget: ${budget}`);
+    }
 
     // Ensure directory exists
     await mkdir(protocolsDir, { recursive: true });
 
     await writeFile(targetPath, content, "utf-8");
 
-    p.log.success(`Created custom protocol: ${CUSTOM_PROTOCOLS_DIR}/${args.name}.yaml`);
+    p.log.success(`Created custom protocol: ${CUSTOM_PROTOCOLS_DIR}/${protocolName}.yaml`);
     p.log.info("Edit the file to customize phases, agents, and gates.");
-    p.log.info(`Run "sniper protocol validate ${args.name}" to check your protocol.`);
+    p.log.info(`Run "sniper protocol validate ${protocolName}" to check your protocol.`);
   },
 });
 

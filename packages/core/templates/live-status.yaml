@@ -7,10 +7,10 @@ updated_at: ""
 
 phases:
   - name: ""
-    status: ""  # pending | in_progress | completed | failed | skipped
+    status: ""  # pending | running | paused | completed | failed
     agents: []
     # - name: analyst
-    #   status: active | idle | completed | failed
+    #   status: active | completed | failed
     progress: 0  # percentage
 
 gate_results: []

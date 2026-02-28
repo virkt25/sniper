@@ -10,7 +10,7 @@ phases: []
 #   tokens_used: 0
 #   agents:
 #     - name: analyst
-#       tokens: 0
+#       tokens_used: 0
 
 totals:
   tokens_used: 0

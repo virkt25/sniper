@@ -5,6 +5,8 @@ tools:
   - Glob
   - Grep
   - Write
+write_scope:
+  - "docs/"
 ---
 
 # Product Manager

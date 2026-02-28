@@ -8,6 +8,8 @@ tools:
   - Bash
   - WebSearch
   - WebFetch
+write_scope:
+  - "docs/"
 ---
 
 # Analyst

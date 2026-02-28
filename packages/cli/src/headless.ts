@@ -116,16 +116,18 @@ export class HeadlessRunner {
       };
     }
 
-    // Stub: in production, this spawns a Claude Code subprocess with
-    // the sniper-flow-headless skill and captures structured output.
-    // For now, return a skeleton result indicating successful validation.
+    // Stub: headless execution is not yet implemented.
+    // In production, this will spawn a Claude Code subprocess with
+    // the sniper-flow-headless skill and capture structured output.
     return {
-      exitCode: ExitCode.Success,
+      exitCode: ExitCode.ConfigError,
       protocol: this.options.protocol,
       phases: [],
       totalTokens: 0,
       duration: Date.now() - startTime,
-      errors: [],
+      errors: [
+        "Headless mode is not yet implemented. Protocol validation passed, but no execution occurred. Use /sniper-flow interactively instead.",
+      ],
     };
   }
 
