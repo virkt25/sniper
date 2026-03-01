@@ -97,7 +97,7 @@ phases:
     spawn_strategy: team
 
   - name: implement
-    agents: [backend-dev, frontend-dev, qa-engineer]
+    agents: [fullstack-dev, qa-engineer]
     spawn_strategy: team
 
   - name: review

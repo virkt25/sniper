@@ -12,7 +12,7 @@ SNIPER ships a lean core and extends through **plugins** and **domain packs**. T
 Language plugins add tooling commands, coding conventions, review checks, and agent knowledge mixins specific to a programming language. Install with:
 
 ```bash
-sniper plugin install typescript
+sniper plugin install @sniper.ai/plugin-typescript
 ```
 
 ### Official Plugins
@@ -81,8 +81,8 @@ Domain packs typically don't define `commands` because they focus on knowledge a
 A project can install multiple plugins and packs simultaneously. They compose cleanly:
 
 ```bash
-sniper plugin install typescript
-sniper plugin install sales-dialer
+sniper plugin install @sniper.ai/plugin-typescript
+sniper plugin install @sniper.ai/pack-sales-dialer
 ```
 
 After installation, a TypeScript sales dialer project would have:
@@ -100,7 +100,6 @@ The SNIPER marketplace is a registry of community-contributed plugins and domain
 
 ```bash
 sniper marketplace search "react"
-sniper marketplace search --category "domain-pack"
 ```
 
 ### Installing from Marketplace

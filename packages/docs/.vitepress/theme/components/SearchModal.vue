@@ -79,6 +79,10 @@ const categoryColors: Record<string, string> = {
   Templates: '#f97316',
   Checklists: '#ef4444',
   Workflows: '#3b82f6',
+  CLI: '#06b6d4',
+  Schemas: '#14b8a6',
+  Hooks: '#ec4899',
+  Config: '#f59e0b',
 }
 
 const displayResults = computed(() => {

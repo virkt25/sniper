@@ -21,7 +21,7 @@ triggers:
   - pattern: "*.proto"
     protocol: api-review
   - pattern: "infrastructure/**"
-    agent: infra-dev
+    agent: fullstack-dev
     protocol: full
   - pattern: "*.test.*"
     agent: qa-engineer
@@ -131,17 +131,17 @@ Track git commits per phase for safe rollback if a phase goes wrong.
 ### Revert Plan Schema
 
 ```yaml
+protocol: feature
 target_state: plan_complete
-revert_commits:
+backup_branch: "sniper/backup/feature-20260228"
+commits_to_revert:
   - sha: "abc123"
     message: "implement: backend API endpoints"
+    agent: fullstack-dev
   - sha: "def456"
     message: "implement: frontend components"
-rollback_procedure:
-  - "git revert def456 --no-edit"
-  - "git revert abc123 --no-edit"
+    agent: fullstack-dev
 phase: implement
-protocol: feature
 ```
 
 ### Using Revert
@@ -150,7 +150,7 @@ protocol: feature
 sniper revert
 ```
 
-The CLI reads the latest revert plan and executes the rollback. It never force-pushes -- it creates new revert commits.
+The CLI reads checkpoint files to determine which commits belong to the failed phase, generates a revert plan, and executes the rollback. It never force-pushes -- it creates new revert commits.
 
 ## Domain Knowledge Injection
 

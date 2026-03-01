@@ -100,6 +100,7 @@ agents:
     - product-manager
     - backend-dev
     - frontend-dev
+    - fullstack-dev
     - qa-engineer
     - code-reviewer
     - gate-reviewer

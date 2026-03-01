@@ -30,7 +30,7 @@ const cells = [
   {
     id: 1,
     area: 'persona',
-    title: '9 Specialized Agents',
+    title: '11 Specialized Agents',
     desc: 'Each agent has a defined role, model preference, and tool constraints. The lead orchestrator is read-only.',
     extended: 'Agents compose cognitive mixins (security-first, performance-focused, devil\'s advocate) for specialized thinking. Plugins inject language-specific knowledge.',
   },

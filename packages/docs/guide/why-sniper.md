@@ -30,7 +30,7 @@ Every project follows a protocol -- a state machine that defines phases, agents,
 /sniper-flow --protocol full
 ```
 
-This single command executes: discover → plan → solve → sprint, spawning the right teams at each phase, evaluating quality gates between transitions.
+This single command executes: discover → plan → implement → review, spawning the right teams at each phase, evaluating quality gates between transitions.
 
 ### Layered Persona Composition
 
@@ -49,16 +49,15 @@ Every phase transition passes through a review gate. Gates evaluate outputs agai
 
 - **Discovery** -- is the scope defined? Are risks identified? Are user personas documented?
 - **Planning** -- does the architecture address all requirements? Are there open TBDs?
-- **Sprint** -- do tests pass? Is lint clean? Are file ownership boundaries respected?
+- **Implement** -- do tests pass? Is lint clean? Are file ownership boundaries respected?
 
-Gates can be strict (human must approve), flexible (auto-advance if no failures), or auto (no evaluation).
+Gates use `human_approval: true` (human must approve) or `human_approval: false` (auto-advance if no failures).
 
 ### Team-Based Parallel Execution
 
-Sprint phases spawn multiple agents working in parallel, each with defined file ownership:
+Implement phases spawn multiple agents working in parallel, each with defined file ownership:
 
-- Backend-dev owns `src/api/`, `src/services/`
-- Frontend-dev owns `src/components/`, `src/hooks/`
+- Fullstack-dev owns `src/api/`, `src/services/`, `src/components/`, `src/hooks/`
 - QA-engineer owns `tests/`
 
 Agents coordinate through the task system without stepping on each other's code.

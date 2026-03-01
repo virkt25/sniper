@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 /**
  * Generate reference pages for SNIPER templates.
- * Source: packages/core/framework/templates/*.md and *.yaml
+ * Source: packages/core/templates/*.md and *.yaml
  * Output: packages/docs/generated/templates/*.md
  */
 export async function generateTemplates(frameworkDir, outputDir) {
@@ -11,7 +11,14 @@ export async function generateTemplates(frameworkDir, outputDir) {
   const outDir = join(outputDir, 'templates');
   await mkdir(outDir, { recursive: true });
 
-  const files = (await readdir(templatesDir)).filter(
+  let allFiles;
+  try {
+    allFiles = await readdir(templatesDir);
+  } catch {
+    console.warn('  ⚠ templates/ directory not found, skipping templates generation');
+    return [];
+  }
+  const files = allFiles.filter(
     (f) => f.endsWith('.md') || f.endsWith('.yaml') || f.endsWith('.yml')
   );
   const sidebarItems = [];

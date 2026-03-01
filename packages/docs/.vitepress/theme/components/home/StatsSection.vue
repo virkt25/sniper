@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 
 const stats = [
-  { value: 9, label: 'Agents' },
+  { value: 11, label: 'Agents' },
   { value: 7, label: 'Protocols' },
   { value: 14, label: 'Templates' },
   { value: 13, label: 'Schemas' },

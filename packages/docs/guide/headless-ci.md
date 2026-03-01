@@ -75,11 +75,11 @@ headless:
 
 | Code | Meaning |
 |------|---------|
-| `0` | Protocol completed successfully |
-| `1` | Configuration error (missing config, invalid protocol) |
-| `2` | Gate failure (when `fail_on_gate_failure: true`) |
-| `3` | Timeout exceeded |
-| `4` | Runtime error |
+| `0` | Success (all gates passed) |
+| `1` | Gate failure (a review gate rejected the output) |
+| `2` | Cost exceeded (token budget was exceeded) |
+| `3` | Timeout (execution exceeded the time limit) |
+| `4` | Configuration error (invalid config or protocol) |
 
 ## Output Formats
 
@@ -151,7 +151,7 @@ jobs:
 When `auto_approve_gates` is enabled:
 
 - **Flexible gates** auto-advance if no critical failures (same as interactive mode)
-- **Strict gates** auto-advance if all checks pass. If any check fails and `fail_on_gate_failure` is true, the process exits with code `2`
+- **Strict gates** auto-advance if all checks pass. If any check fails and `fail_on_gate_failure` is true, the process exits with code `1`
 - **Auto gates** always advance (no evaluation)
 
 ::: warning

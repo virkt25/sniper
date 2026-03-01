@@ -245,6 +245,7 @@ export default withMermaid(defineConfig({
           text: 'Configuration',
           collapsed: true,
           items: [
+            { text: 'Overview', link: '/reference/config/' },
             ...(generated.config ?? []),
           ],
         },

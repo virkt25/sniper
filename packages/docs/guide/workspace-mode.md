@@ -23,7 +23,7 @@ Workspace mode is designed for:
 Navigate to a directory that will serve as the workspace root (can be a dedicated directory or an existing repo) and run:
 
 ```
-/sniper-workspace init
+sniper workspace init
 ```
 
 The command:
@@ -44,36 +44,30 @@ name: "my-saas-platform"
 description: "Multi-service SaaS platform"
 version: "1.0"
 
-repositories:
+projects:
   - name: api-service
     path: ../api-service
-    role: backend
-    language: typescript
-    sniper_enabled: true
-    exposes:
-      - type: rest_api
-        spec: docs/openapi.yaml
-    consumes: []
+    type: backend
 
   - name: web-app
     path: ../web-app
-    role: frontend
-    language: typescript
-    sniper_enabled: true
-    consumes:
-      - from: api-service
-        type: rest_api
+    type: frontend
 
-dependency_graph:
-  api-service: []
-  web-app: [api-service]
+shared:
+  conventions:
+    - "All API routes use Zod validation middleware"
+    - "Shared types are defined in the contracts/ directory"
+  anti_patterns:
+    - "Do not use direct DB queries in route handlers"
+  architectural_decisions:
+    - id: adr-001
+      title: "Use REST over GraphQL"
+      decision: "All inter-service communication uses REST"
+      rationale: "Simpler tooling and debugging for the team"
+      date: 2026-01-15
 
-config:
-  contract_format: yaml
-  integration_validation: true
-  memory:
-    workspace_conventions: true
-    auto_promote: false
+memory:
+  directory: ./memory
 ```
 
 ### Workspace Directories
@@ -93,13 +87,11 @@ workspace-root/
 
 ### Per-Repo Configuration
 
-Each repository's `.sniper/config.yaml` is updated with workspace information:
+Each project's `.sniper/config.yaml` is updated with a workspace reference:
 
 ```yaml
 workspace:
-  enabled: true
-  workspace_path: "../workspace-root"
-  repo_name: "api-service"
+  ref: "../workspace-root/workspace.yaml"
 ```
 
 ## Cross-Repo Features
@@ -107,7 +99,7 @@ workspace:
 To plan and implement a feature that spans multiple repos:
 
 ```
-/sniper-workspace feature "Add real-time notification support"
+sniper workspace feature "Add real-time notification support"
 ```
 
 This runs a 5-phase process:
@@ -124,7 +116,7 @@ A contract designer agent creates interface contracts for all cross-repo communi
 
 For each affected repository, scoped `/sniper-flow --protocol feature` runs produce stories within each repo's own SNIPER structure, referencing the approved contracts.
 
-### Phase 4: Wave-Based Sprint Orchestration
+### Phase 4: Wave-Based Implementation
 
 Repos are assigned to waves based on the dependency graph:
 
@@ -132,7 +124,7 @@ Repos are assigned to waves based on the dependency graph:
 - **Wave 2:** Repos depending only on Wave 1 repos
 - **Wave 3:** Repos depending on Wave 2 repos
 
-Repos within the same wave can sprint in parallel. Between waves, contract validation runs to verify implementations match the agreed-upon interfaces.
+Repos within the same wave can implement in parallel. Between waves, contract validation runs to verify implementations match the agreed-upon interfaces.
 
 ### Phase 5: Final Integration Validation
 
@@ -143,7 +135,7 @@ After all waves complete, full contract validation runs across all repos to veri
 Validate that implementations match contracts at any time:
 
 ```
-/sniper-workspace validate
+sniper workspace validate
 ```
 
 This checks:
@@ -158,7 +150,7 @@ Results show PASS/FAIL per contract item with specific mismatch details.
 View the full workspace state:
 
 ```
-/sniper-workspace status
+sniper workspace status
 ```
 
 This shows repository status, active features, contract versions, workspace memory, and the dependency graph.
@@ -171,9 +163,9 @@ Workspace memory promotion can be automatic (`auto_promote: true`) or require us
 
 ## Important Rules
 
-- Contracts are immutable during sprint waves -- they do not change until a wave completes
-- Wave ordering is mandatory -- a repo never sprints before its dependency wave completes
-- Each repo sprints independently -- agents in one repo do not modify files in another
+- Contracts are immutable during implementation waves -- they do not change until a wave completes
+- Wave ordering is mandatory -- a repo never implements before its dependency wave completes
+- Each repo implements independently -- agents in one repo do not modify files in another
 - The workspace orchestrator coordinates but does not code
 
 ## Next Steps

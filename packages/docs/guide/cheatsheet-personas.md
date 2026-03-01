@@ -31,9 +31,9 @@ SNIPER v3 ships 11 agent definitions. Each agent has a dedicated role, a model a
 
 **Plan** -- architect, product-manager
 
-**Implement** -- backend-dev, frontend-dev, or fullstack-dev (spawned by lead-orchestrator based on project config)
+**Implement** -- fullstack-dev + qa-engineer (full protocol), or backend-dev + frontend-dev + qa-engineer (spawned by lead-orchestrator based on project config)
 
-**Review** -- code-reviewer, qa-engineer, gate-reviewer
+**Review** -- code-reviewer (gate-reviewer for automated checks)
 
 **Retro** -- retro-analyst
 
@@ -89,27 +89,23 @@ See [full reference](/reference/personas/).
 
 ## Applying Cognitive Personas {#applying-cognitive-personas}
 
-Cognitive personas are applied to agents via `.sniper/config.yaml`. Add the `cognitive` key under any agent's configuration:
+Cognitive personas are applied to agents via `.sniper/config.yaml`. Add entries under `agents.mixins` mapping agent names to an array of cognitive personas:
 
 ```yaml
 # .sniper/config.yaml
 agents:
-  architect:
-    cognitive: security-first
-  code-reviewer:
-    cognitive: devils-advocate
-  backend-dev:
-    cognitive: performance-focused
+  mixins:
+    architect: [security-first]
+    code-reviewer: [devils-advocate]
+    backend-dev: [performance-focused]
 ```
 
 Multiple cognitive personas can be applied to the same agent:
 
 ```yaml
 agents:
-  architect:
-    cognitive:
-      - security-first
-      - performance-focused
+  mixins:
+    architect: [security-first, performance-focused]
 ```
 
 When a cognitive persona is applied, its thinking framework is injected into the agent's context at spawn time. The agent retains all its original responsibilities but evaluates decisions through the additional cognitive lens.

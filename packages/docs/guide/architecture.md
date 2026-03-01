@@ -42,8 +42,8 @@ flowchart TD
     M -->|no| P[Next phase]
     N --> O{Gate result?}
     O -->|pass| P
-    O -->|fail + strict| Q[Stop. Human review needed.]
-    O -->|fail + flexible| R[Warn. Auto-advance.]
+    O -->|fail + human_approval: true| Q[Stop. Human review needed.]
+    O -->|fail + human_approval: false| R[Warn. Auto-advance.]
     P --> F
     Q --> S[Human approves or fixes]
     S --> F
@@ -97,8 +97,7 @@ Key constraints:
 | lead-orchestrator | Opus | `.sniper/` only | Never writes source code |
 | analyst | Sonnet | `docs/`, `.sniper/` | Read-only for source code |
 | architect | Opus | `docs/` | Design only, no implementation |
-| backend-dev | Sonnet | Configured per ownership | Cannot modify frontend or infra |
-| frontend-dev | Sonnet | Configured per ownership | Cannot modify backend or infra |
+| fullstack-dev | Sonnet | Configured per ownership | Cannot modify infra |
 | code-reviewer | Opus | `docs/` | Read-only for source code |
 | gate-reviewer | Haiku | `.sniper/gates/` | Only writes gate results |
 
@@ -114,38 +113,38 @@ budget: 2000000
 phases:
   - name: discover
     agents: [analyst]
-    spawn_strategy: team
+    spawn_strategy: single
     gate:
       checklist: discover
-      mode: flexible
+      human_approval: false
 
   - name: plan
     agents: [architect, product-manager]
     spawn_strategy: team
     gate:
       checklist: plan
-      mode: strict
-    plan_approval: true
+      human_approval: true
 
   - name: implement
-    agents: [backend-dev, frontend-dev, qa-engineer]
+    agents: [fullstack-dev, qa-engineer]
     spawn_strategy: team
+    plan_approval: true
     gate:
       checklist: implement
-      mode: strict
+      human_approval: true
 
   - name: review
     agents: [code-reviewer]
     spawn_strategy: single
     gate:
       checklist: review
-      mode: strict
+      human_approval: true
 ```
 
 ### Spawn Strategies
 
-- **`single`** -- one agent spawned using the Task tool. Used for focused work (solve phase, code review)
-- **`team`** -- multiple agents spawned using TeamCreate. Used for parallel work (discovery, planning, sprint)
+- **`single`** -- one agent spawned using the Task tool. Used for focused work (discovery, code review)
+- **`team`** -- multiple agents spawned using TeamCreate. Used for parallel work (planning, implement)
 
 ### Gate Evaluation
 
@@ -155,7 +154,7 @@ At each phase boundary:
 2. It reads the phase's checklist (`.sniper/checklists/<name>.yaml`)
 3. It evaluates each check (file existence, grep patterns, command execution)
 4. It produces a gate result YAML in `.sniper/gates/`
-5. Based on gate mode and results, execution continues or stops
+5. Based on gate configuration (`human_approval`) and results, execution continues or stops
 
 ## Checkpoint & Recovery
 
@@ -201,7 +200,7 @@ When an agent is spawned, its context is assembled from multiple sources:
 │  │ Memory (conventions, signals)   │         │
 │  └─────────────────────────────────┘         │
 │  ┌─────────────────────────────────┐         │
-│  │ Task + ownership + sprint rules │         │
+│  │ Task + ownership + implement rules │       │
 │  └─────────────────────────────────┘         │
 └─────────────────────────────────────────────┘
 ```

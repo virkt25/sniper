@@ -53,7 +53,7 @@ phases:
     spawn_strategy: team
     gate:
       checklist: plan
-      mode: flexible
+      human_approval: false
 
   - name: report
     description: Produce review report with recommendations
@@ -62,7 +62,7 @@ phases:
     spawn_strategy: single
     gate:
       checklist: review
-      mode: strict
+      human_approval: true
 
 outputs:
   - docs/api-review.md
@@ -83,7 +83,7 @@ outputs:
 | `phases[].spawn_strategy` | string | yes | `single` (one agent) or `team` (multiple agents) |
 | `phases[].gate` | object | no | Gate configuration |
 | `phases[].gate.checklist` | string | no | Which checklist to evaluate |
-| `phases[].gate.mode` | string | no | `strict`, `flexible`, or `auto` |
+| `phases[].gate.human_approval` | boolean | no | Whether human must approve gate results |
 | `outputs` | array | no | Expected output file paths |
 
 ## Managing Protocols
@@ -108,7 +108,7 @@ Checks your protocol YAML against the schema and reports errors:
 - Invalid budget (must be a positive integer)
 - Empty phases array
 - Invalid spawn strategy (must be `single` or `team`)
-- Invalid gate mode
+- Invalid gate configuration (human_approval must be boolean)
 
 ## Using Custom Protocols
 
@@ -154,7 +154,7 @@ phases:
     spawn_strategy: single
     gate:
       checklist: discover
-      mode: auto
+      human_approval: false
 
   - name: write
     description: Update documentation
@@ -164,7 +164,7 @@ phases:
     spawn_strategy: team
     gate:
       checklist: review
-      mode: flexible
+      human_approval: false
 
 outputs:
   - README.md
@@ -187,7 +187,7 @@ phases:
     spawn_strategy: single
     gate:
       checklist: review
-      mode: strict
+      human_approval: true
 
   - name: scan
     description: Automated vulnerability scanning
@@ -196,7 +196,7 @@ phases:
     spawn_strategy: single
     gate:
       checklist: review
-      mode: strict
+      human_approval: true
 
   - name: report
     description: Consolidated security report

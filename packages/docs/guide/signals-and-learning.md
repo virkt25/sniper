@@ -28,10 +28,9 @@ SNIPER's `signal-hooks.json` defines PostToolUse hooks that watch Bash output fo
   "hooks": {
     "PostToolUse": [
       {
-        "tool": "Bash",
-        "pattern": "FAIL|ERROR|error\\[",
-        "action": "capture_signal",
-        "output": ".sniper/memory/signals/"
+        "matcher": "Bash",
+        "description": "Auto-capture CI failure signals from test/lint output",
+        "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -qiE '(FAIL|FAILED|ERROR|exit code [1-9])'; then echo 'SIGNAL: CI failure detected — capturing to .sniper/memory/signals/'; fi"
       }
     ]
   }
@@ -40,32 +39,35 @@ SNIPER's `signal-hooks.json` defines PostToolUse hooks that watch Bash output fo
 
 When a test fails or a linter reports errors, the hook automatically captures:
 
-- **Type** -- `test_failure`, `lint_error`, `build_failure`, `type_error`
+- **Type** -- `ci_failure`, `pr_review_comment`, `production_error`, `manual`
 - **Source** -- which command produced the failure
 - **Timestamp** -- when it occurred
-- **Affected files** -- files mentioned in the error output
+- **Summary** -- brief description of the signal
+- **Details** -- full error output or context
 - **Learning** -- extracted pattern for future avoidance
+- **Relevance tags** -- categorization tags for signal matching
+- **Affected files** -- files mentioned in the error output
 
 ## Signal Schema
 
 Each signal is stored as a YAML file:
 
 ```yaml
-type: test_failure
+type: ci_failure
 source: vitest
 timestamp: "2026-02-28T14:30:00Z"
-affected_files:
-  - src/api/auth.ts
-  - tests/api/auth.test.ts
-raw_output: |
+summary: "JWT expiry test failing in auth module"
+details: |
   FAIL tests/api/auth.test.ts
-  ✕ should validate JWT expiry (12ms)
   Expected: token to be expired
   Received: token still valid
 learning: "JWT expiry validation requires mocking Date.now()"
-severity: medium
-phase: implement
-protocol: feature
+relevance_tags:
+  - auth
+  - testing
+affected_files:
+  - src/api/auth.ts
+  - tests/api/auth.test.ts
 ```
 
 ## Self-Healing CI
@@ -77,9 +79,9 @@ Beyond signal capture, SNIPER includes a self-healing pattern (inspired by Aider
   "hooks": {
     "PostToolUse": [
       {
-        "tool": "Bash",
-        "pattern": "FAIL|error TS|ESLint",
-        "message": "Tests or linting failed. Fix the issues before continuing."
+        "matcher": "Bash",
+        "description": "Self-healing CI: detect test/lint failures and instruct agent to fix",
+        "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -qiE '(FAIL|FAILED|ERROR|error TS|ESLint)'; then echo 'WARN: Tests or linting failed. Fix the issues before continuing.'; fi"
       }
     ]
   }
@@ -110,19 +112,21 @@ The retro-analyst agent records execution metrics after each protocol completes:
 
 ```yaml
 # .sniper/memory/velocity.yaml
-protocols:
-  feature:
-    executions: 7
-    avg_tokens: 650000
-    avg_duration_minutes: 42
-    p75_tokens: 720000
-    calibrated_budget: 720000
-  patch:
-    executions: 12
-    avg_tokens: 140000
-    avg_duration_minutes: 8
-    p75_tokens: 165000
-    calibrated_budget: 165000
+executions:
+  - protocol: feature
+    completed_at: "2025-12-15T14:30:00Z"
+    wall_clock_seconds: 1200
+    tokens_used: 650000
+    tokens_per_phase:
+      plan: 150000
+      implement: 400000
+      review: 100000
+calibrated_budgets:
+  feature: 700000
+  patch: 180000
+rolling_averages:
+  feature: 620000
+  patch: 165000
 ```
 
 After 5+ executions of a protocol, SNIPER uses the calibrated p75 budget instead of the configured default. This means:

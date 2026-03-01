@@ -7,20 +7,22 @@ description: Strict and flexible quality gates, multi-faceted review, and multi-
 
 Review gates are quality checkpoints that evaluate phase artifacts before the lifecycle advances. They enforce standards and catch problems early -- before bad decisions cascade through later phases.
 
-## Gate Modes
+## Gate Configuration
 
-Configure gate modes in `.sniper/config.yaml`:
+In v3, gates are configured **per-phase inside protocol YAML files** using `human_approval: boolean`:
 
 ```yaml
-review_gates:
-  after_ingest: flexible
-  after_discover: flexible
-  after_plan: strict
-  after_solve: flexible
-  after_sprint: strict
+# Example from a protocol YAML
+phases:
+  plan:
+    agents: [architect, product-manager]
+    spawn_strategy: team
+    gate:
+      human_approval: true      # true = human must approve; false = auto-advance
+      checklist: plan.yaml
 ```
 
-### Strict Mode
+### When `human_approval: true`
 
 The most rigorous mode. The human must explicitly approve advancement.
 
@@ -38,9 +40,9 @@ The most rigorous mode. The human must explicitly approve advancement.
 - Advancement is blocked -- no override option
 - Fix the issues and run `/sniper-review` again
 
-Strict mode is the default for `after_plan` and `after_sprint` because these are high-risk transitions.
+This is the recommended setting for plan and review phases because these are high-risk transitions.
 
-### Flexible Mode
+### When `human_approval: false`
 
 Auto-advances when quality is acceptable, with async review.
 
@@ -54,30 +56,26 @@ Auto-advances when quality is acceptable, with async review.
 
 **Behavior with failures:**
 - Failures are presented and you are asked to choose:
-  1. Have the team fix the issues
+  1. Have the agents fix the issues
   2. Override and advance anyway
   3. Stop and review manually
 
-Flexible mode is the default for `after_discover` and `after_solve` because output from these phases can be refined in later iterations.
-
-### Auto Mode
-
-No review gate at all. The phase completes and the lifecycle moves on without evaluation.
+This is suitable for discover and implement phases where output can be refined in later iterations.
 
 ::: warning
-Auto mode is not recommended for any phase in production projects. It exists for rapid prototyping or experimentation where governance is not needed.
+Setting `human_approval: false` on plan or review phases is strongly discouraged. Bad architecture decisions cascade through the entire project, and unreviewed code can introduce bugs and security issues.
 :::
 
 ## How Evaluation Works
 
 When `/sniper-review` runs, it:
 
-1. Determines the current active phase from `state.phase_log`
+1. Determines the current active phase from the protocol checkpoint
 2. Loads the phase-specific checklist from `.sniper/checklists/`
 3. Identifies the artifacts to review based on the phase
 4. Evaluates each checklist criterion against the actual artifact content
 5. Assigns PASS, WARN, or FAIL to each item
-6. Applies the gate policy based on the configured mode
+6. Applies the gate policy based on the `human_approval` setting
 
 ### Evaluation Criteria
 
@@ -95,7 +93,7 @@ The evaluator reads the full artifact content and checks each criterion. Templat
 
 ### Discovery Checklist
 
-Located at `.sniper/checklists/discover-review.md`. Evaluates three artifacts:
+Located at `.sniper/checklists/discover.yaml`. Evaluates discovery artifacts:
 
 **Project Brief:**
 - Problem statement is specific and evidence-based
@@ -119,7 +117,7 @@ Located at `.sniper/checklists/discover-review.md`. Evaluates three artifacts:
 
 ### Planning Checklist
 
-Located at `.sniper/checklists/plan-review.md`. The most detailed checklist. Evaluates four artifacts and cross-document consistency:
+Located at `.sniper/checklists/plan.yaml`. The most detailed checklist. Evaluates plan artifacts and cross-document consistency:
 
 **PRD:** testable acceptance criteria, prioritized requirements (P0/P1/P2), measurable success metrics, no duplicates
 
@@ -131,9 +129,9 @@ Located at `.sniper/checklists/plan-review.md`. The most detailed checklist. Eva
 
 **Cross-Document Consistency:** API contracts match UX data needs, security is implementable within architecture, PRD requirements fully covered by architecture
 
-### Sprint Checklist
+### Implement Checklist
 
-Located at `.sniper/checklists/sprint-review.md`. Evaluates code and tests:
+Located at `.sniper/checklists/implement.yaml`. Evaluates code and tests:
 
 - Code quality, linting, type safety
 - Test existence and pass rates
@@ -149,7 +147,7 @@ When the memory system is active, review gates also check compliance with learne
 - **Anti-pattern scanning** -- search for known anti-patterns in changed files
 - **Decision consistency** -- ensure changes do not contradict active architectural decisions
 
-Memory compliance findings are advisory in flexible gates and enforcement-level in strict gates.
+Memory compliance findings are advisory when `human_approval: false` and enforcement-level when `human_approval: true`.
 
 ## Domain Pack Checklists
 
@@ -165,10 +163,10 @@ You can run a review at any time with:
 /sniper-review
 ```
 
-This evaluates the current active phase. The command reads the phase from `state.phase_log`, loads the appropriate checklist, and produces a full report.
+This evaluates the current active phase. The command reads the phase from the protocol checkpoint, loads the appropriate checklist, and produces a full report.
 
 ## Next Steps
 
-- [Configuration](/guide/configuration) -- set gate modes per phase
-- [Memory System](/guide/memory) -- how conventions are enforced during review
+- [Configuration](/guide/configuration) -- configure gates and protocols
+- [Full Lifecycle](/guide/full-lifecycle) -- see gates in action across the lifecycle
 - [Reference: Checklists](/reference/checklists/) -- browse all available checklists

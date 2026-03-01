@@ -35,7 +35,7 @@ pnpm add @sniper.ai/pack-sales-dialer
 Register the pack in `.sniper/config.yaml`:
 
 ```yaml
-domain_packs:
+plugins:
   - name: "sales-dialer"
     package: "@sniper.ai/pack-sales-dialer"
 ```
@@ -125,8 +125,9 @@ compatible_with:
 conflicts_with: []
 
 config_defaults:
-  review_gates:
-    after_plan: strict
+  gates:
+    plan:
+      human_approval: true
 
 team_overrides:
   plan:

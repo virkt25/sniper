@@ -51,13 +51,13 @@ conventions:
   - Tests must be in the same package as the code they test
 
 review_checks:
-  - name: no-panic
+  - id: no-panic
     description: No panic() calls in production code
-    check: "!grep:src/**/*.ml:panic"
+    command: "!grep:src/**/*.ml:panic"
     blocking: true
-  - name: doc-comments
+  - id: doc-comments
     description: Public functions have doc comments
-    check: "grep:src/**/*.ml:///|/\\*\\*"
+    command: "grep:src/**/*.ml:///|/\\*\\*"
     blocking: false
 
 agent_mixins:
@@ -65,10 +65,10 @@ agent_mixins:
   frontend-dev: mixins/mylanaguage-frontend.md
 
 hooks:
-  PostToolUse:
-    - tool: Bash
-      pattern: "mylang test"
-      message: "If tests failed, fix the failures before continuing."
+  PreToolUse:
+    - "mylang typecheck --no-emit 2>&1 | head -20"
+  Stop:
+    - "mylang typecheck --no-emit"
 ```
 
 ## Manifest Reference
@@ -79,11 +79,11 @@ Maps command names to shell commands. These are used by agents when they need to
 
 | Key | Used By | Purpose |
 |-----|---------|---------|
-| `build` | Sprint agents | Compile / bundle the project |
-| `test` | Sprint agents, QA | Run the test suite |
-| `lint` | Sprint agents, reviewer | Check code style |
-| `typecheck` | Sprint agents, reviewer | Verify type safety |
-| `format` | Sprint agents | Auto-format code |
+| `build` | Implement agents | Compile / bundle the project |
+| `test` | Implement agents, QA | Run the test suite |
+| `lint` | Implement agents, reviewer | Check code style |
+| `typecheck` | Implement agents, reviewer | Verify type safety |
+| `format` | Implement agents | Auto-format code |
 
 ### `conventions`
 
@@ -95,16 +95,18 @@ Automated checks run during review gates. Each check has:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `name` | string | Unique identifier |
+| `id` | string | Unique identifier |
 | `description` | string | What this check validates |
-| `check` | string | Check expression (see Check Types below) |
+| `command` | string | Shell command or check expression (see Check Types below) |
 | `blocking` | boolean | Whether failure blocks gate advancement |
 
 **Check Types:**
 
+The `command` field accepts raw shell commands or pattern expressions:
+
 - `grep:<path>:<pattern>` -- check that pattern exists in files
 - `!grep:<path>:<pattern>` -- check that pattern does NOT exist
-- `command:<shell_command>` -- run command, check exit code 0
+- Raw shell command (e.g., `npx tsc --noEmit`) -- run command, check exit code 0
 
 ### `agent_mixins`
 
@@ -141,9 +143,9 @@ conventions:
   - Use readonly modifiers for immutable data
 
 review_checks:
-  - no-any (blocking)
+  - no-any (non-blocking)
   - no-ts-ignore (blocking)
-  - strict-null-checks (blocking)
+  - strict-null-checks (non-blocking)
 ```
 
 ### Python (`@sniper.ai/plugin-python`)

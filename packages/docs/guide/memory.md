@@ -5,7 +5,7 @@ description: How SNIPER agents persist learnings across sessions with the memory
 
 # Memory System
 
-The SNIPER memory system tracks conventions, anti-patterns, and decisions that agents learn over time. This accumulated knowledge is injected into future spawn prompts, allowing agents to improve across sprints.
+The SNIPER memory system tracks conventions, anti-patterns, and decisions that agents learn over time. This accumulated knowledge is injected into future spawn prompts, allowing agents to improve across protocol executions.
 
 ## How Memory Works
 
@@ -18,7 +18,7 @@ Rules that agents must follow. Each convention has:
 - **Rule** -- the specific convention (e.g., "All API routes use Zod validation middleware")
 - **Applies to** -- which agent roles this convention affects
 - **Enforcement** -- where the convention is enforced (`spawn_prompt`, `review_gate`, or `both`)
-- **Status** -- `confirmed` (verified across multiple sprints) or `candidate` (needs more evidence)
+- **Status** -- `confirmed` (verified across multiple executions) or `candidate` (needs more evidence)
 - **Examples** -- positive and negative code examples
 
 ### Anti-Patterns
@@ -40,30 +40,31 @@ Architectural or design decisions that agents should respect. Each decision has:
 
 ## Memory Files
 
-Memory is stored in `.sniper/memory/`:
+Memory is stored in `.sniper/memory/`, with retrospectives in `.sniper/retros/`:
 
 ```
 .sniper/memory/
   conventions.yaml       # Confirmed and candidate conventions
   anti-patterns.yaml     # Known anti-patterns with severity
   decisions.yaml         # Active architectural decisions
-  estimates.yaml         # Estimation calibration data
-  retros/                # Sprint retrospective reports
-    sprint-1-retro.yaml
-    sprint-2-retro.yaml
+  velocity.yaml          # Protocol execution history for calibration
+  signals/               # Runtime signals from hooks and agents
+.sniper/retros/          # Protocol retrospective reports
+  retro-001.yaml
+  retro-002.yaml
 ```
 
 ## Configuration
 
-Enable and configure memory in `.sniper/config.yaml`:
+In v3, there is no dedicated `memory` config section. Memory behavior is driven by the `auto_retro` flag in protocol YAML files (e.g., `auto_retro: true` in `full.yaml`) and the retro-analyst agent. The visibility config exposes a single flag:
 
 ```yaml
-memory:
-  enabled: true           # Enable the memory system
-  auto_retro: true        # Auto-run retrospective after sprint completion
-  auto_codify: true       # Auto-codify high-confidence findings
-  token_budget: 2000      # Max tokens for memory in spawn prompts
+# In .sniper/config.yaml
+visibility:
+  auto_retro: true        # Enable automatic retrospectives after protocol completion
 ```
+
+When `auto_retro` is enabled in the protocol, the retro-analyst agent runs automatically after the review phase completes, updating memory files in `.sniper/memory/`.
 
 ### Token Budget
 
@@ -89,7 +90,7 @@ Run `/sniper-status` to see a summary of memory entries, or inspect the YAML fil
   conventions.yaml      # Coding conventions
   anti-patterns.yaml    # Known anti-patterns to avoid
   decisions.yaml        # Architecture/design decisions
-  retros/               # Sprint retrospective reports
+  retros/               # Retrospective reports
   velocity.yaml         # Protocol execution history
 ```
 
@@ -113,14 +114,14 @@ The retro-analyst agent automatically updates memory after protocol completion:
 - **Medium-confidence findings** are added with `status: candidate`
 - Duplicate entries are skipped
 
-## Sprint Retrospectives
+## Retrospectives
 
-When `auto_retro` is enabled, a retrospective runs automatically after each sprint review gate passes.
+When `auto_retro` is enabled, a retrospective runs automatically after each review gate passes.
 
 ### How Retrospectives Work
 
 1. A retro-analyst agent is spawned with context from:
-   - Completed story files from the sprint
+   - Completed story files from the implementation
    - Review gate results
    - Existing memory (for deduplication)
    - Code changes (git diff summary)
@@ -131,7 +132,7 @@ When `auto_retro` is enabled, a retrospective runs automatically after each spri
    - What estimation errors occurred?
    - What positive patterns should be codified?
 
-3. Results are written to `.sniper/memory/retros/sprint-{N}-retro.yaml`
+3. Results are written to `.sniper/memory/retros/retro-{N}.yaml`
 
 ### Auto-Codification
 
@@ -171,7 +172,7 @@ Conventions are filtered by the `applies_to` field, so backend developers see ba
 
 When workspace mode is enabled, workspace-level memory also exists at `{workspace_path}/memory/`. Workspace conventions apply across all repos and are labeled `[WORKSPACE]` in spawn prompts.
 
-Cross-repo patterns that appear consistently in 2+ repos can be promoted to workspace memory. This can happen automatically during sprint retrospectives (if `auto_promote: true`) or manually.
+Cross-repo patterns that appear consistently in 2+ repos can be promoted to workspace memory. This can happen automatically during retrospectives (if `auto_promote: true`) or manually.
 
 ## Estimation Calibration
 
@@ -182,10 +183,10 @@ calibration:
   velocity_factor: 1.0
   common_underestimates: []
   last_updated: null
-  sprints_analyzed: 0
+  executions_analyzed: 0
 ```
 
-Over multiple sprints, this data helps calibrate story complexity estimates.
+Over multiple executions, this data helps calibrate story complexity estimates.
 
 ## Next Steps
 
