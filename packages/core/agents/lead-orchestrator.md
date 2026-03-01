@@ -1,5 +1,4 @@
 ---
-model: opus
 write_scope:
   - ".sniper/"
   - ".sniper-workspace/"

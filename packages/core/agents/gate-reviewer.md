@@ -1,5 +1,4 @@
 ---
-model: haiku
 write_scope:
   - ".sniper/gates/"
 ---

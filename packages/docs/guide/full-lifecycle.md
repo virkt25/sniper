@@ -84,8 +84,6 @@ This is typically the most critical gate. The review evaluates artifacts against
 Setting `human_approval: false` on the plan gate is strongly discouraged. Bad architecture decisions cascade through the entire project.
 :::
 
-**Model override:** The plan phase uses the `planning_model` (typically `opus`) for higher-quality output on these critical artifacts.
-
 ## Step 4: Implement (Phase 3)
 
 Once the plan gate passes, `/sniper-flow` advances to the implement phase.

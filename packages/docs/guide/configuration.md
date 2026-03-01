@@ -69,8 +69,6 @@ Controls how agent teams are spawned and managed:
 
 ```yaml
 agents:
-  default_model: sonnet          # Model for implementation agents
-  planning_model: opus           # Model for planning & architecture
   max_teammates: 5               # Max concurrent teammates
   plan_approval: true            # Require plan approval for complex tasks
   coordination_timeout: 30       # Minutes before lead checks on stalled teammates

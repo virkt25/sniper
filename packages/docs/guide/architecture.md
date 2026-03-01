@@ -67,11 +67,10 @@ This read-only pattern (inspired by Roo Code's zero-capability orchestrator) pre
 
 ## Agent Definitions
 
-Each agent in `.sniper/agents/` has YAML frontmatter specifying its model, tools, and write scope:
+Each agent in `.sniper/agents/` has YAML frontmatter specifying its tools and write scope:
 
 ```yaml
 ---
-model: sonnet
 tools:
   - Read
   - Write

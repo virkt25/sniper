@@ -1,5 +1,4 @@
 ---
-model: opus
 write_scope:
   - "docs/"
 ---

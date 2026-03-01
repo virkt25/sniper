@@ -12,7 +12,6 @@ v3 agents map directly to Claude Code's native subagent system. An agent file is
 ---
 name: backend-dev
 description: Implements backend code — API routes, database, services, middleware.
-model: sonnet
 permissionMode: bypassPermissions
 memory: project
 isolation: worktree
@@ -39,7 +38,6 @@ You are a senior backend engineer. You implement server-side code following proj
 |---|---|---|
 | `name` | Yes | Agent identifier. Used in routing, status, checkpoints. |
 | `description` | Yes | One-line summary. Shown in `/sniper-status`. |
-| `model` | No | Claude model to use. `sonnet` (default for dev), `haiku` (for reviewers), `opus` (for complex planning). |
 | `permissionMode` | No | `bypassPermissions` for autonomous agents. Omit for interactive. |
 | `memory` | No | `project` for persistent cross-run memory. `local` for session-only. |
 | `isolation` | No | `worktree` to run in a dedicated git worktree. |
@@ -79,7 +77,6 @@ The coordinator. Delegates work, tracks progress, manages gates. Never implement
 
 | Property | Value |
 |---|---|
-| Model | `opus` |
 | Isolation | None (runs in main worktree) |
 | Allowed tools | Task, SendMessage, Read, Glob, Grep, Write (scoped to `.sniper/` only) |
 | Key constraint | **No Edit, no Bash.** Cannot modify project code or run commands. |
@@ -94,7 +91,6 @@ Discovery and research. Competitive analysis, market validation, domain research
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | None |
 | Allowed tools | Read, Grep, Glob, Bash, WebSearch, Task |
 | Used in | `full` (discover), `explore` (discover), `ingest` (extract) |
@@ -105,7 +101,6 @@ System design. API contracts, data models, technology decisions, component archi
 
 | Property | Value |
 |---|---|
-| Model | `opus` |
 | Isolation | None |
 | Allowed tools | Read, Grep, Glob, Write, Task |
 | Used in | `full` (plan), `feature` (plan), `refactor` (analyze) |
@@ -116,7 +111,6 @@ Requirements and decomposition. Specs, user stories, acceptance criteria using E
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | None |
 | Allowed tools | Read, Grep, Glob, Write, Task |
 | Used in | `full` (discover, plan, decompose), `feature` (plan), `ingest` (extract) |
@@ -127,7 +121,6 @@ Server-side implementation. API routes, services, middleware, database, authenti
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | `worktree` |
 | Memory | `project` |
 | Allowed tools | Read, Edit, Write, Bash, Grep, Glob, Task |
@@ -139,7 +132,6 @@ Client-side implementation. Components, pages, styles, state management, API int
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | `worktree` |
 | Memory | `project` |
 | Allowed tools | Read, Edit, Write, Bash, Grep, Glob, Task |
@@ -151,7 +143,6 @@ Both sides. Used for smaller projects where separate frontend/backend agents add
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | `worktree` |
 | Memory | `project` |
 | Allowed tools | Read, Edit, Write, Bash, Grep, Glob, Task |
@@ -163,7 +154,6 @@ Test writing. Unit tests, integration tests, coverage analysis, regression testi
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | `worktree` |
 | Allowed tools | Read, Edit, Write, Bash, Grep, Glob |
 | Used in | `full` (implement), `feature` (implement) |
@@ -174,7 +164,6 @@ PR review and quality assessment. Reviews diffs against specs and conventions.
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | None |
 | Memory | `project` |
 | Allowed tools | Read, Grep, Glob, Bash |
@@ -186,7 +175,6 @@ Validates phase completion. Runs as a `Stop` hook agent, not spawned by the lead
 
 | Property | Value |
 |---|---|
-| Model | `haiku` |
 | Isolation | None |
 | Allowed tools | Read, Glob, Grep, Bash |
 | Key behavior | Reads checklist, validates items, exits 0 (pass) or 2 (block) |
@@ -197,7 +185,6 @@ Sprint retrospective analysis. Runs automatically after every protocol completio
 
 | Property | Value |
 |---|---|
-| Model | `haiku` |
 | Isolation | None |
 | Allowed tools | Read, Glob, Grep |
 | Output | `.sniper/memory/retros/<protocol-id>.yaml` |
@@ -208,7 +195,6 @@ Brownfield codebase analysis. Directory structure, dependencies, patterns, risk 
 
 | Property | Value |
 |---|---|
-| Model | `sonnet` |
 | Isolation | None |
 | Allowed tools | Read, Grep, Glob, Bash |
 | Used in | `ingest` (scan, document) |
@@ -302,7 +288,6 @@ Create `.claude/agents/payment-specialist.md`:
 ---
 name: payment-specialist
 description: Implements payment flows, Stripe integrations, webhook handlers.
-model: sonnet
 permissionMode: bypassPermissions
 memory: project
 isolation: worktree

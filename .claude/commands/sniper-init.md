@@ -137,8 +137,6 @@ review_gates:
 
 agent_teams:
   max_teammates: 5
-  default_model: sonnet
-  planning_model: opus
   delegate_mode: true
   plan_approval: true
   coordination_timeout: 30

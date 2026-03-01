@@ -1,5 +1,4 @@
 ---
-model: sonnet
 write_scope:
   - "docs/"
 ---

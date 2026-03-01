@@ -95,7 +95,6 @@ cost:
 ### 4. Review Generated Agents
 
 Check `.claude/agents/` files. Each agent should have:
-- Correct `model` (sonnet for dev agents, haiku for reviewers)
 - Correct `allowed-tools` (lead has no Edit/Bash; devs have full access)
 - Correct `isolation: worktree` for implementation agents
 - Your custom instructions preserved from v2 persona overrides
@@ -156,7 +155,6 @@ You are a payment systems specialist...
 ---
 name: payment-specialist
 description: Implements payment flows and Stripe integrations.
-model: sonnet
 permissionMode: bypassPermissions
 memory: project
 isolation: worktree

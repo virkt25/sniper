@@ -8,8 +8,6 @@ project:
 
 # Agent configuration
 agents:
-  default_model: sonnet
-  planning_model: opus
   max_teammates: 5
   plan_approval: true        # Require plan approval for implementation agents
   coordination_timeout: 30   # Seconds to wait for agent coordination

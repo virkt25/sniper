@@ -595,7 +595,6 @@ Send shutdown requests to each teammate:
 - If `$ARGUMENTS` contains story IDs, use them as the sprint backlog without prompting for selection.
 - If `$ARGUMENTS` contains "skip-review", IGNORE IT. The sprint gate is strict and cannot be skipped.
 - Do NOT exceed `max_teammates` from config.yaml. Suggest splitting the sprint if too many would be needed.
-- Honor `model_override` from sprint.yaml (ai-dev uses opus, others use sonnet).
 - All file paths are relative to the project root.
 - Do NOT automatically start the next sprint -- let the user initiate it.
 - If this is not the first sprint, check previous sprint history and completed stories to avoid re-implementing.

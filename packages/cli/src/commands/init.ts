@@ -153,8 +153,6 @@ export const initCommand = defineCommand({
         description: (description as string) || "",
       },
       agents: {
-        default_model: "sonnet",
-        planning_model: "opus",
         max_teammates: parseInt(maxTeammates as string, 10),
         plan_approval: true,
         coordination_timeout: 30,
@@ -187,7 +185,7 @@ export const initCommand = defineCommand({
       },
       review: {
         multi_model: false,
-        models: ['opus', 'sonnet'],
+        models: [],
         require_consensus: true,
       },
       ownership: {

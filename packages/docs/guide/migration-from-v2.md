@@ -89,8 +89,6 @@ stack:
     typecheck: "npx tsc --noEmit"
 
 agents:
-  default_model: sonnet
-  planning_model: opus
   max_teammates: 5
   plan_approval: true
   base:

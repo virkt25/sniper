@@ -80,7 +80,6 @@ Edit `.sniper/config.yaml`:
 1. Read `.sniper/teams/plan.yaml` in full.
 2. Parse out:
    - `team_name`: `sniper-plan`
-   - `model_override`: `opus` -- note this for all teammate spawns
    - The list of `teammates` with their `name`, `compose` layers, `tasks` (including `reads`, `blocked_by`, `plan_approval`)
    - The `coordination` pairs
    - The `review_gate` section (should be `strict`)
@@ -596,7 +595,6 @@ Wait for all teammates to acknowledge shutdown.
 ## IMPORTANT RULES
 
 - You are the LEAD. You coordinate. You do NOT write artifact files.
-- The `model_override: opus` from the team YAML should be noted in the team description. If the Task tool supports model selection, use opus for all teammates in this phase.
 - The architect's `plan_approval: true` is MANDATORY. Do NOT let the architect skip the plan approval step.
 - The review gate is STRICT. Do NOT auto-advance. ALWAYS wait for human approval.
 - If `$ARGUMENTS` contains "dry-run", perform Steps 0-4 only (compose prompts) and print them without spawning.

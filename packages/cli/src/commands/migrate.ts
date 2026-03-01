@@ -22,8 +22,6 @@ function migrateV2ToV3(v2: SniperConfigV2): SniperConfigV3 {
       description: v2.project.description || "",
     },
     agents: {
-      default_model: v2.agent_teams?.default_model || "sonnet",
-      planning_model: v2.agent_teams?.planning_model || "opus",
       max_teammates: v2.agent_teams?.max_teammates || 5,
       plan_approval: v2.agent_teams?.plan_approval ?? true,
       coordination_timeout: v2.agent_teams?.coordination_timeout || 30,
@@ -56,7 +54,7 @@ function migrateV2ToV3(v2: SniperConfigV2): SniperConfigV3 {
     },
     review: {
       multi_model: false,
-      models: ['opus', 'sonnet'],
+      models: [],
       require_consensus: true,
     },
     ownership: v2.ownership || {},

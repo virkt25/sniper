@@ -12,8 +12,6 @@ export interface SniperConfigV3 {
     description: string;
   };
   agents: {
-    default_model: string;
-    planning_model: string;
     max_teammates: number;
     plan_approval: boolean;
     coordination_timeout: number;
@@ -96,8 +94,6 @@ export interface SniperConfigV2 {
   review_gates: Record<string, string>;
   agent_teams: {
     max_teammates: number;
-    default_model: string;
-    planning_model: string;
     delegate_mode: boolean;
     plan_approval: boolean;
     coordination_timeout: number;
@@ -166,7 +162,6 @@ function validateV3Config(data: unknown): SniperConfigV3 {
   // Validate agents
   const agents = cfg.agents as Record<string, unknown>;
   assertField(agents, "agents", "max_teammates", "number");
-  assertField(agents, "agents", "default_model", "string");
 
   // Validate stack
   const stack = cfg.stack as Record<string, unknown>;

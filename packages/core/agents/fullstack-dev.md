@@ -1,5 +1,4 @@
 ---
-model: sonnet
 isolation: worktree
 ---
 

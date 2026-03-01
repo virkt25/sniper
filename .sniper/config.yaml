@@ -36,8 +36,6 @@ review_gates:
 
 agent_teams:
   max_teammates: 5                 # Max concurrent teammates (token budget)
-  default_model: sonnet            # sonnet | opus — for implementation
-  planning_model: opus             # Use Opus for planning & architecture
   delegate_mode: true              # Lead enters delegate mode during team execution
   plan_approval: true              # Require plan approval for complex/risky tasks
   coordination_timeout: 30         # Minutes before lead checks on stalled teammates
