@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@sniper.ai/core)](https://www.npmjs.com/package/@sniper.ai/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Framework core for [SNIPER](https://virkt25.github.io/sniper/) -- provides personas, team compositions, templates, checklists, workflows, and spawn prompts as raw YAML and Markdown files.
+Framework core for [SNIPER](https://sniperai.dev) -- provides agents, personas, skills, protocols, checklists, templates, hooks, and schemas as raw YAML and Markdown files.
 
 ## What is SNIPER?
 
@@ -13,7 +13,7 @@ A full lifecycle runs through four phases: **Discover** (research and analysis),
 
 ## Overview
 
-This package contains no executable code. It ships the framework content that the CLI scaffolds into target projects and that Claude Code agents consume at runtime. Everything lives in the `framework/` directory.
+This package contains no executable code. It ships the framework content that the CLI scaffolds into target projects and that Claude Code agents consume at runtime.
 
 ## Installation
 
@@ -24,17 +24,19 @@ npm install @sniper.ai/core
 ## Contents
 
 ```
-framework/
+├── agents/             # Agent definitions (YAML frontmatter + Markdown)
 ├── personas/           # Agent persona layers (42 total)
-├── teams/              # Team compositions (17 teams)
-├── workflows/          # Phase workflow definitions (4 workflows)
+│   ├── cognitive/      # Thinking style (analytical, security-first, etc.)
+│   ├── process/        # Workflow role (architect, developer, etc.)
+│   └── technical/      # Technical expertise (frontend, backend, etc.)
+├── skills/             # Slash command definitions (18 commands)
+├── protocols/          # Protocol state machines (full, feature, patch, etc.)
 ├── templates/          # Artifact templates (38 templates)
 ├── checklists/         # Quality gate checklists (15 checklists)
-├── spawn-prompts/      # Pre-composed spawn prompts
-├── commands/           # Slash command definitions (18 commands)
+├── hooks/              # Claude Code hook definitions
+├── schemas/            # Runtime data schemas (checkpoint, cost, velocity, etc.)
 ├── config.template.yaml
-├── claude-md.template
-└── settings.template.json
+└── claude-md.template
 ```
 
 ## Persona Layers
@@ -142,7 +144,7 @@ SNIPER defines 17 team compositions for different workflows:
 
 ## Usage
 
-Import framework files directly via the `./framework/*` export:
+Import files directly via subpath exports:
 
 ```js
 import { readFileSync } from 'fs';
@@ -150,13 +152,13 @@ import { createRequire } from 'module';
 
 // Resolve the path to a framework file
 const require = createRequire(import.meta.url);
-const teamPath = require.resolve('@sniper.ai/core/framework/teams/sprint.yaml');
-const teamYaml = readFileSync(teamPath, 'utf-8');
+const protocolPath = require.resolve('@sniper.ai/core/protocols/full.yaml');
+const protocolYaml = readFileSync(protocolPath, 'utf-8');
 ```
 
 ## Documentation
 
-Full documentation is available at [virkt25.github.io/sniper](https://virkt25.github.io/sniper/).
+Full documentation is available at [sniperai.dev](https://sniperai.dev/).
 
 ## License
 

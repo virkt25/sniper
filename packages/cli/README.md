@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@sniper.ai/cli)](https://www.npmjs.com/package/@sniper.ai/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-CLI tool for scaffolding and managing [SNIPER](https://virkt25.github.io/sniper/)-enabled projects.
+CLI tool for scaffolding and managing [SNIPER](https://sniperai.dev/)-enabled projects.
 
 ## What is SNIPER?
 
@@ -54,36 +54,38 @@ Show the current lifecycle phase, artifact state, and team status.
 sniper status
 ```
 
-### `sniper update`
+### `sniper migrate`
 
-Update the scaffolded framework files to the latest version from `@sniper.ai/core`.
+Migrate a v2 SNIPER configuration to the v3 format.
 
 ```bash
-sniper update
+sniper migrate
 ```
 
-### `sniper add-pack <pack>`
+### `sniper plugin install/remove/list`
 
-Install a domain pack to inject project-specific context into agents.
+Manage language plugins (TypeScript, Python, Go).
 
 ```bash
-sniper add-pack @sniper.ai/pack-sales-dialer
+sniper plugin install @sniper.ai/plugin-typescript
+sniper plugin remove @sniper.ai/plugin-typescript
+sniper plugin list
 ```
 
-### `sniper remove-pack <pack>`
+### `sniper knowledge`
 
-Remove an installed domain pack.
+Manage domain knowledge files for MCP-based retrieval.
 
 ```bash
-sniper remove-pack @sniper.ai/pack-sales-dialer
+sniper knowledge
 ```
 
-### `sniper list-packs`
+### `sniper workspace`
 
-List all installed domain packs.
+Manage SNIPER workspaces for multi-repo orchestration.
 
 ```bash
-sniper list-packs
+sniper workspace
 ```
 
 ## Slash Commands (Claude Code)
@@ -150,7 +152,7 @@ pnpm build  # Production build
 
 ## Documentation
 
-Full documentation is available at [virkt25.github.io/sniper](https://virkt25.github.io/sniper/).
+Full documentation is available at [sniperai.dev](https://sniperai.dev/).
 
 ## License
 

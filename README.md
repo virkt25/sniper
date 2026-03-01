@@ -4,6 +4,8 @@
 
 SNIPER is a framework for orchestrating Claude Code agent teams through structured project lifecycle phases. It provides personas, team compositions, workflows, and slash commands that coordinate parallel AI agents to build software from discovery through deployment.
 
+**[Documentation](https://sniperai.dev)**
+
 ## How It Works
 
 SNIPER breaks projects into phases, each driven by a slash command that spawns a coordinated team of AI agents:
@@ -20,8 +22,12 @@ Each agent is composed from layered personas (cognitive style, process role, tec
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| [`@sniper.ai/core`](packages/core) | `@sniper.ai/core` | Framework content — personas, teams, templates, checklists, workflows, and spawn prompts |
+| [`@sniper.ai/core`](packages/core) | `@sniper.ai/core` | Framework core — agents, personas, skills, protocols, checklists, templates, hooks, and schemas |
 | [`@sniper.ai/cli`](packages/cli) | `@sniper.ai/cli` | CLI tool — scaffolds and manages SNIPER-enabled projects |
+| [`@sniper.ai/mcp-knowledge`](packages/mcp-knowledge) | `@sniper.ai/mcp-knowledge` | MCP server for domain knowledge indexing and retrieval |
+| [`@sniper.ai/plugin-typescript`](packages/plugins/plugin-typescript) | `@sniper.ai/plugin-typescript` | TypeScript language plugin — commands, conventions, review checks, agent mixins |
+| [`@sniper.ai/plugin-python`](packages/plugins/plugin-python) | `@sniper.ai/plugin-python` | Python language plugin — commands, conventions, review checks, agent mixins |
+| [`@sniper.ai/plugin-go`](packages/plugins/plugin-go) | `@sniper.ai/plugin-go` | Go language plugin — commands, conventions, review checks, agent mixins |
 | [`@sniper.ai/pack-sales-dialer`](packages/pack-sales-dialer) | `@sniper.ai/pack-sales-dialer` | Example domain pack — sales dialer SaaS domain knowledge |
 
 ## Quick Start
@@ -74,25 +80,25 @@ pnpm release        # Build + publish with changesets
 ```
 sniper/
 ├── packages/
-│   ├── core/               # Framework content (YAML/Markdown)
-│   │   └── framework/
-│   │       ├── personas/   # Agent persona layers
-│   │       ├── teams/      # Team compositions per phase
-│   │       ├── workflows/  # Phase workflow definitions
-│   │       ├── templates/  # Artifact templates (PRD, arch, stories)
-│   │       ├── checklists/ # Quality gate checklists
-│   │       ├── spawn-prompts/
-│   │       └── commands/   # Slash command definitions
-│   ├── cli/                # CLI tool (sniper binary)
+│   ├── core/                       # Framework content (YAML/Markdown, no build)
+│   │   ├── agents/                 # Agent definitions
+│   │   ├── personas/               # Persona layers (cognitive, process, technical)
+│   │   ├── skills/                 # Slash command definitions
+│   │   ├── protocols/              # Protocol state machines
+│   │   ├── templates/              # Artifact templates
+│   │   ├── checklists/             # Quality gate checklists
+│   │   ├── hooks/                  # Claude Code hook definitions
+│   │   └── schemas/                # Runtime data schemas
+│   ├── cli/                        # CLI tool (sniper binary)
+│   │   └── src/commands/           # CLI subcommands
+│   ├── mcp-knowledge/              # MCP server for knowledge retrieval
 │   │   └── src/
-│   │       ├── commands/   # CLI subcommands
-│   │       ├── scaffolder.ts
-│   │       └── pack-manager.ts
-│   └── pack-sales-dialer/  # Example domain pack
-│       └── pack/
-│           ├── pack.yaml
-│           ├── context/    # Domain knowledge files
-│           └── suggested-epics.md
+│   ├── plugins/
+│   │   ├── plugin-typescript/      # TypeScript language plugin
+│   │   ├── plugin-python/          # Python language plugin
+│   │   └── plugin-go/              # Go language plugin
+│   ├── pack-sales-dialer/          # Example domain pack
+│   └── docs/                       # Documentation site (Vitepress)
 ├── docs/
 └── plans/
 ```
@@ -104,6 +110,10 @@ Domain packs inject project-specific knowledge into SNIPER agents. They provide 
 ```bash
 sniper add-pack @sniper.ai/pack-sales-dialer
 ```
+
+## Documentation
+
+Full documentation is available at [sniperai.dev](https://sniperai.dev).
 
 ## License
 

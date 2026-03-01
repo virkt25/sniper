@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@sniper.ai/pack-sales-dialer)](https://www.npmjs.com/package/@sniper.ai/pack-sales-dialer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-SNIPER domain pack for AI-powered sales dialer SaaS projects. Provides domain knowledge context files that [SNIPER](https://virkt25.github.io/sniper/) agents reference during planning and implementation.
+SNIPER domain pack for AI-powered sales dialer SaaS projects. Provides domain knowledge context files that [SNIPER](https://sniperai.dev/) agents reference during planning and implementation.
 
 > **SNIPER** is an AI-powered project lifecycle framework that orchestrates Claude Code agent teams through structured phases. Domain packs inject project-specific knowledge into agent personas so teams can reason about your domain during discovery, planning, and implementation.
 
@@ -115,7 +115,7 @@ sniper add-pack @your-org/pack-your-domain
 
 ## Documentation
 
-Full documentation is available at [virkt25.github.io/sniper](https://virkt25.github.io/sniper/).
+Full documentation is available at [sniperai.dev](https://sniperai.dev/).
 
 ## License
 
