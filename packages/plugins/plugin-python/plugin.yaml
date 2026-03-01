@@ -3,7 +3,7 @@
 # and agent knowledge mixins for SNIPER-managed projects.
 
 name: python
-version: 1.0.0
+version: 3.0.0
 description: >
   Python language plugin for SNIPER. Adds test, lint, typecheck, and format
   commands, enforces Python conventions, and injects backend knowledge

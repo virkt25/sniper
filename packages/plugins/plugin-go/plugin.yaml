@@ -3,7 +3,7 @@
 # and agent knowledge mixins for SNIPER-managed projects.
 
 name: go
-version: 1.0.0
+version: 3.0.0
 description: >
   Go language plugin for SNIPER. Adds test, lint, vet, and build
   commands, enforces Go conventions, and injects backend knowledge

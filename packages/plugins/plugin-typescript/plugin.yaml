@@ -3,7 +3,7 @@
 # and agent knowledge mixins for SNIPER-managed projects.
 
 name: typescript
-version: 1.0.0
+version: 3.0.0
 description: >
   TypeScript language plugin for SNIPER. Adds build, test, lint, and typecheck
   commands, enforces strict TypeScript conventions, and injects backend/frontend

@@ -1,6 +1,6 @@
 {
   "name": "@sniper.ai/plugin-typescript",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "TypeScript language plugin for the SNIPER framework. Provides build, test, lint, and typecheck commands, coding conventions, review checks, and agent knowledge mixins.",
   "type": "module",
   "files": [

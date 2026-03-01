@@ -1,6 +1,6 @@
 {
   "name": "@sniper.ai/plugin-python",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Python language plugin for the SNIPER framework. Provides test, lint, typecheck, and format commands, coding conventions, review checks, and agent knowledge mixins.",
   "type": "module",
   "files": [
