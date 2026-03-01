@@ -2,11 +2,11 @@
 import { ref, onMounted } from 'vue'
 
 const stats = [
-  { value: 18, label: 'Commands' },
-  { value: 42, label: 'Personas' },
-  { value: 17, label: 'Teams' },
-  { value: 38, label: 'Templates' },
-  { value: 15, label: 'Checklists' },
+  { value: 11, label: 'Agents' },
+  { value: 7, label: 'Protocols' },
+  { value: 14, label: 'Templates' },
+  { value: 13, label: 'Schemas' },
+  { value: 3, label: 'Plugins' },
 ]
 
 const displayed = ref<number[]>(stats.map(() => 0))

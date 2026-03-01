@@ -1,367 +1,175 @@
 ---
 title: Teams Cheatsheet
+description: Quick reference for all pre-configured agent team compositions
 ---
 
 # Teams Cheatsheet
 
-Quick reference for every SNIPER team composition. Each card shows persona layers assigned to each member.
+Quick reference for how SNIPER v3 assembles agent teams. In v3, there are no standalone team YAML files. Instead, **protocols** define which agents are spawned for each phase. The lead-orchestrator reads the protocol definition and spawns agents accordingly.
 
-## Summary
+For a deeper explanation of how agents collaborate, see [Teams](/guide/teams). For the overall framework design, see [Architecture](/guide/architecture).
 
-| Team | Members | Gate | Phase |
-|------|---------|------|-------|
-| [`discover`](#discover) | 3 | <span class="gate-flexible">FLEXIBLE</span> | Discover |
-| [`plan`](#plan) | 4 | <span class="gate-strict">STRICT</span> | Plan |
-| [`sprint`](#sprint) | 2--5 | <span class="gate-strict">STRICT</span> | Sprint |
-| [`ingest`](#ingest) | 3 | <span class="gate-flexible">FLEXIBLE</span> | Ingest |
-| [`feature-plan`](#feature-plan) | 2 | <span class="gate-flexible">FLEXIBLE</span> | Feature |
-| [`debug`](#debug) | 2 | <span class="gate-flexible">FLEXIBLE</span> | Debug |
-| [`review-pr`](#review-pr) | 3 | <span class="gate-auto">AUTO</span> | PR Review |
-| [`review-release`](#review-release) | 3 | <span class="gate-auto">AUTO</span> | Release Review |
-| [`doc`](#doc) | 3 | <span class="gate-flexible">FLEXIBLE</span> | Documentation |
-| [`test`](#test) | 2 | <span class="gate-flexible">FLEXIBLE</span> | Test Audit |
-| [`security`](#security) | 2 | <span class="gate-flexible">FLEXIBLE</span> | Security Audit |
-| [`retro`](#retro) | 1 | <span class="gate-none">NONE</span> | Retrospective |
-| [`workspace-feature`](#workspace-feature) | 2 | <span class="gate-strict">STRICT</span> | Workspace |
-| [`workspace-validation`](#workspace-validation) | 1 | <span class="gate-none">NONE</span> | Workspace |
+## The 11 Agents
 
----
+Every agent team in SNIPER v3 is composed from this fixed roster of 11 agents.
 
-## Lifecycle Teams
+| Agent | Model | Role | Writes To |
+|-------|-------|------|-----------|
+| `lead-orchestrator` | Opus | Coordinates teams, delegates work, manages gates | `.sniper/` only |
+| `analyst` | Sonnet | Research, codebase analysis, spec production | `docs/`, `.sniper/` |
+| `architect` | Opus | Architecture design, decision records, API contracts | `docs/` |
+| `product-manager` | Sonnet | PRD writing, story creation with EARS criteria | `docs/` |
+| `backend-dev` | Sonnet | Server-side implementation (worktree-isolated) | project source |
+| `frontend-dev` | Sonnet | Client-side implementation (worktree-isolated) | project source |
+| `fullstack-dev` | Sonnet | Full-stack implementation (worktree-isolated) | project source |
+| `qa-engineer` | Sonnet | Test writing, coverage analysis, acceptance validation | test files only |
+| `code-reviewer` | Opus | Multi-faceted review, risk scoring, spec reconciliation | `docs/` |
+| `gate-reviewer` | Haiku | Automated checklist execution at phase boundaries | `.sniper/gates/` |
+| `retro-analyst` | Sonnet | Post-protocol retrospective and velocity tracking | `.sniper/` |
 
-### discover {#discover}
+## Protocol Phase Map
 
-3 members · <span class="gate-flexible">FLEXIBLE</span> gate · parallel (no dependencies) · [discover-review](/reference/checklists/discover-review) checklist
+Each protocol defines a sequence of phases. Each phase lists which agents are spawned and whether they run as a `single` agent or a `team`.
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#discover"><code>/sniper-discover</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/brief.md</code> · <code>docs/risks.md</code> · <code>docs/personas.md</code></td></tr>
-<tr><th>Members</th><td>
+### `full` -- Complete Project Lifecycle
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| analyst | [analyst](/reference/personas/process/analyst) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| risk-researcher | [analyst](/reference/personas/process/analyst) | [infrastructure](/reference/personas/technical/infrastructure) | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-| user-researcher | [analyst](/reference/personas/process/analyst) | -- | [user-empathetic](/reference/personas/cognitive/user-empathetic) |
+4 phases -- discover, plan, implement, review -- budget: 2M tokens -- auto-retro: yes
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/discover">Full team reference</a></td></tr>
-</table>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **discover** | `analyst` | single | discover | No |
+| **plan** | `architect`, `product-manager` | team | plan | Yes |
+| **implement** | `fullstack-dev`, `qa-engineer` | team | implement | No |
+| **review** | `code-reviewer` | single | review | Yes |
+
+**Coordination:** architect and product-manager coordinate so architecture is approved before stories reference it. Implement phase uses plan approval (agents present their approach before coding).
+
+**Outputs:** `docs/spec.md`, `docs/codebase-overview.md`, `docs/architecture.md`, `docs/prd.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
 
 ---
 
-### plan {#plan}
+### `feature` -- Incremental Feature
 
-4 members · <span class="gate-strict">STRICT</span> gate · Opus model · [plan-review](/reference/checklists/plan-review) checklist
+3 phases -- plan, implement, review -- budget: 800K tokens -- auto-retro: yes
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#plan"><code>/sniper-plan</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/prd.md</code> · <code>docs/architecture.md</code> · <code>docs/ux-spec.md</code> · <code>docs/security.md</code></td></tr>
-<tr><th>Dependencies</th><td>architect, ux-designer, security-analyst all blocked by product-manager (PRD first)</td></tr>
-<tr><th>Plan approval</th><td>architect must present approach before writing</td></tr>
-<tr><th>Members</th><td>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **plan** | `architect`, `product-manager` | team | plan | Yes |
+| **implement** | `fullstack-dev`, `qa-engineer` | team | implement | No |
+| **review** | `code-reviewer` | single | review | Yes |
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| product-manager | [product-manager](/reference/personas/process/product-manager) | [api-design](/reference/personas/technical/api-design) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| architect | [architect](/reference/personas/process/architect) | [backend](/reference/personas/technical/backend) | [security-first](/reference/personas/cognitive/security-first) |
-| ux-designer | [ux-designer](/reference/personas/process/ux-designer) | [frontend](/reference/personas/technical/frontend) | [user-empathetic](/reference/personas/cognitive/user-empathetic) |
-| security-analyst | [architect](/reference/personas/process/architect) | [security](/reference/personas/technical/security) | [security-first](/reference/personas/cognitive/security-first) |
+**Coordination:** Same as full protocol. Implement phase uses plan approval.
 
-</td></tr>
-<tr><th>Coordination</th><td>architect <-> security-analyst · architect <-> ux-designer</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/plan">Full team reference</a></td></tr>
-</table>
+**Outputs:** `docs/architecture.md`, `docs/prd.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
 
 ---
 
-### sprint {#sprint}
+### `patch` -- Quick Fix
 
-2--5 members from pool · <span class="gate-strict">STRICT</span> gate · spawned on demand by story ownership
+2 phases -- implement, review -- budget: 200K tokens -- auto-retro: no
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#sprint"><code>/sniper-sprint</code></a></td></tr>
-<tr><th>Outputs</th><td>Source code · test files</td></tr>
-<tr><th>Coordination</th><td>backend <-> frontend · backend <-> ai · backend <-> qa</td></tr>
-<tr><th>Note</th><td>qa-engineer is always included. Others are spawned based on story ownership.</td></tr>
-<tr><th>Member pool</th><td>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **implement** | `fullstack-dev` | single | implement | No |
+| **review** | `code-reviewer` | single | review | Yes |
 
-| Name | Process | Technical | Cognitive | Model | Owns |
-|------|---------|-----------|-----------|-------|------|
-| backend-dev | [developer](/reference/personas/process/developer) | [backend](/reference/personas/technical/backend) | [systems-thinker](/reference/personas/cognitive/systems-thinker) | Sonnet | backend |
-| frontend-dev | [developer](/reference/personas/process/developer) | [frontend](/reference/personas/technical/frontend) | [user-empathetic](/reference/personas/cognitive/user-empathetic) | Sonnet | frontend |
-| infra-dev | [developer](/reference/personas/process/developer) | [infrastructure](/reference/personas/technical/infrastructure) | [systems-thinker](/reference/personas/cognitive/systems-thinker) | Sonnet | infrastructure |
-| ai-dev | [developer](/reference/personas/process/developer) | [ai-ml](/reference/personas/technical/ai-ml) | [performance-focused](/reference/personas/cognitive/performance-focused) | Opus | ai |
-| qa-engineer | [qa-engineer](/reference/personas/process/qa-engineer) | [backend](/reference/personas/technical/backend) | [devils-advocate](/reference/personas/cognitive/devils-advocate) | Sonnet | tests |
+**No plan approval.** The developer goes straight to coding.
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/sprint">Full team reference</a></td></tr>
-</table>
+**Outputs:** source code, test files, `docs/review-report.md`
 
 ---
 
-### ingest {#ingest}
+### `ingest` -- Codebase Ingestion
 
-3 members · <span class="gate-flexible">FLEXIBLE</span> gate · parallel (no dependencies) · [ingest-review](/reference/checklists/ingest-review) checklist
+3 phases -- scan, document, extract -- budget: 1M tokens -- auto-retro: no
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#ingest"><code>/sniper-ingest</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/brief.md</code> · <code>docs/architecture.md</code> · <code>docs/conventions.md</code></td></tr>
-<tr><th>Members</th><td>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **scan** | `analyst` | single | ingest-scan | No |
+| **document** | `analyst` | single | ingest-document | No |
+| **extract** | `analyst` | single | ingest-extract | No |
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| code-archaeologist | [code-archaeologist](/reference/personas/process/code-archaeologist) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| architecture-cartographer | [architecture-cartographer](/reference/personas/process/architecture-cartographer) | [backend](/reference/personas/technical/backend) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| convention-miner | [convention-miner](/reference/personas/process/convention-miner) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
+**Single-agent protocol.** The analyst runs all three phases sequentially.
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/ingest">Full team reference</a></td></tr>
-</table>
+**Outputs:** `docs/codebase-overview.md`, `docs/spec.md`, `.sniper/conventions.yaml`
 
 ---
 
-## Extended Teams
+### `refactor` -- Code Improvement
 
-### feature-plan {#feature-plan}
+3 phases -- analyze, implement, review -- budget: 600K tokens -- auto-retro: yes
 
-2 members · <span class="gate-flexible">FLEXIBLE</span> gate · Opus model · [feature-review](/reference/checklists/feature-review) checklist
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **analyze** | `analyst` | single | refactor-analyze | No |
+| **implement** | `fullstack-dev` | single | implement | No |
+| **review** | `code-reviewer` | single | review | Yes |
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#feature"><code>/sniper-feature</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/features/SNPR-{XXXX}/spec.md</code> · <code>arch-delta.md</code></td></tr>
-<tr><th>Dependencies</th><td>feature-architect blocked by feature-pm</td></tr>
-<tr><th>Plan approval</th><td>feature-architect must present approach before writing</td></tr>
-<tr><th>Members</th><td>
+**All single-agent phases.** Each phase hands off to the next agent in sequence.
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| feature-pm | [product-manager](/reference/personas/process/product-manager) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| feature-architect | [architect](/reference/personas/process/architect) | [backend](/reference/personas/technical/backend) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/feature-plan">Full team reference</a></td></tr>
-</table>
+**Outputs:** `docs/spec.md`, source code, test files, `docs/review-report.md`
 
 ---
 
-### debug {#debug}
+### `explore` -- Exploratory Analysis
 
-2 members · <span class="gate-flexible">FLEXIBLE</span> gate · parallel · [debug-review](/reference/checklists/debug-review) checklist
+1 phase -- discover -- budget: 500K tokens -- auto-retro: no
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#debug"><code>/sniper-debug</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/bugs/BUG-{NNN}/investigation.md</code></td></tr>
-<tr><th>Members</th><td>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **discover** | `analyst` | single | discover | No |
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| log-analyst | [log-analyst](/reference/personas/process/log-analyst) | -- | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-| code-investigator | [code-investigator](/reference/personas/process/code-investigator) | [backend](/reference/personas/technical/backend) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
+**Lightest protocol.** Single analyst explores and documents.
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/debug">Full team reference</a></td></tr>
-</table>
+**Outputs:** `docs/spec.md`, `docs/codebase-overview.md`
 
 ---
 
-### review-pr {#review-pr}
+### `hotfix` -- Critical Fix
 
-3 members · <span class="gate-auto">AUTO</span> gate · parallel
+1 phase -- implement -- budget: 100K tokens -- auto-retro: no
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-review-pr"><code>/sniper-audit --target review --pr N</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/reviews/PR-{NNN}-review.md</code></td></tr>
-<tr><th>Members</th><td>
+| Phase | Agents | Strategy | Gate | Human Approval |
+|-------|--------|----------|------|----------------|
+| **implement** | `fullstack-dev` | single | implement (non-blocking) | No |
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| code-reviewer | [code-reviewer](/reference/personas/process/code-reviewer) | -- | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-| security-reviewer | [code-reviewer](/reference/personas/process/code-reviewer) | -- | [security-first](/reference/personas/cognitive/security-first) |
-| test-reviewer | [qa-engineer](/reference/personas/process/qa-engineer) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
+**Fastest path to production.** No plan approval, non-blocking gate, no review phase.
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/review-pr">Full team reference</a></td></tr>
-</table>
+**Outputs:** source code, test files
 
 ---
 
-### review-release {#review-release}
+## Agent Usage Across Protocols
 
-3 members · <span class="gate-auto">AUTO</span> gate · parallel
+Which agents appear in which protocols at a glance.
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-review-release"><code>/sniper-audit --target review --release TAG</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/releases/{version}-readiness.md</code></td></tr>
-<tr><th>Members</th><td>
+| Agent | full | feature | patch | ingest | refactor | explore | hotfix |
+|-------|:----:|:-------:|:-----:|:------:|:--------:|:-------:|:------:|
+| `analyst` | discover | -- | -- | scan, document, extract | analyze | discover | -- |
+| `architect` | plan | plan | -- | -- | -- | -- | -- |
+| `product-manager` | plan | plan | -- | -- | -- | -- | -- |
+| `fullstack-dev` | implement | implement | implement | -- | implement | -- | implement |
+| `qa-engineer` | implement | implement | -- | -- | -- | -- | -- |
+| `code-reviewer` | review | review | review | -- | review | -- | -- |
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| release-manager | [release-manager](/reference/personas/process/release-manager) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| breaking-change-analyst | [code-reviewer](/reference/personas/process/code-reviewer) | -- | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-| doc-reviewer | [doc-writer](/reference/personas/process/doc-writer) | -- | [user-empathetic](/reference/personas/cognitive/user-empathetic) |
+**Always present but not listed in protocol phases:** `lead-orchestrator` (coordinates all protocols), `gate-reviewer` (runs automatically at phase boundaries), `retro-analyst` (runs after protocols with `auto_retro: true`).
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/review-release">Full team reference</a></td></tr>
-</table>
+## Spawn Strategies
 
----
+Protocols specify how agents are launched for each phase:
 
-### doc {#doc}
+| Strategy | Meaning |
+|----------|---------|
+| `single` | One agent runs the phase alone. No TeamCreate needed. |
+| `team` | Multiple agents are spawned via TeamCreate and coordinate through tasks. |
 
-3 members · <span class="gate-flexible">FLEXIBLE</span> gate · sequential pipeline · [doc-review](/reference/checklists/doc-review) checklist
+## Gate Flow
 
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#doc"><code>/sniper-doc</code></a></td></tr>
-<tr><th>Outputs</th><td><code>README.md</code> · <code>docs/*.md</code> · <code>docs/.sniper-doc-review.md</code></td></tr>
-<tr><th>Dependencies</th><td>doc-writer blocked by doc-analyst · doc-reviewer blocked by doc-writer</td></tr>
-<tr><th>Members</th><td>
+At every phase boundary, the `gate-reviewer` executes the phase checklist automatically:
 
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| doc-analyst | [doc-analyst](/reference/personas/process/doc-analyst) | -- | [user-empathetic](/reference/personas/cognitive/user-empathetic) |
-| doc-writer | [doc-writer](/reference/personas/process/doc-writer) | from-config | [mentor-explainer](/reference/personas/cognitive/mentor-explainer) |
-| doc-reviewer | [doc-reviewer](/reference/personas/process/doc-reviewer) | -- | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
+1. Lead-orchestrator completes a phase
+2. Gate-reviewer runs all checks from the phase checklist
+3. If all blocking checks pass, the protocol advances
+4. If any blocking check fails, the lead-orchestrator reassigns failed checks to the appropriate agent
 
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/doc">Full team reference</a></td></tr>
-</table>
-
----
-
-### test {#test}
-
-2 members · <span class="gate-flexible">FLEXIBLE</span> gate · parallel · [test-review](/reference/checklists/test-review) checklist
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-tests"><code>/sniper-audit --target tests</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/audits/TST-{NNN}/coverage-report.md</code> · <code>flaky-report.md</code></td></tr>
-<tr><th>Members</th><td>
-
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| coverage-analyst | [coverage-analyst](/reference/personas/process/coverage-analyst) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| flake-hunter | [flake-hunter](/reference/personas/process/flake-hunter) | -- | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/test">Full team reference</a></td></tr>
-</table>
-
----
-
-### security {#security}
-
-2 members · <span class="gate-flexible">FLEXIBLE</span> gate · parallel · [security-review](/reference/checklists/security-review) checklist
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-security"><code>/sniper-audit --target security</code></a></td></tr>
-<tr><th>Outputs</th><td><code>docs/audits/SEC-{NNN}/threat-model.md</code> · <code>vulnerability-report.md</code></td></tr>
-<tr><th>Members</th><td>
-
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| threat-modeler | [threat-modeler](/reference/personas/process/threat-modeler) | [security](/reference/personas/technical/security) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| vuln-scanner | [vuln-scanner](/reference/personas/process/vuln-scanner) | [security](/reference/personas/technical/security) | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/security">Full team reference</a></td></tr>
-</table>
-
----
-
-### retro {#retro}
-
-1 member · <span class="gate-none">NONE</span> gate
-
-<table class="inverted">
-<tr><th>Outputs</th><td><code>.sniper/memory/retros/sprint-{N}-retro.yaml</code></td></tr>
-<tr><th>Member</th><td>
-
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| retro-analyst | [retro-analyst](/reference/personas/process/retro-analyst) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/retro">Full team reference</a></td></tr>
-</table>
-
----
-
-## Workspace Teams
-
-### workspace-feature {#workspace-feature}
-
-2 members · <span class="gate-strict">STRICT</span> gate · [workspace-review](/reference/checklists/workspace-review) checklist
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#workspace-feature"><code>/sniper-workspace feature</code></a></td></tr>
-<tr><th>Outputs</th><td><code>features/WKSP-{XXXX}/brief.md</code> · <code>plan.md</code> · <code>contracts/*.contract.yaml</code></td></tr>
-<tr><th>Coordination</th><td>orchestrator <-> contract-designer</td></tr>
-<tr><th>Members</th><td>
-
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| orchestrator | [workspace-orchestrator](/reference/personas/process/workspace-orchestrator) | -- | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-| contract-designer | [contract-designer](/reference/personas/process/contract-designer) | [api-design](/reference/personas/technical/api-design) | [systems-thinker](/reference/personas/cognitive/systems-thinker) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/workspace-feature">Full team reference</a></td></tr>
-</table>
-
----
-
-### workspace-validation {#workspace-validation}
-
-1 member · <span class="gate-none">NONE</span> gate
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#workspace-validate"><code>/sniper-workspace validate</code></a></td></tr>
-<tr><th>Outputs</th><td><code>features/WKSP-{XXXX}/validation-wave-{N}.md</code></td></tr>
-<tr><th>Member</th><td>
-
-| Name | Process | Technical | Cognitive |
-|------|---------|-----------|-----------|
-| validator | [integration-validator](/reference/personas/process/integration-validator) | [backend](/reference/personas/technical/backend) | [devils-advocate](/reference/personas/cognitive/devils-advocate) |
-
-</td></tr>
-<tr><th>Reference</th><td><a href="/reference/teams/workspace-validation">Full team reference</a></td></tr>
-</table>
-
----
-
-## Single-Agent Phases
-
-These phases run directly without spawning a team:
-
-### solve
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#solve"><code>/sniper-solve</code></a></td></tr>
-<tr><th>Agent</th><td>[scrum-master](/reference/personas/process/scrum-master) · [systems-thinker](/reference/personas/cognitive/systems-thinker)</td></tr>
-<tr><th>Gate</th><td><span class="gate-flexible">FLEXIBLE</span></td></tr>
-<tr><th>Outputs</th><td><code>docs/epics/*.md</code> · <code>docs/stories/*.md</code></td></tr>
-</table>
-
-### refactor (impact analysis)
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-refactor"><code>/sniper-audit --target refactor</code></a></td></tr>
-<tr><th>Agent</th><td>[impact-analyst](/reference/personas/process/impact-analyst) · [devils-advocate](/reference/personas/cognitive/devils-advocate)</td></tr>
-<tr><th>Gate</th><td><span class="gate-flexible">FLEXIBLE</span></td></tr>
-</table>
-
-### refactor (migration planning)
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-refactor"><code>/sniper-audit --target refactor</code></a></td></tr>
-<tr><th>Agent</th><td>[migration-architect](/reference/personas/process/migration-architect) · [backend](/reference/personas/technical/backend) · [systems-thinker](/reference/personas/cognitive/systems-thinker)</td></tr>
-<tr><th>Gate</th><td><span class="gate-flexible">FLEXIBLE</span></td></tr>
-</table>
-
-### performance profiling
-
-<table class="inverted">
-<tr><th>Command</th><td><a href="/guide/cheatsheet-commands#audit-performance"><code>/sniper-audit --target performance</code></a></td></tr>
-<tr><th>Agent</th><td>[perf-profiler](/reference/personas/process/perf-profiler) · [backend](/reference/personas/technical/backend) · [systems-thinker](/reference/personas/cognitive/systems-thinker)</td></tr>
-<tr><th>Gate</th><td><span class="gate-flexible">FLEXIBLE</span></td></tr>
-</table>
+When `review.multi_model` is enabled in config, the gate-reviewer runs checks with multiple models and applies consensus logic (unanimous or majority-wins).

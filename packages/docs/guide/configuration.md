@@ -1,5 +1,6 @@
 ---
 title: Configuration
+description: Configure .sniper/config.yaml — agents, protocols, budgets, gates, triggers, and plugins
 ---
 
 # Configuration
@@ -29,105 +30,139 @@ stack:
   frontend: react             # Frontend framework (null if none)
   backend: node-express       # Backend framework
   database: postgresql        # Primary database
-  cache: redis                # Cache layer (null if none)
   infrastructure: aws         # Cloud provider
   test_runner: vitest         # Test framework
   package_manager: pnpm       # Package manager
+  commands:                   # Shell commands agents use
+    test: "pnpm test"
+    lint: "pnpm lint"
+    typecheck: "pnpm typecheck"
+    build: "pnpm build"
 ```
 
-Set any field to `null` if it does not apply (e.g., `frontend: null` for a CLI project).
+Set any field to `null` if it does not apply (e.g., `frontend: null` for a CLI project). The `commands` block tells agents how to run tests, lint, typecheck, and build your project.
 
 ## Review Gates
 
-Controls how quality gates behave at each phase transition:
+In v3, gates are configured **per-phase inside protocol YAML files**, not in `config.yaml`. Each phase in a protocol defines a `gate` block with a `human_approval` boolean:
 
 ```yaml
-review_gates:
-  after_ingest: flexible      # Low risk -- auto-advance
-  after_discover: flexible    # Low risk -- auto-advance
-  after_plan: strict          # HIGH RISK -- bad architecture cascades
-  after_solve: flexible       # Low risk -- stories can be refined later
-  after_sprint: strict        # HIGH RISK -- code must be reviewed
+# Example from a protocol YAML phase definition
+phases:
+  plan:
+    agents: [architect, product-manager]
+    spawn_strategy: team
+    gate:
+      human_approval: true    # true = human must approve; false = auto-advance
+      checklist: plan.yaml
 ```
 
-Three modes are available:
-
-| Mode | Behavior | When to Use |
-|------|----------|-------------|
-| `strict` | Full stop. Human must approve before next phase. | Architecture, code review |
-| `flexible` | Auto-advance if no critical failures. Human reviews async. | Discovery, story creation |
-| `auto` | No review gate at all. | Not recommended for most phases |
+When `human_approval: true`, the lifecycle halts and waits for explicit human approval before advancing. When `false`, the gate auto-advances if there are no critical failures.
 
 ::: warning
-Setting `after_plan` or `after_sprint` to `auto` is strongly discouraged. Bad architecture decisions cascade through the entire project, and unreviewed code can introduce bugs and security issues.
+Disabling `human_approval` on plan or review phases is strongly discouraged. Bad architecture decisions cascade through the entire project, and unreviewed code can introduce bugs and security issues.
 :::
 
-## Agent Teams
+## Agents
 
 Controls how agent teams are spawned and managed:
 
 ```yaml
-agent_teams:
-  max_teammates: 5            # Max concurrent teammates
-  default_model: sonnet       # Model for implementation agents
-  planning_model: opus        # Model for planning & architecture
-  delegate_mode: true         # Lead enters delegate mode during team execution
-  plan_approval: true         # Require plan approval for complex tasks
-  coordination_timeout: 30    # Minutes before lead checks on stalled teammates
+agents:
+  default_model: sonnet          # Model for implementation agents
+  planning_model: opus           # Model for planning & architecture
+  max_teammates: 5               # Max concurrent teammates
+  plan_approval: true            # Require plan approval for complex tasks
+  coordination_timeout: 30       # Minutes before lead checks on stalled teammates
+  base:                          # Base agent set available to protocols
+    - analyst
+    - architect
+    - product-manager
+    - fullstack-dev
+    - code-reviewer
+    - qa-engineer
+  mixins:                        # Cognitive mixin assignments per agent
+    architect:
+      - security-first
+    code-reviewer:
+      - devils-advocate
+    qa-engineer:
+      - devils-advocate
 ```
 
-- **max_teammates** limits the number of simultaneous agents to manage token budgets
+- **default_model** is used for implementation and review agents
 - **planning_model** is used for the plan phase, where higher quality output justifies the cost
-- **plan_approval** requires agents with `plan_approval: true` in their task to describe their approach before executing
+- **max_teammates** limits the number of simultaneous agents to manage token budgets
+- **plan_approval** requires agents to describe their approach before executing
 - **coordination_timeout** triggers a check-in if a teammate has not reported progress
+- **base** lists the agent names available to protocols (must match agent definitions in `.claude/agents/`)
+- **mixins** maps agent names to lists of cognitive mixin names (e.g., `security-first`, `devils-advocate`, `performance-focused`)
 
-## Domain Packs
+## Plugins
 
-Register domain-specific knowledge packs:
-
-```yaml
-domain_packs: []
-# Example:
-# domain_packs:
-#   - name: "sales-dialer"
-#     package: "@sniper.ai/pack-sales-dialer"
-```
-
-Domain packs provide industry-specific knowledge files, custom personas, checklists, and templates. See [Domain Packs](/guide/domain-packs) for authoring details.
-
-## Documentation
-
-Controls the `/sniper-doc` command behavior:
+Register language and domain plugins:
 
 ```yaml
-documentation:
-  output_dir: "docs/"            # Where generated docs are written
-  managed_sections: true         # Use <!-- sniper:managed --> protocol
-  include:                       # Default doc types to generate
-    - readme
-    - setup
-    - architecture
-    - api
-  exclude: []                    # Doc types to skip
+plugins:
+  - name: typescript
+    package: "@sniper.ai/plugin-typescript"
+  - name: sales-dialer
+    package: "@sniper.ai/pack-sales-dialer"
 ```
 
-The `managed_sections` protocol allows SNIPER to update specific sections of documentation files without overwriting manual edits. Sections wrapped in `<!-- sniper:managed -->` markers are regenerated; content outside those markers is preserved.
+Plugins provide language-specific commands, conventions, review checks, agent mixins, and domain knowledge. Manage plugins via the CLI:
 
-## Memory
+```bash
+sniper plugin install @sniper.ai/plugin-typescript
+sniper plugin remove @sniper.ai/plugin-typescript
+sniper plugin list
+```
 
-Configures the agent memory and learning system:
+## Routing
+
+Controls protocol auto-detection and token budgets:
 
 ```yaml
-memory:
-  enabled: true               # Enable memory system
-  auto_retro: true            # Auto-run retrospective after sprint completion
-  auto_codify: true           # Auto-codify high-confidence retro findings
-  token_budget: 2000          # Max tokens for memory layer in spawn prompts
+routing:
+  auto_detect:
+    patch_max_files: 3          # Max changed files to auto-select patch protocol
+    feature_max_files: 10       # Max changed files to auto-select feature protocol
+  default: full                 # Default protocol when auto-detect is inconclusive
+  budgets:                      # Token budgets per protocol (overridden by velocity calibration after 5+ runs)
+    full: 200000
+    feature: 100000
+    patch: 30000
 ```
 
-When enabled, the memory system tracks conventions, anti-patterns, and decisions that agents learn over time. The `token_budget` controls how much memory context is included in spawn prompts -- if memory exceeds the budget, entries are prioritized by severity and enforcement level.
+When you run `/sniper-flow` without specifying a protocol, SNIPER uses these thresholds to auto-detect the right protocol scope based on changed files.
 
-See [Memory System](/guide/memory) for details on how memory works.
+## Cost
+
+Controls cost tracking and guardrails:
+
+```yaml
+cost:
+  warn_threshold: 5.00        # Warn when cumulative cost exceeds this (USD)
+  soft_cap: 15.00             # Prompt for confirmation before continuing
+  hard_cap: 50.00             # Abort execution at this threshold
+```
+
+Cost is tracked per protocol execution in `.sniper/checkpoints/`. Use `/sniper-status` to view current cost.
+
+## Review (Optional)
+
+Configures multi-model review for gate evaluations:
+
+```yaml
+review:
+  multi_model: true            # Enable multi-model review
+  models:                      # Models to use for review consensus
+    - sonnet
+    - opus
+  require_consensus: true      # true = all models must agree; false = majority wins
+```
+
+When `multi_model` is enabled, gate evaluations are run by multiple models and results are compared. This catches model-specific blind spots.
 
 ## Workspace
 
@@ -135,12 +170,10 @@ Configures multi-repo orchestration:
 
 ```yaml
 workspace:
-  enabled: false              # Set true when part of a workspace
-  workspace_path: null        # Relative path to workspace root
-  repo_name: null             # This repo's name in the workspace
+  ref: "../workspace-root"    # Relative path to workspace root
 ```
 
-When `enabled: true`, the agent memory system also loads workspace-level conventions, and agents are aware of cross-repo dependencies.
+When set, agents are aware of cross-repo dependencies and workspace-level conventions.
 
 See [Workspace Mode](/guide/workspace-mode) for setup and usage.
 
@@ -182,66 +215,80 @@ ownership:
 ```
 
 ::: tip
-After running `/sniper-ingest`, the convention-miner agent automatically updates ownership paths to match your actual project structure. Review the updated paths after ingestion.
+After running `/sniper-flow --protocol ingest`, the framework automatically updates ownership paths to match your actual project structure. Review the updated paths after ingestion.
 :::
 
-Customize these paths to match your project layout. During sprints, each teammate is mapped to an ownership key via the `owns_from_config` field in the team YAML.
+Customize these paths to match your project layout. During implementation, each agent's file access is scoped by these ownership boundaries.
 
-## Lifecycle State
+## Visibility
 
-The `state` section is managed automatically by SNIPER commands. Do not edit it manually.
-
-```yaml
-schema_version: 2
-
-state:
-  phase_log: []               # History of all phase runs
-  current_sprint: 0           # Current sprint number
-
-  artifacts:                  # Status and version of each artifact
-    brief:
-      status: null            # null | draft | approved
-      version: 0
-    risks: { status: null, version: 0 }
-    personas: { status: null, version: 0 }
-    prd: { status: null, version: 0 }
-    architecture: { status: null, version: 0 }
-    ux_spec: { status: null, version: 0 }
-    security: { status: null, version: 0 }
-    conventions: { status: null, version: 0 }
-    epics: { status: null, version: 0 }
-    stories: { status: null, version: 0 }
-
-  feature_counter: 1          # Next SNPR-XXXX ID
-  features: []                # Feature lifecycle entries
-  bug_counter: 1              # Next BUG-NNN ID
-  bugs: []                    # Bug tracking entries
-  refactor_counter: 1         # Next REF-NNN ID
-  refactors: []               # Refactor tracking entries
-  reviews: []                 # Review entries
-  test_audit_counter: 1       # Next TST-NNN ID
-  test_audits: []             # Test audit entries
-  security_audit_counter: 1   # Next SEC-NNN ID
-  security_audits: []         # Security audit entries
-  perf_audit_counter: 1       # Next PERF-NNN ID
-  perf_audits: []             # Performance audit entries
-  retro_counter: 0            # Number of retrospectives run
-  last_retro_sprint: 0        # Last sprint with a retrospective
-```
-
-The `phase_log` array records every phase execution with context, timestamps, and approval status:
+Controls what runtime data SNIPER tracks and displays:
 
 ```yaml
-phase_log:
-  - phase: discover
-    context: "initial"
-    started_at: "2026-02-20T10:00:00Z"
-    completed_at: "2026-02-20T10:15:00Z"
-    approved_by: "auto-flexible"
+visibility:
+  live_status: true           # Show real-time agent status during execution
+  checkpoints: true           # Save phase checkpoints to .sniper/checkpoints/
+  cost_tracking: true         # Track token usage and cost per protocol run
+  auto_retro: true            # Auto-run retrospective after protocol completion
 ```
+
+When `auto_retro` is enabled, the retro-analyst agent records execution metrics to `.sniper/memory/velocity.yaml` after each protocol run. After 5+ executions, calibrated budgets (p75) replace configured defaults.
+
+## Triggers (Optional)
+
+Map file patterns to agents or protocols for auto-detection:
+
+```yaml
+triggers:
+  - pattern: "src/api/**"
+    agent: backend-dev
+  - pattern: "*.test.*"
+    agent: qa-engineer
+  - pattern: "docs/**"
+    protocol: explore
+```
+
+Triggers are glob-matched against changed files during auto-detection. They influence which agents are spawned and which protocol is selected.
+
+## Knowledge (Optional)
+
+Configure external knowledge injection into agent prompts:
+
+```yaml
+knowledge:
+  directory: ".sniper/knowledge"   # Directory containing knowledge files
+  manifest: "manifest.yaml"        # Knowledge manifest file
+  max_total_tokens: 4000           # Max tokens from knowledge in spawn prompts
+```
+
+## MCP Knowledge (Optional)
+
+Configure MCP-based knowledge indexing:
+
+```yaml
+mcp_knowledge:
+  enabled: false
+  directory: ".sniper/knowledge"
+  auto_index: true
+```
+
+## Headless (Optional)
+
+Configure headless (CI/automation) execution:
+
+```yaml
+headless:
+  auto_approve_gates: false       # Auto-approve all gates (use in CI only)
+  output_format: json             # Output format: json | text
+  log_level: info                 # Log level: debug | info | warn | error
+  timeout_minutes: 60             # Max execution time before abort
+  fail_on_gate_failure: true      # Exit non-zero if a gate fails
+```
+
+Headless mode is designed for CI pipelines where no human is available to approve gates.
 
 ## Next Steps
 
 - [Full Lifecycle](/guide/full-lifecycle) -- see how configuration affects each phase
 - [Review Gates](/guide/review-gates) -- detailed gate configuration and checklists
-- [Memory System](/guide/memory) -- configure and use the learning system
+- [Getting Started](/guide/getting-started) -- quick start guide

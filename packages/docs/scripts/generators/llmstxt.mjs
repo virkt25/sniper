@@ -17,17 +17,26 @@ export async function generateLlmsTxt(docsDir, outputDir, generatedDir) {
 
   // Guide pages (manual ordering)
   const guideOrder = [
+    'why-sniper',
     'what-is-sniper',
     'getting-started',
     'core-concepts',
+    'architecture',
     'configuration',
     'full-lifecycle',
     'review-gates',
+    'headless-ci',
+    'custom-protocols',
     'personas',
     'teams',
     'domain-packs',
     'workspace-mode',
     'memory',
+    'signals-and-learning',
+    'advanced-features',
+    'ecosystem',
+    'plugin-development',
+    'migration-from-v2',
     'troubleshooting',
     'glossary',
     'cheatsheet-commands',
@@ -50,10 +59,12 @@ export async function generateLlmsTxt(docsDir, outputDir, generatedDir) {
   const refSections = [
     { name: 'Commands', dir: 'commands', urlPrefix: '/reference/commands' },
     { name: 'Personas', dir: 'personas', urlPrefix: '/reference/personas' },
-    { name: 'Teams', dir: 'teams', urlPrefix: '/reference/teams' },
     { name: 'Checklists', dir: 'checklists', urlPrefix: '/reference/checklists' },
     { name: 'Templates', dir: 'templates', urlPrefix: '/reference/templates' },
-    { name: 'Workflows', dir: 'workflows', urlPrefix: '/reference/workflows' },
+    { name: 'CLI Commands', dir: 'cli', urlPrefix: '/reference/cli' },
+    { name: 'Schemas', dir: 'schemas', urlPrefix: '/reference/schemas' },
+    { name: 'Hooks', dir: 'hooks', urlPrefix: '/reference/hooks' },
+    { name: 'Configuration', dir: 'config', urlPrefix: '/reference/config' },
   ];
 
   for (const section of refSections) {

@@ -1,225 +1,164 @@
 ---
 title: Teams
+description: Pre-configured agent team compositions for each lifecycle phase
 ---
 
 # Teams
 
-Teams define which agents are spawned for each phase, what tasks they perform, how they coordinate, and what review gate applies. Team definitions are YAML files in `.sniper/teams/`.
+In v3, there are no standalone team YAML files. Instead, **protocols define which agents are spawned for each phase**. Team composition is declared directly in protocol YAML files (e.g., `full.yaml`, `feature.yaml`) alongside spawn strategy and gate configuration.
 
-## Team YAML Structure
+## Protocol-Driven Team Composition
 
-Every team YAML file follows this structure:
+Each phase in a protocol YAML defines its team inline:
 
 ```yaml
-team_name: sniper-discover
-phase: discover
+# Example from full.yaml
+phases:
+  discover:
+    agents: [analyst]
+    spawn_strategy: single
+    gate:
+      human_approval: false
+      checklist: discover.yaml
 
-teammates:
-  - name: analyst
-    compose:
-      process: analyst
-      technical: null
-      cognitive: systems-thinker
-      domain: null
-    tasks:
-      - id: market-research
-        name: "Market Research & Competitive Analysis"
-        output: "docs/brief.md"
-        template: ".sniper/templates/brief.md"
-        description: >
-          Research the market landscape...
+  plan:
+    agents: [architect, product-manager]
+    spawn_strategy: team
+    gate:
+      human_approval: true
+      checklist: plan.yaml
 
-coordination: []
+  implement:
+    agents: [fullstack-dev, qa-engineer]
+    spawn_strategy: team
+    gate:
+      human_approval: false
+      checklist: implement.yaml
 
-review_gate:
-  checklist: ".sniper/checklists/discover-review.md"
-  mode: flexible
+  review:
+    agents: [code-reviewer]
+    spawn_strategy: single
+    gate:
+      human_approval: true
+      checklist: review.yaml
 ```
 
-### Top-Level Fields
+### Phase Fields
 
 | Field | Description |
 |-------|-------------|
-| `team_name` | Identifier for the team (used in TeamCreate) |
-| `phase` | Which lifecycle phase this team serves |
-| `model_override` | Optional model override for all teammates (e.g., `opus` for the plan phase) |
+| `agents` | List of agent names to spawn for this phase |
+| `spawn_strategy` | `single` (one agent) or `team` (multiple agents working together) |
+| `gate.human_approval` | `true` = human must approve; `false` = auto-advance if no critical failures |
+| `gate.checklist` | Checklist YAML file used for gate evaluation |
 
-### Teammate Fields
+### Agent Definitions
 
-| Field | Description |
+Agent definitions live in `.claude/agents/` as Markdown files with YAML frontmatter specifying model, tools, and constraints. The `agents.base` list in `config.yaml` controls which agents are available to protocols.
+
+### Cognitive Mixins
+
+Mixins are assigned to agents via the `agents.mixins` map in `config.yaml`:
+
+```yaml
+agents:
+  mixins:
+    architect:
+      - security-first
+    code-reviewer:
+      - devils-advocate
+```
+
+Mixins are short Markdown snippets in `packages/core/personas/cognitive/` that modify an agent's thinking style (e.g., `security-first`, `performance-focused`, `devils-advocate`).
+
+## Standard Protocol Teams
+
+### Full Protocol (`full.yaml`)
+
+The full protocol defines four phases with distinct team compositions:
+
+| Phase | Agents | Spawn Strategy | Outputs |
+|-------|--------|---------------|---------|
+| discover | analyst | single | `docs/spec.md`, `docs/codebase-overview.md` |
+| plan | architect, product-manager | team | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| implement | fullstack-dev, qa-engineer | team | Code changes, tests |
+| review | code-reviewer | single | Review report with scope, standards, and risk scoring |
+
+### Feature Protocol (`feature.yaml`)
+
+A scoped mini-lifecycle for single features. Skips discovery:
+
+| Phase | Agents | Spawn Strategy |
+|-------|--------|---------------|
+| plan | architect, product-manager | team |
+| implement | fullstack-dev, qa-engineer | team |
+| review | code-reviewer | single |
+
+### Patch Protocol (`patch.yaml`)
+
+Quick fixes that skip planning:
+
+| Phase | Agents | Spawn Strategy |
+|-------|--------|---------------|
+| implement | fullstack-dev, qa-engineer | team |
+| review | code-reviewer | single |
+
+### Other Protocols
+
+- **ingest** -- scan, document, extract phases for existing codebases
+- **explore** -- discover phase only (no implementation)
+- **refactor** -- analyze, implement, review for refactoring work
+- **hotfix** -- implement only, no gates
+
+## Available Agents
+
+SNIPER v3 includes 11 agent definitions:
+
+| Agent | Typical Role |
 |-------|-------------|
-| `name` | Teammate identifier (used for messaging and task assignment) |
-| `compose` | Persona layer selections for spawn prompt composition |
-| `compose.process` | Process persona name (required) |
-| `compose.technical` | Technical persona name (null if not needed) |
-| `compose.cognitive` | Cognitive persona name |
-| `compose.domain` | Domain context name (null or from pack) |
-| `tasks` | List of tasks this teammate performs |
-| `owns_from_config` | Ownership key from config.yaml (sprint teams only) |
-| `model` | Model override for this specific teammate |
+| analyst | Discovery research and codebase analysis |
+| architect | System architecture and technical design |
+| backend-dev | Backend implementation |
+| code-reviewer | Multi-faceted code review |
+| frontend-dev | Frontend implementation |
+| fullstack-dev | Full-stack implementation |
+| gate-reviewer | Gate evaluation |
+| lead-orchestrator | Orchestration and delegation (read-only, scoped to `.sniper/`) |
+| product-manager | Requirements, PRD, and story creation |
+| qa-engineer | Test writing and quality assurance |
+| retro-analyst | Retrospective analysis and velocity tracking |
 
-### Task Fields
+## File Ownership
 
-| Field | Description |
-|-------|-------------|
-| `id` | Unique task identifier within the team |
-| `name` | Human-readable task name |
-| `output` | File path where the task's output is written |
-| `template` | Path to the template the agent should follow |
-| `reads` | Files the agent must read before starting |
-| `blocked_by` | List of task IDs that must complete first |
-| `plan_approval` | If true, agent must describe their approach and wait for lead approval |
-| `description` | Detailed task instructions |
-
-### Coordination
-
-Coordination entries define which teammates need to align during execution:
+Agents are scoped by the `ownership` section in `config.yaml`. Each ownership key maps to a list of directory paths:
 
 ```yaml
-coordination:
-  - between: [architect, security-analyst]
-    topic: "Align security architecture with system architecture"
-  - between: [architect, ux-designer]
-    topic: "Align frontend component boundaries with backend API contracts"
+ownership:
+  backend:
+    - "src/backend/"
+    - "src/api/"
+  frontend:
+    - "src/frontend/"
+    - "src/components/"
 ```
 
-The team lead facilitates these conversations by prompting teammates to share relevant work and provide feedback.
+During implementation, agents can only modify files within their assigned ownership boundaries.
 
-### Review Gate
+## Customizing Team Composition
 
-```yaml
-review_gate:
-  checklist: ".sniper/checklists/plan-review.md"
-  mode: strict
-```
+To customize which agents participate in a phase, modify the protocol YAML file in `packages/core/protocols/`. You can:
 
-The `mode` in the team YAML is the default. It can be overridden by the `review_gates` section in `config.yaml`.
-
-## Standard Teams
-
-### Discover Team
-
-**File:** `.sniper/teams/discover.yaml`
-
-Three parallel agents with no inter-task dependencies:
-
-- **analyst** (process/analyst + cognitive/systems-thinker) -- produces `docs/brief.md`
-- **risk-researcher** (process/analyst + technical/infrastructure + cognitive/devils-advocate) -- produces `docs/risks.md`
-- **user-researcher** (process/analyst + cognitive/user-empathetic) -- produces `docs/personas.md`
-
-All tasks run independently. No coordination needed.
-
-### Plan Team
-
-**File:** `.sniper/teams/plan.yaml`
-
-Four agents with dependency management:
-
-- **product-manager** starts immediately, producing `docs/prd.md`
-- **architect**, **ux-designer**, and **security-analyst** are all blocked by the PRD task
-- The architect has `plan_approval: true`
-- Two coordination pairs: architect/security-analyst and architect/ux-designer
-
-Uses `model_override: opus` for higher-quality planning output.
-
-### Solve Team
-
-**File:** `.sniper/teams/solve.yaml`
-
-Not a team -- a single agent definition. The solve phase runs as a single scrum master who produces epics and stories directly.
-
-```yaml
-team_name: null
-phase: solve
-
-agent:
-  compose:
-    process: scrum-master
-    cognitive: systems-thinker
-  tasks:
-    - id: epic-sharding
-      output: "docs/epics/"
-    - id: story-creation
-      output: "docs/stories/"
-      blocked_by: [epic-sharding]
-```
-
-### Sprint Team
-
-**File:** `.sniper/teams/sprint.yaml`
-
-A pool of `available_teammates` from which the needed subset is selected:
-
-- **backend-dev** (process/developer + technical/backend + cognitive/systems-thinker) -- owns backend dirs, uses sonnet
-- **frontend-dev** (process/developer + technical/frontend + cognitive/user-empathetic) -- owns frontend dirs, uses sonnet
-- **infra-dev** (process/developer + technical/infrastructure + cognitive/systems-thinker) -- owns infrastructure dirs, uses sonnet
-- **ai-dev** (process/developer + technical/ai-ml + cognitive/performance-focused) -- owns ai dirs, uses opus
-- **qa-engineer** (process/qa-engineer + technical/backend + cognitive/devils-advocate) -- owns test dirs, uses sonnet
-
-Sprint teams are dynamic -- SNIPER determines which teammates are needed based on the selected stories' file ownership. QA engineer is always included.
-
-The sprint team also defines `sprint_rules` that apply to all execution:
-
-- Teammates read story files completely before writing code
-- Backend and frontend agree on API contracts before implementing
-- All new code must include tests
-- QA is blocked until implementation completes
-
-### Doc Team
-
-**File:** `.sniper/teams/doc.yaml`
-
-Three agents for documentation generation:
-
-- **doc-analyst** -- scans codebase and produces a documentation index
-- **doc-writer** -- generates README and guides (blocked by the analysis)
-- **doc-reviewer** -- validates generated docs (blocked by the writing)
-
-## Task Dependencies
-
-Tasks can declare dependencies using `blocked_by`, which references other task IDs:
-
-```yaml
-tasks:
-  - id: architecture
-    blocked_by: [prd]
-    plan_approval: true
-```
-
-The team lead manages these dependencies:
-1. Blocked tasks start in `pending` status
-2. When blocking tasks complete, the lead unblocks dependent tasks
-3. Tasks transition to `in_progress` when unblocked
-
-Dependencies must form a DAG (Directed Acyclic Graph) -- circular dependencies are not allowed.
-
-## File Ownership in Sprint Teams
-
-Sprint teammates have an `owns_from_config` field that maps to the `ownership` section in `config.yaml`:
-
-```yaml
-- name: backend-dev
-  owns_from_config: backend    # Maps to ownership.backend paths
-```
-
-This means the backend-dev agent can only modify files in `src/backend/`, `src/api/`, `src/services/`, `src/db/`, and `src/workers/`.
-
-## Customizing Teams
-
-You can modify team YAML files to change:
-
-- **Team composition** -- add or remove teammates
-- **Persona layers** -- change which personas are composed
-- **Task assignments** -- reassign work or add new tasks
-- **Coordination pairs** -- define new alignment requirements
-- **Dependencies** -- restructure the task execution order
+- **Change the agent list** -- add or remove agents from a phase
+- **Change spawn strategy** -- switch between `single` and `team`
+- **Adjust gate config** -- toggle `human_approval` or change the checklist
+- **Add cognitive mixins** -- assign mixins to agents via `agents.mixins` in config
 
 ::: tip
-Domain packs can extend teams via `team_overrides` in their `pack.yaml`. For example, the sales-dialer pack adds a compliance-analyst to the plan team.
+Plugins can extend agent behavior via agent mixins defined in their `plugin.yaml` manifest.
 :::
 
 ## Next Steps
 
 - [Personas](/guide/personas) -- understand the persona layers that compose into teammates
 - [Full Lifecycle](/guide/full-lifecycle) -- see teams in action across the lifecycle
-- [Reference: Teams](/reference/teams/) -- browse all team definitions
+- [Architecture](/guide/architecture) -- how agents map to Claude Code primitives

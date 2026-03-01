@@ -16,10 +16,12 @@ const pageCategory = computed(() => {
   if (path.startsWith('/guide/')) return 'Guide'
   if (path.startsWith('/reference/commands/')) return 'Commands'
   if (path.startsWith('/reference/personas/')) return 'Personas'
-  if (path.startsWith('/reference/teams/')) return 'Teams'
   if (path.startsWith('/reference/templates/')) return 'Templates'
   if (path.startsWith('/reference/checklists/')) return 'Checklists'
-  if (path.startsWith('/reference/workflows/')) return 'Workflows'
+  if (path.startsWith('/reference/cli/')) return 'CLI'
+  if (path.startsWith('/reference/schemas/')) return 'Schemas'
+  if (path.startsWith('/reference/hooks/')) return 'Hooks'
+  if (path.startsWith('/reference/config/')) return 'Config'
   return ''
 })
 </script>

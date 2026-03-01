@@ -1,5 +1,6 @@
 ---
 title: What is SNIPER?
+description: Overview of SNIPER — the AI-powered project lifecycle framework for Claude Code agent teams
 ---
 
 # What is SNIPER?
@@ -34,10 +35,10 @@ The name SNIPER maps to six core activities:
 
 In practice, the lifecycle runs through four main phases:
 
-1. **Discover** -- A 3-agent team researches the market, assesses risks, and maps user personas
-2. **Plan** -- A 4-agent team produces the PRD, system architecture, UX spec, and security requirements
-3. **Solve** -- A single agent (scrum master) shards the PRD into epics and self-contained stories
-4. **Sprint** -- A development team implements selected stories with code and tests
+1. **Discover** -- A single agent (analyst) researches the codebase, assesses the problem space, and produces a spec and codebase overview
+2. **Plan** -- A 2-agent team (architect, product-manager) produces the architecture, PRD, and story breakdown
+3. **Implement** -- A 2-agent team (fullstack-dev, qa-engineer) writes code and tests in isolated worktrees
+4. **Review** -- A single agent (code-reviewer) performs multi-faceted code review with scope validation, standards enforcement, and risk scoring
 
 Each phase produces concrete artifacts (markdown files in `docs/`) and passes through a review gate before the next phase can begin.
 
@@ -77,13 +78,13 @@ Each gate evaluates the phase's artifacts against a checklist of quality criteri
 
 **Structured, not ad-hoc.** Every phase has a defined team, defined outputs, and a quality gate. There is no ambiguity about what happens next.
 
-**Parallel, not serial.** Discovery agents research simultaneously. Planning agents work in parallel (with dependency management). Sprint developers implement stories concurrently.
+**Parallel, not serial.** Discovery agents research simultaneously. Planning agents work in parallel (with dependency management). Implement phase developers write code concurrently.
 
-**Self-contained stories.** The solve phase produces stories that embed all context from the PRD, architecture, and UX spec. A developer reading only the story file has everything needed to implement it.
+**Self-contained stories.** The plan phase produces stories that embed all context from the PRD and architecture. A developer reading only the story file has everything needed to implement it.
 
 **File ownership boundaries.** Each agent owns specific directories. Backend developers cannot modify frontend code and vice versa. This prevents conflicts and maintains separation of concerns.
 
-**Memory and learning.** SNIPER tracks conventions, anti-patterns, and decisions across sprints. Sprint retrospectives automatically codify lessons learned into the memory system, which is injected into future spawn prompts.
+**Memory and learning.** SNIPER tracks conventions, anti-patterns, and decisions across executions. Retrospectives automatically codify lessons learned into the memory system, which is injected into future spawn prompts.
 
 ## When to Use SNIPER
 
@@ -94,12 +95,14 @@ SNIPER works best for:
 - **Projects with clear phases** (research, plan, build)
 - **Teams that want repeatable, auditable AI-assisted development**
 
-For smaller tasks, SNIPER also offers lightweight workflows:
+For smaller tasks, SNIPER also offers lightweight protocols:
 
-- **Quick Feature** -- skip discovery and planning, go straight to implementation
-- **Feature Lifecycle** -- add a single feature to an existing project with scoped planning
-- **Sprint Cycle** -- run implementation sprints against existing stories
-- **Codebase Ingestion** -- reverse-engineer architecture docs from an existing codebase
+- **feature** -- plan, implement, and review a well-understood feature with clear requirements
+- **patch** -- implement and review a small change to existing code
+- **ingest** -- reverse-engineer documentation from an existing codebase
+- **explore** -- research and analysis only (discover phase)
+- **refactor** -- analyze, implement, and review code restructuring
+- **hotfix** -- emergency fix with no gate checks (implement only)
 
 ## Next Steps
 

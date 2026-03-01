@@ -1,5 +1,6 @@
 ---
 title: Full Lifecycle
+description: Walk through a complete SNIPER lifecycle from discovery to release with parallel agent teams
 ---
 
 # Full Lifecycle Walkthrough
@@ -9,9 +10,11 @@ The full lifecycle workflow takes a project from initial research through implem
 ## Overview
 
 ```
-/sniper-init  -->  /sniper-discover  -->  /sniper-plan  -->  /sniper-solve  -->  /sniper-sprint
-   Setup           Phase 1               Phase 2            Phase 3             Phase 4 (repeating)
+/sniper-init  -->  /sniper-flow
+   Setup           Phases 1-4 (discover → plan → implement → review)
 ```
+
+`/sniper-flow` is the unified protocol engine that drives all four phases automatically. It auto-detects the appropriate protocol scope, or you can specify one explicitly with `--protocol <name>` (e.g., `--protocol full`).
 
 ## Step 1: Initialize
 
@@ -19,169 +22,145 @@ The full lifecycle workflow takes a project from initial research through implem
 /sniper-init
 ```
 
-Configure your project name, type, tech stack, domain pack, and review gates. This creates the `.sniper/` directory and `config.yaml`.
+Configure your project name, type, tech stack, plugins, and agents. This creates the `.sniper/` directory, `config.yaml`, and `.claude/agents/`.
 
 See [Getting Started](/guide/getting-started) for the full init walkthrough.
 
 ## Step 2: Discover (Phase 1)
 
 ```
-/sniper-discover
+/sniper-flow --protocol full
 ```
 
-**Team:** 3 parallel agents
+The discover phase is the first phase executed by `/sniper-flow` when running the `full` protocol.
 
-| Agent | Persona Layers | Output |
-|-------|---------------|--------|
-| analyst | process/analyst + cognitive/systems-thinker | `docs/brief.md` |
-| risk-researcher | process/analyst + technical/infrastructure + cognitive/devils-advocate | `docs/risks.md` |
-| user-researcher | process/analyst + cognitive/user-empathetic | `docs/personas.md` |
+**Agent:** 1 agent (analyst) with `spawn_strategy: single`
+
+| Agent | Output |
+|-------|--------|
+| analyst | `docs/spec.md`, `docs/codebase-overview.md` |
 
 **How it works:**
 
-1. The command reads your project configuration and team definition
-2. Spawn prompts are composed by merging persona layer files into the template
-3. Three agents are spawned in parallel -- they work independently
-4. You enter delegate mode as team lead, monitoring progress and answering questions
-5. When all three complete, a review gate evaluates the output
+1. The command reads your project configuration and protocol definition
+2. The analyst agent is spawned as a single agent
+3. The analyst researches the project scope, market landscape, technical feasibility, and existing codebase
+4. When the analyst completes, a review gate evaluates the output
 
-**Gate:** Flexible (auto-advance if no critical failures)
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
 **What the artifacts contain:**
 
-- **brief.md** -- market landscape, competitive analysis, unique value proposition, target market, constraints, assumptions
-- **risks.md** -- technical feasibility risks, integration risks, compliance concerns, scalability challenges, mitigation strategies
-- **personas.md** -- 2-4 user personas with goals, pain points, workflows, and journey maps
+- **spec.md** -- project scope, market landscape, competitive analysis, unique value proposition, target market, constraints, assumptions, risks, and user personas
+- **codebase-overview.md** -- existing codebase structure, technology inventory, integration points, and technical debt assessment
 
 ::: tip
-If artifacts already exist from a previous run, agents enter amendment mode -- they update existing content rather than starting from scratch.
+If artifacts already exist from a previous run, the agent enters amendment mode -- it updates existing content rather than starting from scratch.
 :::
 
 ## Step 3: Plan (Phase 2)
 
-```
-/sniper-plan
-```
+After the discover phase completes and its gate passes, `/sniper-flow` automatically advances to the plan phase.
 
-**Team:** 4 agents with dependencies
+**Team:** 2 agents (architect, product-manager) with `spawn_strategy: team`
 
-| Agent | Persona Layers | Output | Blocked By |
-|-------|---------------|--------|------------|
-| product-manager | process/product-manager + technical/api-design + cognitive/systems-thinker | `docs/prd.md` | Nothing |
-| architect | process/architect + technical/backend + cognitive/security-first | `docs/architecture.md` | PRD |
-| ux-designer | process/ux-designer + technical/frontend + cognitive/user-empathetic | `docs/ux-spec.md` | PRD |
-| security-analyst | process/architect + technical/security + cognitive/security-first | `docs/security.md` | PRD |
+| Agent | Output |
+|-------|--------|
+| product-manager | `docs/prd.md`, `docs/stories/` |
+| architect | `docs/architecture.md` |
 
 **How it works:**
 
-1. The product manager starts immediately, reading all Phase 1 artifacts
-2. The other three agents are blocked until the PRD is complete
-3. Once the PM finishes, you unblock the remaining agents
-4. The architect has `plan_approval: true` -- they must describe their approach before executing, and you must approve it
-5. Coordination pairs align: architect with security-analyst on security architecture, architect with ux-designer on API contracts
+1. Both agents are spawned as a team, reading all Phase 1 artifacts
+2. The product manager produces the PRD and breaks it into implementable stories
+3. The architect produces the system architecture, aligning with the PRD
+4. The architect may have `plan_approval: true` -- they must describe their approach before executing, and the lead must approve it
 
-**Gate:** Strict (human must explicitly approve)
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
-This is the most critical gate. The review evaluates every artifact against a detailed checklist covering requirement specificity, architecture completeness, UX coverage, security requirements, and cross-document consistency.
+This is typically the most critical gate. The review evaluates artifacts against a detailed checklist covering requirement specificity, architecture completeness, and cross-document consistency.
 
 ::: warning
-The plan gate cannot be skipped, even with arguments. Bad architecture decisions cascade through the entire project.
+Setting `human_approval: false` on the plan gate is strongly discouraged. Bad architecture decisions cascade through the entire project.
 :::
 
-**Model override:** The plan phase uses the `opus` model for all teammates, producing higher-quality output for these critical artifacts.
+**Model override:** The plan phase uses the `planning_model` (typically `opus`) for higher-quality output on these critical artifacts.
 
-## Step 4: Solve (Phase 3)
+## Step 4: Implement (Phase 3)
 
-```
-/sniper-solve
-```
+Once the plan gate passes, `/sniper-flow` advances to the implement phase.
 
-**Agent:** Single agent (you adopt the scrum-master persona)
+**Team:** 2 agents (fullstack-dev, qa-engineer) with `spawn_strategy: team`
 
-Unlike the other phases, solve does not spawn a team. You work directly as a scrum master, reading all Phase 2 artifacts and breaking them into implementable units.
+| Agent | Role |
+|-------|------|
+| fullstack-dev | Implements code changes based on plan artifacts |
+| qa-engineer | Writes and runs tests for implemented code |
+
+**How it works:**
+
+1. Both agents are spawned as a team, reading all Phase 2 artifacts (PRD, architecture, stories)
+2. The fullstack-dev implements the code changes defined in the stories
+3. The qa-engineer writes tests and validates acceptance criteria
+4. All new code must include tests
+5. The self-healing CI hook detects test/lint failures and instructs agents to fix before proceeding
 
 **What it produces:**
 
-- **6-12 epics** in `docs/epics/` -- each with clear scope boundaries, embedded architecture context, dependencies, and acceptance criteria
-- **3-8 stories per epic** in `docs/stories/` -- self-contained implementation units
+- Working code changes implementing the planned stories
+- Test coverage for all new functionality
+- Passing lint, typecheck, and test suites
 
-**Critical requirement: self-contained stories.** Each story file embeds all context from the PRD, architecture, and UX spec that a developer needs. A teammate reading only the story file has everything needed to implement it -- no "see architecture doc" references.
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
-Story format includes:
+## Step 5: Review (Phase 4)
 
-- Epic reference and priority
-- Embedded context from PRD, architecture, and UX spec (copied, not referenced)
-- Acceptance criteria in Given/When/Then format
-- Test requirements (unit, integration, e2e)
-- File ownership (which directories the implementation touches)
-- Complexity estimate (S/M/L -- never XL, split if needed)
-- Dependencies on other stories
+After implementation completes, `/sniper-flow` advances to the review phase.
 
-**Gate:** Flexible (auto-advance)
+**Agent:** 1 agent (code-reviewer) with `spawn_strategy: single`
 
-A self-review runs against the story checklist before completing.
-
-## Step 5: Sprint (Phase 4 -- Repeating)
-
-```
-/sniper-sprint
-```
-
-**Team:** Dynamic based on story requirements
-
-Available teammates:
-
-| Teammate | Persona Layers | Owns | Model |
-|----------|---------------|------|-------|
-| backend-dev | process/developer + technical/backend + cognitive/systems-thinker | backend dirs | sonnet |
-| frontend-dev | process/developer + technical/frontend + cognitive/user-empathetic | frontend dirs | sonnet |
-| infra-dev | process/developer + technical/infrastructure + cognitive/systems-thinker | infrastructure dirs | sonnet |
-| ai-dev | process/developer + technical/ai-ml + cognitive/performance-focused | ai dirs | opus |
-| qa-engineer | process/qa-engineer + technical/backend + cognitive/devils-advocate | test dirs | sonnet |
+| Agent | Role |
+|-------|------|
+| code-reviewer | Multi-faceted code review across three dimensions |
 
 **How it works:**
 
-1. You are presented with all available stories and select which to include in this sprint
-2. SNIPER determines which teammates are needed based on story file ownership
-3. Stories are assigned to teammates; QA tasks are created blocked by implementation tasks
-4. Teammates are spawned with their composed prompts and assigned stories
-5. If both backend-dev and frontend-dev are present, API contract alignment is facilitated immediately
-6. As implementation tasks complete, QA tasks unblock and testing begins
-7. When all tasks complete, a review gate evaluates the sprint output
+1. The code-reviewer agent is spawned to evaluate all implementation output
+2. The review evaluates across three dimensions:
+   - **Scope validation** -- ensures changes align with planned stories and do not introduce scope creep
+   - **Standards enforcement** -- checks code quality, conventions, test coverage, and architecture compliance
+   - **Risk scoring** -- assigns severity levels (critical/high/medium/low) to any identified issues
+3. If `review.multi_model` is enabled, multiple models evaluate independently and results are compared
+4. The spec sync step reconciles `docs/spec.md` with implementation reality
 
-**Gate:** Strict (human must review code before advancing)
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
-**Sprint rules:**
-- Each teammate reads their assigned story files completely before writing code
-- Backend and frontend must agree on API contracts before implementing
-- All new code must include tests
-- QA is blocked until implementation stories are complete
-- Every teammate messages the team lead on completion
-- Blocked agents escalate after 10 minutes
+Typically `human_approval: true` for this phase -- the human reviews the code-reviewer's findings and the actual code changes before approving.
 
-After the sprint review passes, a retrospective automatically runs if memory is enabled. Findings are codified into the memory system for future sprints.
+After the review passes, a retrospective automatically runs if `auto_retro` is enabled in the visibility config. The retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`.
 
-Repeat `/sniper-sprint` with new story selections until all stories are complete.
+Use `/sniper-flow --resume` to resume an interrupted protocol from its last checkpoint.
 
 ## Recovery
 
 If any phase produces poor output:
 
-- Re-run the phase command to enter amendment mode
+- Use `/sniper-flow --resume` to resume an interrupted protocol from its last checkpoint
 - Completed files persist on disk -- only the conversation resets
-- Sprint failures affect only the current sprint's stories
+- Review failures affect only the current protocol execution
 
 ## Alternative Workflows
 
 Not every project needs the full lifecycle. SNIPER also provides:
 
-- **`/sniper-ingest`** -- bootstrap artifacts from an existing codebase
-- **`/sniper-feature`** -- scoped mini-lifecycle for a single feature
-- **`/sniper-debug`** -- structured bug investigation
-- **`/sniper-audit`** -- refactoring, PR reviews, test audits, security audits, performance profiling
+- **`/sniper-flow --protocol ingest`** -- bootstrap artifacts from an existing codebase
+- **`/sniper-flow --protocol feature`** -- scoped mini-lifecycle for a single feature
+- **`/sniper-flow --protocol hotfix`** -- structured bug investigation and hot fixes
+- **`/sniper-flow --protocol refactor`** -- analyze, implement, and review refactoring changes
+- **`/sniper-flow --protocol explore`** -- discovery-only investigation (no implementation)
 
 ## Next Steps
 
 - [Review Gates](/guide/review-gates) -- understand how gates work in detail
-- [Teams](/guide/teams) -- learn team YAML structure
+- [Teams](/guide/teams) -- learn how protocols define team composition
 - [Configuration](/guide/configuration) -- customize the lifecycle for your project

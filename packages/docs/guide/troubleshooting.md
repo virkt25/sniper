@@ -1,5 +1,6 @@
 ---
 title: Troubleshooting
+description: Common issues and solutions when using SNIPER
 ---
 
 # Troubleshooting
@@ -39,9 +40,9 @@ Common issues and their solutions when working with SNIPER.
 
 ### Too many teammates
 
-**Problem:** The sprint needs more teammates than `max_teammates` allows.
+**Problem:** The implement phase needs more teammates than `max_teammates` allows.
 
-**Solution:** Reduce the number of stories selected for the sprint, or increase `agent_teams.max_teammates` in config.yaml. Consider splitting the sprint into two smaller sprints by story ownership area.
+**Solution:** Reduce the number of stories selected for the implement phase, or increase `agents.max_teammates` in config.yaml. Consider splitting the implement phase into two smaller batches by story ownership area.
 
 ### Agent writing to wrong files
 
@@ -58,13 +59,13 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** The ownership section in config.yaml uses default paths (`src/backend/`, `src/frontend/`) that do not match your project.
 
-**Solution:** Update the `ownership` section manually, or run `/sniper-ingest` which auto-detects your project structure and updates ownership paths.
+**Solution:** Update the `ownership` section manually, or run `/sniper-flow --protocol ingest` which auto-detects your project structure and updates ownership paths.
 
 ### Stories assigned to wrong teammate
 
-**Problem:** During a sprint, stories are assigned to a teammate whose ownership does not match the story's file touches.
+**Problem:** During an implement phase, stories are assigned to a teammate whose ownership does not match the story's file touches.
 
-**Solution:** The sprint command maps stories to teammates based on the "File Ownership" field in each story. If stories were created with incorrect ownership fields, edit the story files in `docs/stories/` to correct the ownership, then re-run `/sniper-sprint`.
+**Solution:** The implement phase maps stories to teammates based on the "File Ownership" field in each story. If stories were created with incorrect ownership fields, edit the story files in `docs/stories/` to correct the ownership, then re-run `/sniper-flow`.
 
 ## Review Gate Issues
 
@@ -80,7 +81,7 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** `/sniper-review` evaluates a different phase than expected.
 
-**Solution:** The review command determines the current phase from the last entry in `state.phase_log` where `completed_at` is null. Run `/sniper-status` to verify the current phase state. If the state is incorrect, you may need to manually update `state.phase_log` in config.yaml.
+**Solution:** In v3, the review command determines the current phase from checkpoint files in `.sniper/checkpoints/` and the live-status file at `.sniper/live-status.yaml`. Run `/sniper-status` to verify the current phase state. If the state is incorrect, check these files for inconsistencies.
 
 ### Checklist file not found
 
@@ -95,47 +96,47 @@ Common issues and their solutions when working with SNIPER.
 **Problem:** Spawn prompts do not include memory context.
 
 **Solutions:**
-- Verify `memory.enabled: true` in config.yaml
 - Check that `.sniper/memory/` directory exists with YAML files
 - The memory system requires at least one entry in any memory file to produce output
+- Verify that agents are being spawned with the correct context by checking `.sniper/live-status.yaml`
 
 ### Memory exceeding token budget
 
 **Problem:** A warning appears about memory being truncated.
 
-**Solution:** Increase `memory.token_budget` in config.yaml (default: 2000). Alternatively, clean up low-priority entries with `/sniper-memory --remove {id}`.
+**Solution:** Low-priority entries are automatically pruned by the retro-analyst agent during protocol retrospectives. You can also manually remove low-value entries from the YAML files in `.sniper/memory/`.
 
 ### Retrospective not running
 
-**Problem:** No retrospective runs after sprint completion.
+**Problem:** No retrospective runs after protocol completion.
 
 **Solutions:**
-- Verify `memory.auto_retro: true` in config.yaml
-- Check that `memory.enabled: true`
-- If `auto_retro` is disabled, run manually with `/sniper-memory --retro`
+- Verify `auto_retro: true` is set in the protocol YAML file (e.g., `full.yaml`)
+- Check that `visibility.auto_retro: true` in `.sniper/config.yaml`
+- If `auto_retro` is disabled, the retro-analyst agent will not run automatically after protocol completion
 
-## Sprint Issues
+## Implement Phase Issues
 
 ### Stories not self-contained
 
-**Problem:** Sprint agents ask questions about requirements that should be in the story file.
+**Problem:** Implement phase agents ask questions about requirements that should be in the story file.
 
-**Solution:** The solve phase should embed all context from PRD, architecture, and UX spec into each story. If stories reference other documents instead of embedding content, re-run `/sniper-solve` or manually edit the story files to embed the missing context.
+**Solution:** The implement phase expects stories with embedded context from the PRD and architecture. If stories reference other documents instead of embedding content, manually edit the story files to embed the missing context, or re-run the protocol with `/sniper-flow`.
 
 ### API contract misalignment
 
 **Problem:** Backend and frontend implementations do not agree on API contracts.
 
 **Solutions:**
-- The team lead should facilitate contract alignment at the start of each sprint
-- Use the sprint coordination rules: message both agents to share endpoint specs and data shapes before coding
+- The team lead should facilitate contract alignment at the start of each implement phase
+- Use the implement phase coordination rules: message both agents to share endpoint specs and data shapes before coding
 - Consider adding explicit API contract stories that must complete before frontend stories begin
 
-### Tests failing after sprint
+### Tests failing after implement phase
 
 **Problem:** The QA engineer reports test failures.
 
-**Solution:** The team lead messages the implementing teammate with specific failure details. The teammate fixes their code and QA re-tests. This cycle repeats until all tests pass. The sprint review gate will not advance until tests pass.
+**Solution:** The team lead messages the implementing teammate with specific failure details. The teammate fixes their code and QA re-tests. This cycle repeats until all tests pass. The implement review gate will not advance until tests pass.
 
 ## CLI Errors
 
@@ -166,9 +167,9 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** A phase shows as active but the conversation has ended.
 
-**Solution:** Find the active entry in `state.phase_log` (where `completed_at` is null) and either:
-1. Set `completed_at` to the current timestamp if the phase's artifacts are complete
-2. Leave it and re-run the phase command -- it will detect the active phase and offer to resume or start fresh
+**Solution:** Check `.sniper/live-status.yaml` for the current phase state and `.sniper/checkpoints/` for checkpoint files. Either:
+1. Update the checkpoint file to mark the phase as complete if artifacts are finished
+2. Re-run `/sniper-flow --resume` -- it will detect the active phase and offer to resume from the last checkpoint
 
 ## Next Steps
 

@@ -1,63 +1,39 @@
 ---
 title: Checklists Reference
+description: Quality gate checklists that evaluate artifacts during SNIPER v3 protocol review phases
 ---
 
 # Checklists Reference
 
-Checklists define quality criteria that artifacts are evaluated against during review gates. Each checklist item is scored as PASS, WARN, or FAIL. Checklists are stored in `.sniper/checklists/` as markdown files.
+Checklists define quality criteria evaluated during review gates. Each checklist item is scored as PASS, WARN, or FAIL. Checklists are stored as YAML files in `.sniper/checklists/`.
 
 ## Available Checklists
 
-### Phase Checklists
+### Protocol Phase Checklists
 
-These checklists evaluate artifacts produced by lifecycle phases.
+These checklists evaluate artifacts produced during protocol phases.
 
-| Checklist | File | Used By | Description |
-|-----------|------|---------|-------------|
-| [Discover Review](/reference/checklists/discover-review) | `discover-review.md` | `/sniper-review` after discover | Evaluates brief, risks, and personas |
-| [Plan Review](/reference/checklists/plan-review) | `plan-review.md` | `/sniper-review` after plan | Evaluates PRD, architecture, UX spec, security doc |
-| [Story Review](/reference/checklists/story-review) | `story-review.md` | `/sniper-review` after solve | Evaluates epic and story quality |
-| [Sprint Review](/reference/checklists/sprint-review) | `sprint-review.md` | `/sniper-review` after sprint | Evaluates code, tests, and implementation quality |
-| [Doc Review](/reference/checklists/doc-review) | `doc-review.md` | `/sniper-review` after doc | Evaluates documentation completeness and accuracy |
+| Checklist | Used By | Description |
+|-----------|---------|-------------|
+| [discover](/reference/checklists/discover) | Full, Explore protocols | Evaluates discovery artifacts — brief, risks, research |
+| [plan](/reference/checklists/plan) | Full, Feature protocols | Evaluates planning artifacts — architecture, specs |
+| [implement](/reference/checklists/implement) | Full, Feature, Patch protocols | Evaluates implementation — code quality, tests |
+| [review](/reference/checklists/review) | All protocols with review phase | Final review of all phase artifacts |
 
-### Extended Checklists
+### Protocol-Specific Checklists
 
-These checklists support specialized workflows.
+| Checklist | Used By | Description |
+|-----------|---------|-------------|
+| [multi-faceted-review](/reference/checklists/multi-faceted-review) | Review gates | Three-dimension review: scope, standards, risk scoring |
+| [refactor-analyze](/reference/checklists/refactor-analyze) | Refactor protocol | Evaluates refactoring analysis and safety |
 
-| Checklist | File | Used By | Description |
-|-----------|------|---------|-------------|
-| [Feature Review](/reference/checklists/feature-review) | `feature-review.md` | Feature lifecycle | Evaluates scoped feature artifacts |
-| [Ingest Review](/reference/checklists/ingest-review) | `ingest-review.md` | `/sniper-ingest` | Evaluates reverse-engineered artifacts |
-| [Debug Review](/reference/checklists/debug-review) | `debug-review.md` | `/sniper-debug` | Evaluates investigation and fix quality |
-| [Code Review](/reference/checklists/code-review) | `code-review.md` | `/sniper-audit review` | Evaluates code quality in PR reviews |
-| [Refactor Review](/reference/checklists/refactor-review) | `refactor-review.md` | `/sniper-audit refactor` | Evaluates refactoring scope and safety |
-| [Test Review](/reference/checklists/test-review) | `test-review.md` | `/sniper-audit tests` | Evaluates test coverage and quality |
-| [Security Review](/reference/checklists/security-review) | `security-review.md` | `/sniper-audit security` | Evaluates security posture and vulnerabilities |
-| [Perf Review](/reference/checklists/perf-review) | `perf-review.md` | `/sniper-audit performance` | Evaluates performance profiling and optimizations |
-| [Memory Review](/reference/checklists/memory-review) | `memory-review.md` | Memory operations | Evaluates memory entry quality |
-| [Workspace Review](/reference/checklists/workspace-review) | `workspace-review.md` | Workspace operations | Evaluates cross-repo contract compliance |
+### Ingest Protocol Checklists
 
-## Checklist Format
-
-Each checklist is a markdown file with checkbox items organized by category:
-
-```markdown
-# Plan Review Checklist
-
-## PRD Quality
-- [ ] All user stories have Given/When/Then acceptance criteria
-- [ ] Non-functional requirements are quantified (response times, uptime)
-- [ ] Edge cases and error scenarios are documented
-
-## Architecture Completeness
-- [ ] System context diagram exists
-- [ ] All external integrations are specified
-- [ ] Data model covers all entities from PRD
-
-## Cross-Document Consistency
-- [ ] Architecture addresses all PRD requirements
-- [ ] UX spec references match architecture API endpoints
-```
+| Checklist | Used By | Description |
+|-----------|---------|-------------|
+| [ingest-scan](/reference/checklists/ingest-scan) | Ingest protocol — scan phase | Evaluates codebase scanning completeness |
+| [ingest-document](/reference/checklists/ingest-document) | Ingest protocol — document phase | Evaluates generated documentation quality |
+| [ingest-extract](/reference/checklists/ingest-extract) | Ingest protocol — extract phase | Evaluates extracted conventions and patterns |
 
 ## Evaluation Scoring
 
@@ -66,23 +42,19 @@ During a review gate, each checklist item receives a score:
 | Score | Meaning | Impact |
 |-------|---------|--------|
 | **PASS** | Criterion is fully met | No action needed |
-| **WARN** | Criterion is partially met or needs attention | Noted for review; does not block in flexible mode |
+| **WARN** | Criterion is partially met or needs attention | Does not block in flexible mode |
 | **FAIL** | Criterion is not met | Blocks advancement in strict mode |
 
 ## Gate Modes
 
 How checklist results affect phase advancement depends on the gate mode:
 
-- **Strict** -- any FAIL blocks advancement; requires explicit human approval
-- **Flexible** -- auto-advances if no FAIL items; warnings are noted for async review
-- **Auto** -- no evaluation performed; phase advances immediately
-
-## Domain Pack Checklists
-
-Domain packs can provide additional checklists that are appended to phase review gates. Pack checklist items are evaluated alongside standard items. See [Domain Packs](/guide/domain-packs) for details.
+- **Strict** — any FAIL blocks advancement; requires explicit human approval
+- **Flexible** — auto-advances if no FAIL items; warnings are noted
+- **Auto** — no evaluation performed; phase advances immediately
 
 ## Related
 
-- [Review Gates](/guide/review-gates) -- how checklists are used in the review process
-- [Configuration](/guide/configuration) -- setting gate modes per phase
-- [Teams](/reference/teams/) -- gate configuration in team YAML files
+- [Review Gates](/guide/review-gates) — how checklists are used in the review process
+- [Configuration](/guide/configuration) — setting gate modes per phase
+- [Advanced Features](/guide/advanced-features) — multi-faceted and multi-model review
