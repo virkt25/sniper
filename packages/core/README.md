@@ -9,7 +9,7 @@ Framework core for [SNIPER](https://sniperai.dev) -- provides agents, personas, 
 
 SNIPER (**S**pawn, **N**avigate, **I**mplement, **P**arallelize, **E**valuate, **R**elease) is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
 
-A full lifecycle runs through four phases: **Discover** (research and analysis), **Plan** (architecture and design), **Solve** (epic and story sharding), and **Sprint** (parallel implementation). Each phase spawns a coordinated team of specialized agents composed from layered personas.
+A full lifecycle runs through four phases: **Discover** (research and analysis), **Plan** (architecture and design), **Implement** (code with worktree isolation), and **Review** (multi-faceted code review). Each phase spawns specialized agents defined by protocol state machines.
 
 ## Overview
 
@@ -24,123 +24,111 @@ npm install @sniper.ai/core
 ## Contents
 
 ```
-├── agents/             # Agent definitions (YAML frontmatter + Markdown)
-├── personas/           # Agent persona layers (42 total)
-│   ├── cognitive/      # Thinking style (analytical, security-first, etc.)
-│   ├── process/        # Workflow role (architect, developer, etc.)
-│   └── technical/      # Technical expertise (frontend, backend, etc.)
-├── skills/             # Slash command definitions (18 commands)
-├── protocols/          # Protocol state machines (full, feature, patch, etc.)
-├── templates/          # Artifact templates (38 templates)
-├── checklists/         # Quality gate checklists (15 checklists)
-├── hooks/              # Claude Code hook definitions
-├── schemas/            # Runtime data schemas (checkpoint, cost, velocity, etc.)
+├── agents/             # Agent definitions (11 agents)
+├── personas/
+│   └── cognitive/      # Cognitive mixins (3 mixins)
+├── skills/             # Slash command definitions (5 skills)
+├── protocols/          # Protocol state machines (7 protocols)
+├── templates/          # Artifact templates (14 templates)
+├── checklists/         # Quality gate checklists (9 checklists)
+├── hooks/              # Claude Code hook definitions (2 files)
+├── schemas/            # Runtime data schemas (13 schemas)
 ├── config.template.yaml
 └── claude-md.template
 ```
 
-## Persona Layers
+## Agents
 
-Agents are composed from four persona layers, combined via the `/sniper-compose` command into complete spawn prompts:
+11 agent definitions, each with YAML frontmatter specifying write scope or isolation mode:
 
-| Layer | Count | Purpose | Examples |
-|-------|-------|---------|----------|
-| **Cognitive** | 6 | Thinking style and approach | `analytical`, `security-first`, `systems-thinker`, `devils-advocate`, `user-empathetic`, `performance-focused` |
-| **Process** | 29 | Role in the workflow | `architect`, `developer`, `code-reviewer`, `product-manager`, `scrum-master`, `qa-engineer`, `release-manager` |
-| **Technical** | 7 | Technical expertise area | `frontend`, `backend`, `database`, `infrastructure`, `security`, `api-design`, `ai-ml` |
-| **Domain** | -- | Project-specific knowledge | Provided by domain packs (e.g., `@sniper.ai/pack-sales-dialer`) |
+| Agent | Description |
+|-------|-------------|
+| `lead-orchestrator` | Coordinates agent teams through protocol phases. Read-only orchestrator (writes only to `.sniper/`) |
+| `analyst` | Researches, analyzes, and produces discovery artifacts |
+| `architect` | Designs system architecture and produces technical plans |
+| `product-manager` | Translates requirements into structured stories with acceptance criteria |
+| `fullstack-dev` | Full-stack implementation in an isolated worktree |
+| `backend-dev` | Server-side implementation in an isolated worktree |
+| `frontend-dev` | Client-side implementation in an isolated worktree |
+| `qa-engineer` | Writes tests, analyzes coverage, validates acceptance criteria |
+| `code-reviewer` | Multi-faceted code review (scope, standards, risk scoring) |
+| `gate-reviewer` | Runs automated checks at phase boundaries |
+| `retro-analyst` | Post-protocol retrospectives and velocity tracking |
 
-## Teams
+## Cognitive Mixins
 
-SNIPER defines 17 team compositions for different workflows:
+Optional thinking-style overlays that can be applied to any agent:
 
-| Team | File | Description |
-|------|------|-------------|
-| **Discover** | `discover.yaml` | Discovery phase -- analyst, risk-researcher, user-researcher |
-| **Plan** | `plan.yaml` | Planning phase -- PM, architect, UX, security (uses Opus model) |
-| **Solve** | `solve.yaml` | Story sharding -- single scrum-master agent |
-| **Sprint** | `sprint.yaml` | Implementation -- backend-dev, frontend-dev, and other specialists |
-| **Doc** | `doc.yaml` | Documentation generation -- doc-analyst, doc-writer, doc-reviewer |
-| **Ingest** | `ingest.yaml` | Codebase ingestion -- reverse-engineers project artifacts |
-| **Feature Plan** | `feature-plan.yaml` | Incremental feature spec and architecture delta |
-| **Debug** | `debug.yaml` | Production debugging -- parallel investigation agents |
-| **Review PR** | `review-pr.yaml` | Multi-perspective pull request review |
-| **Review Release** | `review-release.yaml` | Multi-perspective release readiness assessment |
-| **Refactor** | `refactor.yaml` | Structured large-scale code refactoring |
-| **Security** | `security.yaml` | Structured security analysis |
-| **Perf** | `perf.yaml` | Structured performance analysis |
-| **Test** | `test.yaml` | Test and coverage audit |
-| **Retro** | `retro.yaml` | Sprint retrospective analysis |
-| **Workspace Feature** | `workspace-feature.yaml` | Cross-repo feature orchestration |
-| **Workspace Validation** | `workspace-validation.yaml` | Interface contract validation |
+| Mixin | Description |
+|-------|-------------|
+| `security-first` | Prioritizes security considerations |
+| `performance-focused` | Prioritizes performance optimization |
+| `devils-advocate` | Challenges assumptions and identifies weaknesses |
 
-## Commands
+Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper.ai/pack-sales-dialer`).
 
-18 slash commands organized by category:
+## Protocols
 
-### Lifecycle
+7 protocol state machines that define phase sequences, agent assignments, and gate configurations:
 
-| Command | Description |
-|---------|-------------|
-| `/sniper-init` | Initialize SNIPER in a new or existing project |
-| `/sniper-discover` | Phase 1: Discovery and analysis (parallel team) |
-| `/sniper-plan` | Phase 2: Planning and architecture (parallel team) |
-| `/sniper-solve` | Phase 3: Epic sharding and story creation (single agent) |
-| `/sniper-sprint` | Phase 4: Implementation sprint (parallel team) |
-| `/sniper-review` | Run review gate for the current phase |
-| `/sniper-status` | Show lifecycle status and artifact state |
+| Protocol | Phases | Description |
+|----------|--------|-------------|
+| `full` | discover → plan → implement → review | Complete project lifecycle |
+| `feature` | plan → implement → review | Incremental feature development |
+| `patch` | implement → review | Quick fix with review |
+| `ingest` | scan → document → extract | Codebase ingestion and convention extraction |
+| `explore` | discover | Exploratory analysis only |
+| `refactor` | analyze → implement → review | Code improvement lifecycle |
+| `hotfix` | implement | Emergency fix, no gates |
 
-### Extended
+## Skills
+
+5 slash commands available in Claude Code:
 
 | Command | Description |
 |---------|-------------|
-| `/sniper-feature` | Incremental feature lifecycle |
-| `/sniper-ingest` | Codebase ingestion (parallel team) |
-| `/sniper-doc` | Generate or update project documentation (parallel team) |
-| `/sniper-debug` | Production debugging (phased investigation) |
-| `/sniper-audit` | Audit: refactoring, review, and QA |
-
-### Workspace
-
-| Command | Description |
-|---------|-------------|
-| `/sniper-workspace init` | Initialize a SNIPER workspace |
-| `/sniper-workspace feature` | Plan and execute a cross-repo feature |
-| `/sniper-workspace status` | Show workspace status |
-| `/sniper-workspace validate` | Validate interface contracts |
-
-### Utility
-
-| Command | Description |
-|---------|-------------|
-| `/sniper-compose` | Compose a spawn prompt from persona layers |
-| `/sniper-memory` | Manage agent memory (conventions, anti-patterns, decisions) |
+| `/sniper-flow` | Execute a SNIPER protocol (auto-detects scope or use `--protocol <name>`) |
+| `/sniper-flow-headless` | Execute a protocol non-interactively for CI/CD environments |
+| `/sniper-init` | Initialize SNIPER v3 in a new or existing project |
+| `/sniper-review` | Manually trigger a review gate for the current phase |
+| `/sniper-status` | Show current protocol progress and cost |
 
 ## Templates
 
-38 artifact templates covering:
+14 artifact templates:
 
-| Category | Templates |
-|----------|-----------|
-| **Discovery** | `brief.md`, `risks.md`, `personas.md` |
-| **Planning** | `prd.md`, `architecture.md`, `ux-spec.md`, `security.md`, `conventions.md` |
-| **Stories** | `epic.md`, `story.md` |
-| **Features** | `feature-brief.md`, `feature-spec.md`, `arch-delta.md` |
-| **Reviews** | `pr-review.md`, `sprint-review.md`, `release-readiness.md` |
-| **Documentation** | `doc-api.md`, `doc-guide.md`, `doc-readme.md` |
-| **Debugging** | `investigation.md`, `postmortem.md`, `bug-report.md` |
-| **Security** | `threat-model.md`, `vulnerability-report.md` |
-| **Performance** | `performance-profile.md`, `optimization-plan.md` |
-| **Refactoring** | `refactor-scope.md`, `migration-plan.md` |
-| **Memory** | `memory-convention.yaml`, `memory-anti-pattern.yaml`, `memory-decision.yaml`, `retro.yaml` |
-| **Workspace** | `workspace-brief.md`, `workspace-plan.md`, `contract.yaml`, `contract-validation-report.md` |
-| **Testing** | `coverage-report.md`, `flaky-report.md` |
+| Template | Type | Description |
+|----------|------|-------------|
+| `architecture.md` | Markdown | System architecture document |
+| `spec.md` | Markdown | Project specification |
+| `story.md` | Markdown | User story with acceptance criteria |
+| `codebase-overview.md` | Markdown | Codebase analysis summary |
+| `review-report.md` | Markdown | Standard review report |
+| `multi-faceted-review-report.md` | Markdown | Multi-dimensional review report |
+| `custom-protocol.yaml` | YAML | Custom protocol definition |
+| `workspace-config.yaml` | YAML | Workspace configuration |
+| `knowledge-manifest.yaml` | YAML | Knowledge base manifest |
+| `checkpoint.yaml` | YAML | Protocol checkpoint state |
+| `cost.yaml` | YAML | Token cost tracking |
+| `live-status.yaml` | YAML | Live protocol status |
+| `velocity.yaml` | YAML | Velocity calibration data |
+| `signal-record.yaml` | YAML | Signal event record |
 
 ## Checklists
 
-15 quality gate checklists for review workflows:
+9 quality gate checklists:
 
-`code-review`, `debug-review`, `discover-review`, `doc-review`, `feature-review`, `ingest-review`, `memory-review`, `perf-review`, `plan-review`, `refactor-review`, `security-review`, `sprint-review`, `story-review`, `test-review`, `workspace-review`
+| Checklist | Used by |
+|-----------|---------|
+| `discover` | full, explore protocols |
+| `plan` | full, feature protocols |
+| `implement` | full, feature, patch, refactor, hotfix protocols |
+| `review` | full, feature, patch, refactor protocols |
+| `multi-faceted-review` | Multi-model review mode |
+| `ingest-scan` | ingest protocol (scan phase) |
+| `ingest-document` | ingest protocol (document phase) |
+| `ingest-extract` | ingest protocol (extract phase) |
+| `refactor-analyze` | refactor protocol (analyze phase) |
 
 ## Usage
 
