@@ -12,7 +12,7 @@ phases:
       checklist: ingest-scan
       human_approval: false
     outputs:
-      - docs/codebase-overview.md  # Living master doc — not per-protocol
+      - .sniper/artifacts/codebase-overview.md  # Living master doc — not per-protocol
 
   - name: document
     description: Generate documentation from code analysis
@@ -23,7 +23,7 @@ phases:
       checklist: ingest-document
       human_approval: false
     outputs:
-      - docs/spec.md  # Living master doc — not per-protocol
+      - .sniper/artifacts/spec.md  # Living master doc — not per-protocol
 
   - name: extract
     description: Extract conventions, patterns, and anti-patterns
@@ -36,7 +36,7 @@ phases:
     outputs:
       - .sniper/conventions.yaml
 
-# Note: ingest protocols write to master docs (docs/spec.md, docs/codebase-overview.md)
-# rather than per-protocol directories (docs/{protocol_id}/). A meta.yaml and registry entry
+# Note: ingest protocols write to master docs (.sniper/artifacts/spec.md, .sniper/artifacts/codebase-overview.md)
+# rather than per-protocol directories (.sniper/artifacts/{protocol_id}/). A meta.yaml and registry entry
 # are still created by /sniper-flow, but the artifact directory may be empty.
 auto_retro: false

@@ -6,17 +6,17 @@ checks:
   # Scope Validation — does the implementation match requirements?
   - id: scope_spec_match
     description: Implementation addresses all spec requirements
-    check: file:docs/spec.md
+    check: file:.sniper/artifacts/spec.md
     blocking: true
 
   - id: scope_acceptance_criteria
     description: All acceptance criteria from stories are addressed
-    check: "grep:docs/{protocol_id}/stories/:shall"
+    check: "grep:.sniper/artifacts/{protocol_id}/stories/:shall"
     blocking: true
 
   - id: scope_no_creep
     description: No undocumented features added beyond spec
-    check: file:docs/{protocol_id}/review-report.md
+    check: file:.sniper/artifacts/{protocol_id}/review-report.md
     blocking: false
 
   # Standards Enforcement — does the code follow conventions?
@@ -38,20 +38,20 @@ checks:
   # Risk Scoring — are there security, performance, or reliability risks?
   - id: risk_security
     description: No OWASP Top 10 vulnerabilities detected
-    check: 'grep:docs/{protocol_id}/review-report.md:"## Security"'
+    check: 'grep:.sniper/artifacts/{protocol_id}/review-report.md:"## Security"'
     blocking: true
 
   - id: risk_performance
     description: No obvious performance regressions
-    check: 'grep:docs/{protocol_id}/review-report.md:"## Performance"'
+    check: 'grep:.sniper/artifacts/{protocol_id}/review-report.md:"## Performance"'
     blocking: false
 
   - id: risk_error_handling
     description: Error cases are handled gracefully
-    check: 'grep:docs/{protocol_id}/review-report.md:"## Error Handling"'
+    check: 'grep:.sniper/artifacts/{protocol_id}/review-report.md:"## Error Handling"'
     blocking: false
 
   - id: risk_data_integrity
     description: No data loss or corruption risks
-    check: 'grep:docs/{protocol_id}/review-report.md:"## Data Integrity"'
+    check: 'grep:.sniper/artifacts/{protocol_id}/review-report.md:"## Data Integrity"'
     blocking: true

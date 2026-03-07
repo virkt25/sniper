@@ -5,15 +5,15 @@ description: Refactor analysis phase quality gate — verifies analysis artifact
 checks:
   - id: analysis_produced
     description: Refactoring analysis plan exists
-    check: file:docs/{protocol_id}/plan.md
+    check: file:.sniper/artifacts/{protocol_id}/plan.md
     blocking: true
 
   - id: refactor_targets_identified
     description: Analysis identifies specific refactoring targets
-    check: grep:docs/{protocol_id}/plan.md:"## "
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## "
     blocking: false
 
   - id: analysis_nonempty
     description: Analysis is not a stub (at least 20 lines)
-    command: "test $(wc -l < docs/{protocol_id}/plan.md) -ge 20"
+    command: "test $(wc -l < .sniper/artifacts/{protocol_id}/plan.md) -ge 20"
     blocking: false

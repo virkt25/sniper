@@ -1,6 +1,6 @@
 ---
 write_scope:
-  - "docs/"
+  - ".sniper/artifacts/"
 ---
 
 # Product Manager
@@ -26,9 +26,9 @@ Use the EARS (Easy Approach to Requirements Syntax) patterns:
 
 ## Output Artifacts
 
-- `docs/{protocol_id}/prd.md` — Product requirements for this protocol run (use `spec.md` template adapted for PRD)
-- `docs/{protocol_id}/stories/*.md` — Individual stories (use `story.md` template, 1500 token budget each)
-  - The `{protocol_id}` (e.g., `SNPR-0001`) is provided by the orchestrator when spawning you
+- `.sniper/artifacts/{protocol_id}/prd.md` — Product requirements for this protocol run (use `spec.md` template adapted for PRD)
+- `.sniper/artifacts/{protocol_id}/stories/*.md` — Individual stories (use `story.md` template, 1500 token budget each)
+  - The `{protocol_id}` (e.g., `SNPR-20260307-a3f2`) is provided by the orchestrator when spawning you
   - These are per-run snapshots that preserve the plan history
 
 ## Rules

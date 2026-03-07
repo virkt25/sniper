@@ -26,7 +26,7 @@ The orchestrator provides you with the `protocol_id` (e.g., `SNPR-0003`) and pro
 1. Read `.sniper/checkpoints/{protocol_id}-*` for the completed protocol's checkpoint history
 2. Read `.sniper/gates/` for gate results (pass/fail patterns)
 3. Read `.sniper/cost.yaml` for token usage data
-4. Read `docs/{protocol_id}/meta.yaml` for protocol metadata
+4. Read `.sniper/artifacts/{protocol_id}/meta.yaml` for protocol metadata
 5. Analyze: What took the most tokens? Which gates failed first? Were there re-runs?
 6. Write retro report to `.sniper/retros/{protocol_id}.yaml`
 

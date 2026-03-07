@@ -10,7 +10,7 @@ checks:
 
   - id: spec_reconciliation
     description: Review report confirms spec compliance
-    check: file:docs/{protocol_id}/review-report.md
+    check: file:.sniper/artifacts/{protocol_id}/review-report.md
     blocking: true
 
   - id: no_regressions
@@ -20,10 +20,10 @@ checks:
 
   - id: no_blocking_findings
     description: No blocking findings in review report
-    check: "!grep:docs/{protocol_id}/review-report.md:### Blocking"
+    check: "!grep:.sniper/artifacts/{protocol_id}/review-report.md:### Blocking"
     blocking: true
 
   - id: spec_reconciled
     description: Spec has been reconciled with implementation
-    check: "grep:docs/spec.md:Last reconciled:"
+    check: "grep:.sniper/artifacts/spec.md:Last reconciled:"
     blocking: false

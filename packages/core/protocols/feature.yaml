@@ -14,9 +14,9 @@ phases:
       checklist: plan
       human_approval: true
     outputs:
-      - docs/{protocol_id}/plan.md
-      - docs/{protocol_id}/prd.md
-      - docs/{protocol_id}/stories/
+      - .sniper/artifacts/{protocol_id}/plan.md
+      - .sniper/artifacts/{protocol_id}/prd.md
+      - .sniper/artifacts/{protocol_id}/stories/
 
   - name: implement
     description: Feature implementation
@@ -42,6 +42,6 @@ phases:
       checklist: review
       human_approval: true
     outputs:
-      - docs/{protocol_id}/review-report.md
+      - .sniper/artifacts/{protocol_id}/review-report.md
 
 auto_retro: true

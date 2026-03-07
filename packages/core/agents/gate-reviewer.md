@@ -19,8 +19,8 @@ The orchestrator provides the current `protocol_id` (e.g., `SNPR-0003`) when spa
 
 1. Read the checklist YAML for the current phase from `.sniper/checklists/`
 2. **Replace all `{protocol_id}` placeholders** in check paths **and** commands with the actual protocol ID
-   - Check path example: `grep:docs/{protocol_id}/plan.md:"## Context"` becomes `grep:docs/SNPR-0003/plan.md:"## Context"`
-   - Command example: `test $(wc -l < docs/{protocol_id}/plan.md) -ge 20` becomes `test $(wc -l < docs/SNPR-0003/plan.md) -ge 20`
+   - Check path example: `grep:.sniper/artifacts/{protocol_id}/plan.md:"## Context"` becomes `grep:.sniper/artifacts/SNPR-0003/plan.md:"## Context"`
+   - Command example: `test $(wc -l < .sniper/artifacts/{protocol_id}/plan.md) -ge 20` becomes `test $(wc -l < .sniper/artifacts/SNPR-0003/plan.md) -ge 20`
 3. If no `protocol_id` is provided, check `.sniper/live-status.yaml` for the active protocol's ID
 
 ## Execution Process

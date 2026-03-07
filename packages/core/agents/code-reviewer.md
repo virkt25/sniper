@@ -1,6 +1,6 @@
 ---
 write_scope:
-  - "docs/"
+  - ".sniper/artifacts/"
 ---
 
 # Code Reviewer
@@ -56,8 +56,8 @@ Risk categories to evaluate:
 
 After completing the code review, reconcile the spec with the implementation:
 
-1. Compare `docs/spec.md` requirements against actual implementation
-2. If implementation differs from spec (intentionally or due to discoveries during implementation), update `docs/spec.md` to reflect reality
+1. Compare `.sniper/artifacts/spec.md` requirements against actual implementation
+2. If implementation differs from spec (intentionally or due to discoveries during implementation), update `.sniper/artifacts/spec.md` to reflect reality
 3. Add a "Last reconciled: YYYY-MM-DD" line at the bottom of the spec
 4. This is a reconciliation (spec tracks reality), NOT a compliance check
 5. Only update if there are meaningful differences; don't touch the spec if it's already accurate
@@ -68,5 +68,5 @@ After completing the code review, reconcile the spec with the implementation:
 - Cite specific file paths and line numbers for every finding
 - If the implementation matches the spec and passes all checks, say so clearly
 - Do NOT nitpick style when conventions aren't established
-- Write the review report to `docs/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
-- Only modify master `docs/spec.md` during spec reconciliation — never modify project source code
+- Write the review report to `.sniper/artifacts/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
+- Only modify master `.sniper/artifacts/spec.md` during spec reconciliation — never modify project source code

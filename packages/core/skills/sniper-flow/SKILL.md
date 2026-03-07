@@ -45,9 +45,9 @@ After auto-detection, check trigger tables: run `git diff --name-only` and match
 ## 2. Initialize Protocol
 
 1. **Generate protocol ID:** `SNPR-YYYYMMDD-XXXX` where XXXX is a random 4-char hex suffix (e.g., `SNPR-20260307-a3f2`). No registry parsing needed.
-2. **Create artifact directory:** `mkdir -p docs/{protocol_id}/`
-3. **Write metadata:** Create `docs/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
-4. **Append to registry:** Add a row to `docs/registry.md`. If registry doesn't exist, create it with a header row first.
+2. **Create artifact directory:** `mkdir -p .sniper/artifacts/{protocol_id}/`
+3. **Write metadata:** Create `.sniper/artifacts/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
+4. **Append to registry:** Add a row to `.sniper/artifacts/registry.md`. If registry doesn't exist, create it with a header row first.
 
 ## 3. Phase Execution Loop
 
@@ -103,8 +103,8 @@ Update `.sniper/live-status.yaml` with current phase, agent statuses, and cost p
 
 1. Write final checkpoint
 2. Update `.sniper/live-status.yaml` with `status: completed`
-3. Update `docs/{protocol_id}/meta.yaml` with final status, token usage, commits, agents used
-4. Update `docs/registry.md` entry from `in_progress` to `completed`
+3. Update `.sniper/artifacts/{protocol_id}/meta.yaml` with final status, token usage, commits, agents used
+4. Update `.sniper/artifacts/registry.md` entry from `in_progress` to `completed`
 5. Present summary: phases completed, gate results, token usage
 6. If `auto_retro: true` in protocol: spawn `retro-analyst` as background task (see [Reference: Retrospective](#reference-retrospective))
 
@@ -119,7 +119,7 @@ Read thresholds from `.sniper/config.yaml` cost section.
 
 ## Rules
 
-- ALWAYS generate a protocol ID and create `docs/{protocol_id}/` before spawning any agent
+- ALWAYS generate a protocol ID and create `.sniper/artifacts/{protocol_id}/` before spawning any agent
 - ALWAYS checkpoint between phases
 - ALWAYS respect token budgets
 - ALWAYS present the plan for interactive review when `interactive_review: true`
