@@ -16,6 +16,7 @@
 | 4 | No user review/approval of plan before build starts | High | Medium |
 | 5 | No continuous docs/architecture updates during builds | Medium | Medium |
 | 6 | Protocol selection reads too many files | Medium | Low |
+| 7 | Docs overwritten on each run — no versioned artifact tracking | High | Medium |
 
 ---
 
@@ -476,13 +477,193 @@ The current skill has "Read Phase Configuration" as Step 1 of the phase loop, wh
 
 ---
 
+## Issue 7: Docs Overwritten — No Versioned Artifact Tracking
+
+### Problem
+
+Every protocol run writes to the same flat files: `docs/architecture.md`, `docs/prd.md`, `docs/spec.md`, `docs/review-report.md`, `docs/stories/*.md`. Running a second `feature` protocol **overwrites** the first one's plan artifacts. Sometimes agents create copies in new folders to avoid this, leading to an inconsistent mess.
+
+This means:
+- No history of plans — you can't review what was planned for feature A vs. feature B
+- The review report from feature A is gone after feature B runs
+- Stories from different features collide in `docs/stories/`
+- No master index of all work that's been done
+- No way to trace "which protocol produced which artifacts"
+
+### Design: Numbered Protocol Artifacts + Master Registry
+
+Inspired by **Google Conductor's track registry** pattern (`tracks.md` + `tracks/<track_id>/`) and **Codev's SPIR numbering**, introduce:
+
+1. **Protocol IDs with sequential numbering**: Each protocol run gets a unique ID like `SNPR-0001`, `SNPR-0002`, etc.
+2. **Per-protocol artifact directories**: Each run's docs go in `docs/SNPR-XXXX/` instead of flat `docs/`
+3. **Master docs**: Living documents at `docs/architecture.md`, `docs/spec.md` that represent the **current state** — updated incrementally, never overwritten wholesale
+4. **Protocol registry**: A `docs/registry.md` file that tracks all protocol runs with status
+
+### Artifact Directory Structure
+
+```
+docs/
+  registry.md                    # Master registry of all protocol runs
+  architecture.md                # Living master architecture doc (incrementally updated)
+  spec.md                        # Living master spec (current state of the project)
+  codebase-overview.md           # Living codebase analysis
+  SNPR-0001/                     # First protocol run (full — initial build)
+    plan.md                      # Architecture plan for this run
+    prd.md                       # PRD for this run
+    stories/                     # Stories for this run
+      001-user-auth.md
+      002-dashboard.md
+    review-report.md             # Review findings
+    meta.yaml                    # Protocol metadata (type, dates, status, agents)
+  SNPR-0002/                     # Second protocol run (feature — add OAuth)
+    plan.md
+    prd.md
+    stories/
+      001-oauth-google.md
+      002-oauth-callback.md
+    review-report.md
+    meta.yaml
+  SNPR-0003/                     # Third protocol run (patch — fix login bug)
+    review-report.md             # Patches may only have a review report
+    meta.yaml
+```
+
+### Registry Format
+
+```markdown
+# Protocol Registry
+
+| ID | Protocol | Description | Status | Date | Artifacts |
+|----|----------|-------------|--------|------|-----------|
+| SNPR-0001 | full | Initial project build — user management system | completed | 2026-03-07 | [plan](SNPR-0001/plan.md), [prd](SNPR-0001/prd.md), [review](SNPR-0001/review-report.md) |
+| SNPR-0002 | feature | Add OAuth2 Google sign-in | completed | 2026-03-08 | [plan](SNPR-0002/plan.md), [prd](SNPR-0002/prd.md), [review](SNPR-0002/review-report.md) |
+| SNPR-0003 | patch | Fix login redirect loop | completed | 2026-03-09 | [review](SNPR-0003/review-report.md) |
+| SNPR-0004 | feature | Add user preferences | in_progress | 2026-03-10 | [plan](SNPR-0004/plan.md) |
+```
+
+### Protocol Metadata (`meta.yaml`)
+
+```yaml
+id: SNPR-0002
+protocol: feature
+description: Add OAuth2 Google sign-in
+status: completed
+started: 2026-03-08T10:00:00Z
+completed: 2026-03-08T11:47:00Z
+agents: [architect, product-manager, fullstack-dev, qa-engineer, code-reviewer]
+token_usage: 285000
+gate_results:
+  plan: pass
+  implement: pass
+  review: pass
+stories_count: 2
+commits: [abc123, def456, ghi789]
+```
+
+### Master Docs vs. Per-Protocol Docs
+
+| Document | Per-Protocol (`docs/SNPR-XXXX/`) | Master (`docs/`) |
+|----------|----------------------------------|-------------------|
+| `plan.md` | Snapshot of the plan for this specific run | N/A — plans are per-run |
+| `prd.md` | PRD for this specific feature/build | N/A — PRDs are per-run |
+| `stories/` | Stories for this specific run | N/A — stories are per-run |
+| `review-report.md` | Review findings for this run | N/A — reviews are per-run |
+| `architecture.md` | N/A | Living doc — updated incrementally after each run |
+| `spec.md` | N/A | Living doc — reconciled after each review phase |
+| `codebase-overview.md` | N/A | Living doc — updated by ingest/explore protocols |
+| `meta.yaml` | Protocol run metadata | N/A |
+| `registry.md` | N/A | Master index of all runs |
+
+**Key principle:** Per-protocol docs are **snapshots** (what was planned/reviewed for this run). Master docs are **living** (current state of the project). The code-reviewer's spec reconciliation updates the master `docs/spec.md`, not the per-protocol one.
+
+### ID Generation
+
+The next protocol ID is determined by reading `docs/registry.md` and incrementing:
+1. Read `docs/registry.md`
+2. Find the highest `SNPR-XXXX` number
+3. Next ID = `SNPR-{max + 1}` (zero-padded to 4 digits)
+4. If `registry.md` doesn't exist, start at `SNPR-0001`
+
+### Fix
+
+**A. Update `/sniper-flow` skill — protocol ID and directory creation:**
+
+At protocol start (before any phase executes):
+1. Generate the next `SNPR-XXXX` ID
+2. Create `docs/SNPR-XXXX/` directory
+3. Create `docs/SNPR-XXXX/meta.yaml` with initial metadata
+4. Add an entry to `docs/registry.md` with status `in_progress`
+5. Pass the protocol ID to all agents so they write to `docs/SNPR-XXXX/` instead of `docs/`
+
+At protocol completion:
+1. Update `docs/SNPR-XXXX/meta.yaml` with final status, token usage, commits
+2. Update `docs/registry.md` entry to `completed`
+
+**B. Update agent output paths:**
+
+All agents that produce doc artifacts need to write to the protocol-specific directory:
+
+| Agent | Current Output | New Output |
+|-------|---------------|------------|
+| architect | `docs/architecture.md` | `docs/{protocol_id}/plan.md` |
+| product-manager | `docs/prd.md` | `docs/{protocol_id}/prd.md` |
+| product-manager | `docs/stories/*.md` | `docs/{protocol_id}/stories/*.md` |
+| analyst | `docs/spec.md` | Master `docs/spec.md` (this is a living doc) |
+| analyst | `docs/codebase-overview.md` | Master `docs/codebase-overview.md` (living doc) |
+| code-reviewer | `docs/review-report.md` | `docs/{protocol_id}/review-report.md` |
+| code-reviewer | `docs/spec.md` (reconciliation) | Master `docs/spec.md` (living doc) |
+
+**C. Update protocol YAML outputs:**
+
+```yaml
+# feature.yaml — before
+outputs:
+  - docs/architecture.md
+  - docs/prd.md
+  - docs/stories/
+
+# feature.yaml — after
+outputs:
+  - docs/{protocol_id}/plan.md
+  - docs/{protocol_id}/prd.md
+  - docs/{protocol_id}/stories/
+```
+
+**D. Update checklists to use protocol-scoped paths:**
+
+The plan checklist currently checks `docs/architecture.md` — needs to check `docs/{protocol_id}/plan.md` instead. The `{protocol_id}` is resolved at gate-review time from the active checkpoint.
+
+**E. Create registry.md template:**
+
+Add a `docs/registry.md` template to `packages/core/templates/` that gets created during `sniper init`.
+
+**Files to change:**
+- `packages/core/skills/sniper-flow/SKILL.md` — Add protocol ID generation, directory creation, registry management
+- `packages/core/agents/architect.md` — Update output path to `docs/{protocol_id}/plan.md`
+- `packages/core/agents/product-manager.md` — Update output paths
+- `packages/core/agents/code-reviewer.md` — Update review-report output path (keep spec reconciliation on master)
+- `packages/core/protocols/full.yaml` — Update `outputs` to use `{protocol_id}`
+- `packages/core/protocols/feature.yaml` — Same
+- `packages/core/protocols/patch.yaml` — Same
+- `packages/core/protocols/refactor.yaml` — Same
+- `packages/core/protocols/explore.yaml` — Same (spec goes to master, not per-protocol)
+- `packages/core/protocols/ingest.yaml` — Same
+- `packages/core/checklists/plan.yaml` — Update paths to `docs/{protocol_id}/plan.md`
+- `packages/core/checklists/review.yaml` — Update review-report path
+- `packages/core/checklists/multi-faceted-review.yaml` — Update paths
+- `packages/core/templates/registry.md` — New template file
+- `packages/core/schemas/` — Add `protocol-meta.schema.yaml` for `meta.yaml`
+- `packages/cli/src/scaffolder.ts` — Create `docs/registry.md` during init
+
+---
+
 ## Implementation Order
 
 | Phase | Issues | Rationale |
 |-------|--------|-----------|
 | **1** | Issue 1 (hooks format) | Blocks all users from using SNIPER. Lowest effort, highest impact. |
-| **2** | Issue 4 (plan review) + Issue 6 (protocol selection) | Both are skill file changes. Can be done together. |
-| **3** | Issue 3 (spawn strategy) | Protocol YAML changes + skill update. Depends on Phase 2 skill changes. |
+| **2** | Issue 7 (versioned artifacts) + Issue 4 (plan review) | Issue 7 changes all artifact paths — do this before other changes that reference doc paths. Issue 4 is a skill change that naturally pairs with it. |
+| **3** | Issue 6 (protocol selection) + Issue 3 (spawn strategy) | Both are skill + protocol YAML changes. Depends on Phase 2 path changes. |
 | **4** | Issue 2 (auto retro) | Agent + skill changes. Independent but lower priority than build-blocking issues. |
 | **5** | Issue 5 (continuous docs) | Agent + skill + protocol changes. Lowest priority — enhancement, not a fix. |
 
@@ -496,3 +677,4 @@ The current skill has "Read Phase Configuration" as Step 1 of the phase loop, wh
 - **Issue 4:** Run a `feature` protocol — verify the plan is presented for user review before implementation starts
 - **Issue 5:** Run a `feature` protocol — verify CLAUDE.md/README are updated after implementation
 - **Issue 6:** Run `/sniper-flow` — observe that protocol selection happens with minimal file reads, deferred loading happens per-phase
+- **Issue 7:** Run two `feature` protocols back-to-back — verify `docs/SNPR-0001/` and `docs/SNPR-0002/` exist with separate artifacts, `docs/registry.md` has both entries, and master `docs/spec.md` reflects the latest state
