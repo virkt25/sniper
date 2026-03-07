@@ -2,6 +2,6 @@
 
 > This documentation has moved to [sniperai.dev](https://sniperai.dev).
 
-See the full documentation at:
 - [Getting Started](https://sniperai.dev/guide/getting-started)
-- [Reference](https://sniperai.dev/reference/commands/)
+- [Full Lifecycle](https://sniperai.dev/guide/full-lifecycle)
+- [Configuration](https://sniperai.dev/guide/configuration)

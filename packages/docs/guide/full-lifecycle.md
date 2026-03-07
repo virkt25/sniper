@@ -137,25 +137,175 @@ Typically `human_approval: true` for this phase -- the human reviews the code-re
 
 After the review passes, a retrospective automatically runs if `auto_retro` is enabled in the visibility config. The retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`.
 
-Use `/sniper-flow --resume` to resume an interrupted protocol from its last checkpoint.
-
 ## Recovery
 
 If any phase produces poor output:
 
-- Use `/sniper-flow --resume` to resume an interrupted protocol from its last checkpoint
+- Use `/sniper-flow --resume` to resume from the last checkpoint (see [Resume and Checkpoints](#resume-and-checkpoints) below)
 - Completed files persist on disk -- only the conversation resets
 - Review failures affect only the current protocol execution
 
-## Alternative Workflows
+## Resume and Checkpoints
 
-Not every project needs the full lifecycle. SNIPER also provides:
+Every protocol run creates checkpoints in `.sniper/checkpoints/<protocol-id>/`. If a run is interrupted -- terminal closed, agent crash, budget exhaustion -- resume from the last checkpoint:
 
-- **`/sniper-flow --protocol ingest`** -- bootstrap artifacts from an existing codebase
-- **`/sniper-flow --protocol feature`** -- scoped mini-lifecycle for a single feature
-- **`/sniper-flow --protocol hotfix`** -- structured bug investigation and hot fixes
-- **`/sniper-flow --protocol refactor`** -- analyze, implement, and review refactoring changes
-- **`/sniper-flow --protocol explore`** -- discovery-only investigation (no implementation)
+```
+/sniper-flow --resume
+```
+
+Resume reads the latest checkpoint, identifies incomplete agents and their last known state, and spawns replacement agents with the checkpoint context. Agents pick up where they left off.
+
+### What Checkpoints Contain
+
+- **Event log** (`events.jsonl`) -- append-only log of every agent action and phase transition. Enables precise recovery.
+- **Phase snapshot** (`<protocol-id>-<phase>.yaml`) -- human-readable summary with agent status, artifacts produced, files touched, token usage, and a structured context summary for agent respawn.
+- **Cost tracking** (`cost.yaml`) -- cumulative token usage by agent.
+
+## Cost Tracking and Budget Enforcement
+
+Each protocol has a configurable token budget in `.sniper/config.yaml`:
+
+```yaml
+cost:
+  budgets:
+    full: 2000000       # 2M tokens
+    feature: 800000     # 800K tokens
+    patch: 200000       # 200K tokens
+    hotfix: 100000      # 100K tokens
+    explore: 500000     # 500K tokens
+    refactor: 600000    # 600K tokens
+    ingest: 1000000     # 1M tokens
+  hard_cap_multiplier: 1.2
+  alert_threshold: 0.7
+```
+
+### Enforcement Tiers
+
+| Tier | Threshold | What Happens |
+|------|-----------|--------------|
+| Warning | 70% consumed | Lead agent notified, human gets status update |
+| Soft cap | 100% consumed | Agents wrap up current work, no new tasks spawned |
+| Hard cap | 120% consumed | All agents halted, checkpoint written, human must resume with budget extension |
+
+A `PostToolUse` hook tracks token usage per agent. Per-agent sub-budgets prevent one agent from consuming the entire protocol budget.
+
+### Loop Detection
+
+If an agent makes more than 5 consecutive tool calls without producing new output (reading the same files repeatedly, attempting the same edits), the hook flags it as a potential loop and pauses the agent. The lead is notified to reassign or refine the task.
+
+## Alternative Protocols
+
+Not every project needs the full lifecycle. SNIPER provides right-sized protocols that match scope to process.
+
+### Feature Protocol
+
+For scoped features where discovery is not needed.
+
+```
+plan → implement → review
+```
+
+Same as `full` minus the discover and decompose phases. The plan phase includes story decomposition. Best for features where requirements are clear and the domain is understood.
+
+- **Plan phase** -- architect and product-manager produce architecture and stories. Human approval gate.
+- **Implement phase** -- 2--3 subagents spawned via `Task` tool with worktree isolation.
+- **Review phase** -- code-reviewer evaluates the diff. Auto or human gate depending on config.
+
+### Patch Protocol
+
+For bug fixes and small changes (under ~300 LOC).
+
+```
+implement → review
+```
+
+**Implement phase:**
+- Single implementation agent selected by routing -- no team overhead
+- Fix the issue, write/update tests, self-review
+
+**Review phase:**
+- Gate-reviewer runs tests, lint, and validates the fix
+- Human approval gate (final-review)
+
+### Hotfix Protocol
+
+Minimal ceremony for critical fixes.
+
+```
+implement
+```
+
+Single agent, automatic self-review, no human gate. The gate-reviewer runs via `Stop` hook but does not require human approval -- only automated checks (tests pass, lint clean).
+
+Use for production-down scenarios where speed matters more than ceremony.
+
+### Explore Protocol
+
+Research and investigation without implementation.
+
+```
+discover
+```
+
+- **Agents:** analyst (optionally with architect for technical investigation)
+- **Work:** Profile, benchmark, analyze, research
+- **Output:** Findings document with concrete recommendations
+
+After explore completes, you typically follow up with a targeted protocol:
+
+```
+/sniper-flow --protocol feature "Implement recommendation X from explore"
+```
+
+### Refactor Protocol
+
+Code improvement without behavior change.
+
+```
+analyze → implement → review
+```
+
+**Analyze phase:**
+- Agents: architect, code-reviewer
+- Identify refactoring targets, assess risk, define scope
+- Output: refactoring plan with before/after expectations
+
+**Implement phase:**
+- Refactor code while ensuring all existing tests still pass
+- Extra check -- no test behavior changes allowed (same test count, same test names)
+
+**Review phase:**
+- Human approval gate (final-review)
+
+### Ingest Protocol
+
+Brownfield codebase onboarding.
+
+```
+scan → document → extract
+```
+
+**Scan phase:**
+- Agent: code-archaeologist
+- Analyze directory structure, dependencies, entry points, patterns
+- Scan levels: Quick (structure only), Standard (modules + API surface), Deep (control flow + security)
+- Output: repository map (`.sniper/artifacts/<id>/repo-map.md`)
+
+**Document phase:**
+- Agents: doc-writer, code-archaeologist
+- Generate AI-optimized codebase documentation
+- Output:
+  - `codebase-overview.md` -- architecture, key modules, data flow
+  - `api-surface.md` -- public APIs, endpoints, contracts
+  - `conventions.md` -- detected patterns, naming, structure
+  - `risks.md` -- technical debt, security concerns, fragile areas
+
+**Extract phase:**
+- Agents: analyst, product-manager
+- Generate baseline spec from existing code ("what the system does today")
+- Output: baseline spec for delta planning in future protocols
+
+No human gates -- all three phases auto-advance.
 
 ## Next Steps
 

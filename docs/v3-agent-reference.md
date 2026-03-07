@@ -2,6 +2,6 @@
 
 > This documentation has moved to [sniperai.dev](https://sniperai.dev).
 
-See the full documentation at:
-- [Agent & Persona Reference](https://sniperai.dev/reference/personas/)
-- [Getting Started](https://sniperai.dev/guide/getting-started)
+- [Personas](https://sniperai.dev/guide/personas)
+- [Teams](https://sniperai.dev/guide/teams)
+- [Personas Reference](https://sniperai.dev/reference/personas/)

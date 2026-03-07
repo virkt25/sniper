@@ -66,6 +66,48 @@ This is suitable for discover and implement phases where output can be refined i
 Setting `human_approval: false` on plan or review phases is strongly discouraged. Bad architecture decisions cascade through the entire project, and unreviewed code can introduce bugs and security issues.
 :::
 
+## How Gates Work
+
+Gates are enforced by Claude Code hooks, not by convention. The step-by-step flow:
+
+1. All tasks in a phase complete.
+2. The lead orchestrator's turn ends.
+3. A `Stop` hook fires the `gate-reviewer` agent.
+4. The gate-reviewer reads the phase checklist and validates each item.
+5. **PASS** (exit 0) -- lead advances to next phase.
+6. **FAIL** (exit 2) -- lead is blocked. It reads the failure report and routes feedback to the failing agent.
+7. **PENDING_APPROVAL** -- human must approve before advancing.
+
+### Approval Gates by Protocol
+
+| Protocol | Approval Gates |
+|----------|----------------|
+| `full` | plan-approval, final-review |
+| `feature` | plan-approval |
+| `patch` | final-review |
+| `hotfix` | none |
+| `explore` | none |
+| `refactor` | final-review |
+| `ingest` | none |
+
+### Checklist Item Types
+
+Each phase has a checklist in `packages/core/checklists/`. Items can be one of four types:
+
+| Type | Description | Pass Condition |
+|------|-------------|----------------|
+| **Command** | Run a shell command (e.g., `pnpm test`) | Exit code 0 |
+| **Artifact** | Verify a file exists at an expected path | File exists |
+| **Glob** | Verify files matching a pattern exist | At least one match |
+| **Grep** | Search the diff for patterns (e.g., TODO/FIXME) | Pattern found (or not found, depending on rule) |
+
+### Blocking vs. Non-Blocking Items
+
+Checklist items are either **blocking** or **non-blocking**:
+
+- **Blocking** failures halt the protocol. The gate returns FAIL and the lead must resolve the issue before the protocol can advance.
+- **Non-blocking** failures are recorded as warnings in the gate report. The protocol can still advance, but the warnings are surfaced for human review.
+
 ## How Evaluation Works
 
 When `/sniper-review` runs, it:

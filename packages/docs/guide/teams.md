@@ -112,7 +112,7 @@ Quick fixes that skip planning:
 
 ## Available Agents
 
-SNIPER v3 includes 11 agent definitions:
+SNIPER v3 includes 12 agent definitions:
 
 | Agent | Typical Role |
 |-------|-------------|
@@ -120,6 +120,7 @@ SNIPER v3 includes 11 agent definitions:
 | architect | System architecture and technical design |
 | backend-dev | Backend implementation |
 | code-reviewer | Multi-faceted code review |
+| doc-writer | Incremental documentation updates |
 | frontend-dev | Frontend implementation |
 | fullstack-dev | Full-stack implementation |
 | gate-reviewer | Gate evaluation |
@@ -127,6 +128,42 @@ SNIPER v3 includes 11 agent definitions:
 | product-manager | Requirements, PRD, and story creation |
 | qa-engineer | Test writing and quality assurance |
 | retro-analyst | Retrospective analysis and velocity tracking |
+
+## Agent Spawn Strategy
+
+The lead orchestrator chooses how many agents to spawn based on protocol and scope:
+
+| Work Size | Strategy | Mechanism |
+|-----------|----------|-----------|
+| Small (patch, hotfix) | Single subagent | `Task` tool, inline context |
+| Medium (feature, refactor) | 2--3 subagents | `Task` tool with `isolation: worktree`, background execution |
+| Large (full, ingest) | Full agent team | `TeamCreate`, shared task list, inter-agent messaging |
+
+This prevents the overhead of spinning up a full team for a small fix.
+
+## Developer Agent Patterns
+
+### Worktree Isolation
+
+All implementation agents (`backend-dev`, `frontend-dev`, `fullstack-dev`) run in isolated git worktrees. Each agent gets its own branch and working directory, enabling parallel implementation without merge conflicts during execution.
+
+Merge happens after agents complete. The framework handles three-layer merge resolution:
+
+1. **Conflict avoidance** -- The routing table assigns tasks to minimize file overlap across agents.
+2. **Automated merge** -- `git merge --no-commit` of each worktree branch back to the main branch.
+3. **Agent-assisted resolution** -- If conflicts are detected, a merge-resolver agent resolves them using the specs from both tasks.
+
+### Self-Review Mandate
+
+Every implementation agent must self-review before marking a task complete:
+
+1. Re-read every modified file (run `git diff` to identify changes)
+2. Run the project's test command
+3. Run the project's lint command
+4. Check changes against story acceptance criteria
+5. Write a self-review summary to `.sniper/self-reviews/<agent-name>-<timestamp>.md`
+
+This is enforced by agent instructions. The gate-reviewer validates that self-review artifacts exist for every completed task.
 
 ## File Ownership
 
