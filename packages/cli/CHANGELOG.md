@@ -1,5 +1,14 @@
 # @sniper.ai/cli
 
+## 3.1.2
+
+### Patch Changes
+
+- [#18](https://github.com/virkt25/sniper/pull/18) [`43cca50`](https://github.com/virkt25/sniper/commit/43cca500c6f999de112dd1a02a7b62c560ba31cd) Thanks [@virkt25](https://github.com/virkt25)! - use string matcher format for Claude Code hooks
+
+- Updated dependencies [[`43cca50`](https://github.com/virkt25/sniper/commit/43cca500c6f999de112dd1a02a7b62c560ba31cd)]:
+  - @sniper.ai/core@3.1.2
+
 ## 3.1.1
 
 ### Patch Changes
