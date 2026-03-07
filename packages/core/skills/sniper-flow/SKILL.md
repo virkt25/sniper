@@ -66,6 +66,7 @@ For each phase in the protocol, execute these 5 steps:
 2. Spawn agents per [Reference: Spawn Strategies](#reference-spawn-strategies)
 3. Monitor via TaskList — if an agent is blocked, investigate and guide via SendMessage
 4. If an agent crashes: note the failure, continue with remaining agents
+5. After all parallel agents complete: coordinate worktree merges per [Reference: Merge Coordination](#reference-merge-coordination)
 
 ### Checkpoint
 
@@ -179,7 +180,7 @@ For agents working in worktrees (after all implementation agents complete):
 
 When a phase has `interactive_review: true`:
 
-1. Read produced artifacts (plan, PRD, stories)
+1. Read produced artifacts from `.sniper/artifacts/{protocol_id}/` (e.g., `plan.md`, `prd.md`, `stories/`)
 2. Present a structured summary: key architectural decisions, component overview, story count, open questions
 3. Offer options:
    - **Approve** — continue to next phase
