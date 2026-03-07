@@ -1,6 +1,6 @@
 {
   "name": "@sniper.ai/mcp-knowledge",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "SNIPER MCP server for domain knowledge indexing and retrieval",
   "type": "module",
   "bin": {

@@ -1,6 +1,6 @@
 {
   "name": "@sniper.ai/cli",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "SNIPER v3 CLI — scaffold and manage SNIPER-enabled projects",
   "type": "module",
   "bin": {
