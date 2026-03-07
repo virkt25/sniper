@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -59,11 +60,9 @@ jobs:
           git commit -m "chore: version packages"
           git push
 
-      - name: Configure npm for trusted publishing
-        run: |
-          npm config set "//registry.npmjs.org/:_authToken" ""
-          npm config delete "//registry.npmjs.org/:_authToken" || true
-          npm config set registry https://registry.npmjs.org/
-
       - name: Publish to npm
-        run: pnpm changeset publish --provenance --access public
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish --provenance
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
