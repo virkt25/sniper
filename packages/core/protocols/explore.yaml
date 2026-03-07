@@ -12,7 +12,7 @@ phases:
       checklist: discover
       human_approval: false
     outputs:
-      - docs/spec.md
-      - docs/codebase-overview.md
+      - docs/spec.md  # Living master doc
+      - docs/codebase-overview.md  # Living master doc
 
 auto_retro: false  # Exploration doesn't need retros

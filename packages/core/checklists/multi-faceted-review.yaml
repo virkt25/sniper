@@ -1,5 +1,6 @@
 name: multi-faceted-review
 description: Multi-dimensional review gate — scope, standards, and risk
+# Note: {protocol_id} is resolved at gate-review time from the active checkpoint
 
 checks:
   # Scope Validation — does the implementation match requirements?
@@ -10,12 +11,12 @@ checks:
 
   - id: scope_acceptance_criteria
     description: All acceptance criteria from stories are addressed
-    check: "grep:docs/stories/:shall"
+    check: "grep:docs/{protocol_id}/stories/:shall"
     blocking: true
 
   - id: scope_no_creep
     description: No undocumented features added beyond spec
-    check: file:docs/review-report.md
+    check: file:docs/{protocol_id}/review-report.md
     blocking: false
 
   # Standards Enforcement — does the code follow conventions?
@@ -37,20 +38,20 @@ checks:
   # Risk Scoring — are there security, performance, or reliability risks?
   - id: risk_security
     description: No OWASP Top 10 vulnerabilities detected
-    check: 'grep:docs/review-report.md:"## Security"'
+    check: 'grep:docs/{protocol_id}/review-report.md:"## Security"'
     blocking: true
 
   - id: risk_performance
     description: No obvious performance regressions
-    check: 'grep:docs/review-report.md:"## Performance"'
+    check: 'grep:docs/{protocol_id}/review-report.md:"## Performance"'
     blocking: false
 
   - id: risk_error_handling
     description: Error cases are handled gracefully
-    check: 'grep:docs/review-report.md:"## Error Handling"'
+    check: 'grep:docs/{protocol_id}/review-report.md:"## Error Handling"'
     blocking: false
 
   - id: risk_data_integrity
     description: No data loss or corruption risks
-    check: 'grep:docs/review-report.md:"## Data Integrity"'
+    check: 'grep:docs/{protocol_id}/review-report.md:"## Data Integrity"'
     blocking: true

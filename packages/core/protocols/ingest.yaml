@@ -12,7 +12,7 @@ phases:
       checklist: ingest-scan
       human_approval: false
     outputs:
-      - docs/codebase-overview.md
+      - docs/codebase-overview.md  # Living master doc
 
   - name: document
     description: Generate documentation from code analysis
@@ -23,7 +23,7 @@ phases:
       checklist: ingest-document
       human_approval: false
     outputs:
-      - docs/spec.md
+      - docs/spec.md  # Living master doc
 
   - name: extract
     description: Extract conventions, patterns, and anti-patterns

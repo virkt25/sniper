@@ -8,22 +8,24 @@ phases:
     agents:
       - architect
       - product-manager
-    spawn_strategy: team
+    spawn_strategy: sequential  # Architect designs first, PM writes stories from that
+    interactive_review: true  # Present plan to user for review/feedback before proceeding
     gate:
       checklist: plan
       human_approval: true
     outputs:
-      - docs/architecture.md
-      - docs/prd.md
-      - docs/stories/
+      - docs/{protocol_id}/plan.md
+      - docs/{protocol_id}/prd.md
+      - docs/{protocol_id}/stories/
 
   - name: implement
     description: Feature implementation
     agents:
       - fullstack-dev
       - qa-engineer
-    spawn_strategy: team
+    spawn_strategy: parallel  # Multiple subagents via Task, not full TeamCreate
     plan_approval: true
+    doc_sync: true  # Run doc-writer after this phase to update living docs
     gate:
       checklist: implement
       human_approval: false
@@ -40,6 +42,6 @@ phases:
       checklist: review
       human_approval: true
     outputs:
-      - docs/review-report.md
+      - docs/{protocol_id}/review-report.md
 
 auto_retro: true

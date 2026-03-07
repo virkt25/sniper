@@ -53,6 +53,14 @@ agent_mixins:
 
 hooks:
   PreToolUse:
-    - "go vet ./... 2>&1 | head -20"
+    - matcher: { tools: ["Edit", "Write"] }
+      hooks:
+        - type: command
+          description: "Go vet on edit"
+          command: "go vet ./... 2>&1 | head -20"
   Stop:
-    - "go test ./... -count=1"
+    - matcher: {}
+      hooks:
+        - type: command
+          description: "Go test on stop"
+          command: "go test ./... -count=1"

@@ -1,0 +1,58 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/protocol-meta"
+title: ProtocolMeta
+description: Metadata for a protocol run, stored at docs/{protocol_id}/meta.yaml.
+type: object
+required:
+  - id
+  - protocol
+  - status
+  - started
+properties:
+  id:
+    type: string
+    pattern: "^SNPR-\\d{4,}$"
+    description: Sequential protocol ID (e.g., SNPR-0001).
+  protocol:
+    type: string
+    description: Protocol name (full, feature, patch, etc.).
+  description:
+    type: string
+    description: Human-readable description of what this protocol run does.
+  status:
+    type: string
+    enum: [in_progress, completed, failed, cancelled]
+    description: Current status of the protocol run.
+  started:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the protocol started.
+  completed:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the protocol completed.
+  agents:
+    type: array
+    items:
+      type: string
+    description: List of agent names used in this run.
+  token_usage:
+    type: integer
+    minimum: 0
+    description: Total tokens consumed during this run.
+  gate_results:
+    type: object
+    additionalProperties:
+      type: string
+      enum: [pass, fail]
+    description: Gate results per phase.
+  stories_count:
+    type: integer
+    minimum: 0
+    description: Number of stories created.
+  commits:
+    type: array
+    items:
+      type: string
+    description: Git commit SHAs produced during this run.
+additionalProperties: false

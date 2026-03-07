@@ -55,6 +55,14 @@ agent_mixins:
 
 hooks:
   PreToolUse:
-    - "npx tsc --noEmit --pretty 2>&1 | head -20"
+    - matcher: { tools: ["Edit", "Write"] }
+      hooks:
+        - type: command
+          description: "TypeScript typecheck on edit"
+          command: "npx tsc --noEmit --pretty 2>&1 | head -20"
   Stop:
-    - "npx tsc --noEmit"
+    - matcher: {}
+      hooks:
+        - type: command
+          description: "TypeScript typecheck on stop"
+          command: "npx tsc --noEmit"

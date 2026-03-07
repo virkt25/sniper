@@ -53,6 +53,14 @@ agent_mixins:
 
 hooks:
   PreToolUse:
-    - "ruff check --quiet 2>&1 | head -20"
+    - matcher: { tools: ["Edit", "Write"] }
+      hooks:
+        - type: command
+          description: "Python lint check on edit"
+          command: "ruff check --quiet 2>&1 | head -20"
   Stop:
-    - "pytest --tb=short -q"
+    - matcher: {}
+      hooks:
+        - type: command
+          description: "Python test on stop"
+          command: "pytest --tb=short -q"
