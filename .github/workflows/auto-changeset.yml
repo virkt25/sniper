@@ -1,0 +1,54 @@
+name: Auto Changeset
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+    branches: [main]
+
+jobs:
+  auto-changeset:
+    name: Generate Changeset
+    runs-on: ubuntu-latest
+    # Skip Version Packages PRs and bot PRs
+    if: >-
+      !startsWith(github.head_ref, 'changeset-release/') &&
+      github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate changeset from PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node .github/scripts/generate-changeset.mjs
+
+      - name: Commit changeset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .changeset/
+          if git diff --staged --quiet; then
+            echo "No changeset changes to commit"
+          else
+            git commit -m "chore: auto-generate changeset for PR #${{ github.event.pull_request.number }}"
+            git push
+          fi
