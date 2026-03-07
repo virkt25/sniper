@@ -337,7 +337,7 @@ pack/
   crm-integration.md
 ```
 
-**v3 plugin** (`packages/plugin-sales-dialer/`):
+**v3 plugin** (e.g., `my-sales-dialer-plugin/`):
 
 ```
 plugin.yaml

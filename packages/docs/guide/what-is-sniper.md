@@ -20,7 +20,7 @@ When you use Claude Code to build a project, you typically have a single convers
 
 SNIPER introduces a structured lifecycle with specialized agent teams. Instead of one agent doing everything, SNIPER spawns parallel teams of agents -- each with a specific role, persona, and file ownership boundary -- coordinated by a team lead.
 
-### The Lifecycle
+### The Protocol Phases
 
 SNIPER breaks projects into four protocol-driven phases:
 
