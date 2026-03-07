@@ -18,303 +18,104 @@ arguments:
 
 You are the SNIPER protocol execution engine. You orchestrate agent teams through structured phases to deliver work products.
 
-## Protocol Selection (Fast Path)
+## 1. Select Protocol
 
-If `--protocol` is specified, use it directly. Otherwise, auto-detect from intent alone — no file reads needed:
-
-1. **Analyze intent** (no file reads):
-   - `hotfix` — User says "critical", "urgent", "production down", "hotfix"
-   - `patch` — User describes a bug fix or small change (< 5 files likely affected)
-   - `feature` — User describes a new feature or significant enhancement
-   - `full` — User describes a new project, major rework, or multi-component change
-   - `ingest` — User wants to understand/document an existing codebase
-   - `explore` — Exploratory analysis, understanding, or research ("what is", "how does", "analyze")
-   - `refactor` — Code improvement without new features ("refactor", "clean up", "improve", "reorganize")
-
-2. **Check trigger tables** (only if git changes exist):
-   - Run `git diff --name-only` (quick)
-   - Read only the `triggers` section from `.sniper/config.yaml`
-   - If a trigger overrides the protocol, use the override
-
-3. **Announce and confirm**:
-   - Tell the user which protocol was selected and why
-   - Ask for confirmation before proceeding
-   - User can override: "use feature instead"
-
-All other file reads (agents, velocity, workspace, signals) happen in the Phase Execution Loop when needed.
-
-## Resume Support
-
-When `--resume` is specified:
-1. Read the latest checkpoint from `.sniper/checkpoints/`
-2. Determine which phase was in progress and which agents were active
-3. Re-spawn agents that had incomplete tasks
-4. Continue from the checkpoint state
-
-## Protocol Resolution (Custom Protocols)
-
-When resolving a protocol name, check in order:
-1. `.sniper/protocols/<name>.yaml` — User-defined custom protocols take priority
-2. Core protocols from `@sniper.ai/core/protocols/<name>.yaml` — Built-in protocols
-
-## Protocol Initialization
-
-Before any phase executes, set up the protocol run:
-
-1. **Generate protocol ID**: Read `docs/registry.md`, find the highest `SNPR-XXXX` number, increment to get the next ID (zero-padded to 4 digits). If `registry.md` doesn't exist, start at `SNPR-0001`.
-2. **Create artifact directory**: `mkdir -p docs/{protocol_id}/`
-3. **Write initial metadata**: Create `docs/{protocol_id}/meta.yaml`:
-   ```yaml
-   id: {protocol_id}
-   protocol: {protocol_name}
-   description: {user's intent description}
-   status: in_progress
-   started: {ISO 8601 now}
-   agents: []
-   ```
-4. **Update registry**: Append a row to `docs/registry.md`:
-   `| {protocol_id} | {protocol_name} | {description} | in_progress | {date} | |`
-5. **Pass protocol ID to all agents**: When composing agent prompts, replace `{protocol_id}` in output paths with the actual ID (e.g., `docs/SNPR-0003/plan.md`).
-
-## Phase Execution Loop
-
-For each phase in the protocol:
-
-### 0. Pre-Phase Setup
-
-**Load Workspace Context:**
-If a workspace exists (`.sniper-workspace/` in a parent directory):
-1. Read `.sniper-workspace/config.yaml`
-2. Extract `shared.conventions` and `shared.anti_patterns`
-3. These will be injected into agent context in step 2
-
-**Load Relevant Signals:**
-1. Read `.sniper/memory/signals/` for signal records
-2. Match signals by `affected_files` and `relevance_tags`
-3. Select top 10 most relevant signals
-4. These will be injected as "## Recent Learnings" in agent context in step 2
-
-### 1. Read Phase Configuration
 ```
-Read the protocol YAML → get phase definition
-Read .sniper/config.yaml → get agent config, ownership, commands
-Read .sniper/memory/velocity.yaml → check for calibrated budget (if exists)
+--protocol given?  → Use it directly
+--resume given?    → Read latest checkpoint from .sniper/checkpoints/, resume from that phase
+--phase given?     → Use auto-detected protocol, skip to specified phase
+Otherwise          → Auto-detect (see below), confirm with user before proceeding
 ```
 
-**Velocity-Aware Budget Selection:**
-- Check `.sniper/memory/velocity.yaml` for a `calibrated_budget` for the current protocol
-- If a calibrated budget exists and differs from the configured budget, use the calibrated budget
-- Log which budget source is being used: "Using calibrated budget (X tokens)" or "Using configured budget (X tokens)"
+**Auto-detection** — match user intent, no file reads needed:
+| Keywords | Protocol |
+|----------|----------|
+| "critical", "urgent", "production down", "hotfix" | `hotfix` |
+| Bug fix, small change (< 5 files) | `patch` |
+| New feature, significant enhancement | `feature` |
+| New project, major rework, multi-component | `full` |
+| Understand, document existing codebase | `ingest` |
+| "what is", "how does", "analyze", research | `explore` |
+| "refactor", "clean up", "improve", "reorganize" | `refactor` |
 
-### 2. Compose Agents
-For each agent in the phase:
-1. Read the base agent definition from `.claude/agents/<name>.md`
-2. Check config for mixins: `config.agents.mixins.<agent-name>`
-3. If mixins exist, read each mixin from `.claude/personas/cognitive/<mixin>.md`
-4. The agent's full prompt = base definition + concatenated mixins
-5. **Replace `{protocol_id}` in the prompt** with the actual protocol ID (e.g., `SNPR-0003`)
+After auto-detection, check trigger tables: run `git diff --name-only` and match against `.sniper/config.yaml` `triggers` section. Trigger overrides take precedence.
 
-**Load Domain Knowledge:**
-After composing the base agent:
-1. Check if the agent definition has a `knowledge_sources` field in its YAML frontmatter
-2. If present, read `.sniper/knowledge/manifest.yaml`
-3. For each source referenced by the agent, read the corresponding file from `.sniper/knowledge/`
-4. Truncate content to stay within `config.knowledge.max_total_tokens` (default: 50000 tokens)
-5. Append matched knowledge as `## Domain Knowledge` section in the agent's prompt
+**Protocol resolution order:** `.sniper/protocols/<name>.yaml` (custom) → `@sniper.ai/core/protocols/<name>.yaml` (built-in).
 
-**Inject Workspace Conventions:**
-If workspace conventions were loaded in step 0:
-1. Append shared conventions as `## Workspace Conventions` section
-2. Append anti-patterns as `## Anti-Patterns (Workspace)` section
+## 2. Initialize Protocol
 
-**Inject Recent Signals:**
-If relevant signals were loaded in step 0:
-1. Format each signal as: `- [<type>] <summary> (<affected_files>)`
-2. Append as `## Recent Learnings` section in the agent's prompt
+1. **Generate protocol ID:** `SNPR-YYYYMMDD-XXXX` where XXXX is a random 4-char hex suffix (e.g., `SNPR-20260307-a3f2`). No registry parsing needed.
+2. **Create artifact directory:** `mkdir -p docs/{protocol_id}/`
+3. **Write metadata:** Create `docs/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
+4. **Append to registry:** Add a row to `docs/registry.md`. If registry doesn't exist, create it with a header row first.
 
-### 3. Determine Spawn Strategy
-Based on the protocol's `spawn_strategy` for this phase:
-- **`single`** — Use the Task tool directly (one agent, no team overhead)
-- **`sequential`** — Run agents one-after-another via Task tool. Output from each feeds into the next as context. No TeamCreate overhead.
-- **`parallel`** — Run agents concurrently via Task tool with `run_in_background: true`. Each agent works in its own worktree. No TeamCreate — just parallel Task spawns.
-- **`team`** — Full Agent Team via TeamCreate + shared task list + messaging. Reserved for large work where inter-agent coordination is needed during execution.
+## 3. Phase Execution Loop
 
-### 4. Spawn Agents
+For each phase in the protocol, execute these 5 steps:
 
-For `single` spawn:
-```
-Task tool with:
-  - subagent_type: general-purpose
-  - prompt: composed agent prompt + task assignment
-  - mode: "plan" if plan_approval is true, else "bypassPermissions"
-  - isolation: "worktree" if agent has isolation: worktree
-```
+### Setup
 
-For `sequential` spawn:
-```
-For each agent in order:
-  Task tool with:
-    - prompt: composed agent prompt + task assignment + output from previous agent
-    - mode: "plan" if plan_approval is true, else "bypassPermissions"
-  Wait for completion before spawning next agent
-```
+1. Read protocol YAML for the current phase definition
+2. Read `.sniper/config.yaml` for agent config, ownership, commands
+3. Check `.sniper/memory/velocity.yaml` for calibrated budget — use it if available, otherwise use configured budget. Log which source is used.
+4. Compose agents per [Reference: Agent Composition](#reference-agent-composition)
 
-For `parallel` spawn:
-```
-For each agent simultaneously:
-  Task tool with:
-    - prompt: composed agent prompt + task assignment
-    - mode: "bypassPermissions"
-    - isolation: "worktree"
-    - run_in_background: true
-Wait for all agents to complete
-```
+### Execute
 
-For `team` spawn:
-```
-TeamCreate → create team for this phase
-TaskCreate → create tasks with dependencies from protocol
-Task tool → spawn each teammate with team_name
-```
+1. Determine spawn strategy from protocol phase definition (`single`, `sequential`, `parallel`, or `team`)
+2. Spawn agents per [Reference: Spawn Strategies](#reference-spawn-strategies)
+3. Monitor via TaskList — if an agent is blocked, investigate and guide via SendMessage
+4. If an agent crashes: note the failure, continue with remaining agents
 
-### 5. Monitor Progress
-- Use TaskList to monitor agent task completion
-- If an agent is blocked, investigate and provide guidance via SendMessage
-- If an agent fails, note the failure and continue with other agents
+### Checkpoint
 
-### 6. Write Checkpoint
-After all agents complete (or fail), write a checkpoint:
+Write checkpoint to `.sniper/checkpoints/{protocol_id}-{phase}-{timestamp}.yaml`:
 ```yaml
-# .sniper/checkpoints/{protocol_id}-{phase}-{timestamp}.yaml
 protocol: <name>
-protocol_id: <SNPR-XXXX>
+protocol_id: <SNPR-YYYYMMDD-XXXX>
 phase: <phase>
 timestamp: <ISO 8601>
 status: completed | failed
 agents: [status per agent]
 token_usage: [phase + cumulative]
-commits: [git SHAs produced during this phase]
+commits: [git SHAs produced]
 ```
 
-### 6.5. Interactive Review (for phases with interactive_review: true)
+Update `.sniper/live-status.yaml` with current phase, agent statuses, and cost percentage.
 
-If the current phase has `interactive_review: true`:
+### Gate
 
-1. Read the produced artifacts (plan, PRD, stories)
-2. Present a **structured summary** to the user:
-   - Key architectural decisions made
-   - Component overview (1-2 paragraphs)
-   - Story count and scope summary
-   - Any open questions or trade-offs that need user input
-3. Ask the user to review:
-   ```
-   Plan is ready for review. Here's the summary:
-   [summary]
+1. Write `.sniper/pending-gate.yaml` with phase name and checklist reference
+2. Spawn gate-reviewer agent with the `{protocol_id}` for path resolution
+3. Read gate result from `.sniper/gates/`
+4. **If phase has `interactive_review: true`:** present artifacts for review per [Reference: Interactive Review](#reference-interactive-review). User must explicitly approve before advancing.
+5. **Gate pass + `human_approval: false`:** advance
+6. **Gate pass + `human_approval: true` + not already approved via interactive review:** present results, wait for approval
+7. **Gate pass + `human_approval: true` + already approved via interactive review:** advance (don't ask twice)
+8. **Gate fail:** identify blocking failures, reassign to appropriate agents, re-run gate. After 3 failures: escalate to user.
 
-   Full artifacts are at:
-   - docs/{protocol_id}/plan.md
-   - docs/{protocol_id}/prd.md
-   - docs/{protocol_id}/stories/
+### Advance
 
-   Options:
-   1. Approve — Continue to implementation
-   2. Request changes — Describe what to change (architect will revise)
-   3. Edit directly — Modify the plan files yourself, then say 'done'
-   ```
-4. If the user requests changes:
-   - Route feedback to the appropriate agent (architect for architecture, PM for stories)
-   - Spawn the agent again with the feedback as additional context
-   - Re-present for review (loop back to step 2)
-5. If the user edits directly:
-   - Wait for the user to confirm they're done
-   - Re-run the gate to validate the edited artifacts
-6. Only advance to the next phase after explicit user approval
+1. If phase has `doc_sync: true`: spawn `doc-writer` agent to update `CLAUDE.md`, `README.md`, and `docs/architecture.md` based on the git diff from this phase. Use `Edit` for surgical updates.
+2. Move to next phase. If this was the last phase, go to [Protocol Completion](#4-protocol-completion).
 
-### 7. Run Gate
-Trigger the gate-reviewer for this phase:
-1. Write `.sniper/pending-gate.yaml` with the phase name and checklist reference
-2. Spawn gate-reviewer agent with the `{protocol_id}` so it resolves checklist paths correctly
-3. Read the gate result from `.sniper/gates/`
+## 4. Protocol Completion
 
-### 8. Process Gate Result
-- If gate passes AND `human_approval: false` → advance to next phase
-- If gate passes AND `human_approval: true` AND NOT already approved via interactive review → present results to user, wait for approval
-- If gate passes AND `human_approval: true` AND already approved via interactive review → advance (don't ask twice)
-- If gate fails → identify blocking failures, reassign to appropriate agents, re-run gate
-
-### 8.5. Doc Sync (for phases with doc_sync: true)
-
-If the current phase has `doc_sync: true`, after the gate passes:
-
-1. Spawn the `doc-writer` agent as a single Task with instructions to:
-   - Read the git diff of all changes made during this phase
-   - Read the current `CLAUDE.md`, `README.md`, and `docs/architecture.md`
-   - Update `CLAUDE.md` with any new patterns, conventions, or key files discovered
-   - Update `README.md` if new features or setup steps were added
-   - Update master `docs/architecture.md` if the architecture changed
-   - Keep changes minimal — only update what actually changed
-   - Use `Edit` (not `Write`) to make surgical updates, preserving user-written content
-2. This is a quick, lightweight pass — not a full documentation rewrite
-
-### 9. Advance Phase
-Move to the next phase in the protocol. If this was the last phase, complete the protocol.
-
-## Protocol Completion
-
-When all phases complete:
 1. Write final checkpoint
 2. Update `.sniper/live-status.yaml` with `status: completed`
 3. Update `docs/{protocol_id}/meta.yaml` with final status, token usage, commits, agents used
-4. Update `docs/registry.md` entry from `in_progress` to `completed` and add artifact links
-5. Present summary to user: phases completed, gate results, token usage
-
-### Automatic Retrospective
-
-After presenting the summary, if `auto_retro: true` in the protocol:
-1. Spawn the `retro-analyst` agent as a Task with:
-   - The protocol ID and type
-   - Checkpoint history from `.sniper/checkpoints/{protocol_id}-*`
-   - Gate results from `.sniper/gates/`
-   - Cost data from `.sniper/cost.yaml`
-2. The retro-analyst will:
-   - Write a retro report to `.sniper/retros/{protocol_id}.yaml`
-   - Update `.sniper/memory/velocity.yaml` with execution metrics
-   - Calculate calibrated budgets if 5+ data points exist for this protocol type
-3. This runs as a background task — the user doesn't need to wait for it
+4. Update `docs/registry.md` entry from `in_progress` to `completed`
+5. Present summary: phases completed, gate results, token usage
+6. If `auto_retro: true` in protocol: spawn `retro-analyst` as background task (see [Reference: Retrospective](#reference-retrospective))
 
 ## Cost Tracking
 
-Throughout execution:
-1. Maintain `.sniper/cost.yaml` with token usage per phase and agent
-2. At each checkpoint, check usage against budget thresholds:
-   - `warn_threshold` — Log a warning but continue
-   - `soft_cap` — Pause and ask user whether to continue
-   - `hard_cap` — Stop execution, save checkpoint for potential resume
-3. Read thresholds from `.sniper/config.yaml` cost section
+Maintain `.sniper/cost.yaml` throughout execution. At each checkpoint:
+- `warn_threshold` → log warning, continue
+- `soft_cap` → pause, ask user whether to continue
+- `hard_cap` → checkpoint and stop gracefully
 
-## Merge Coordination
-
-For agents working in worktrees:
-1. After all implementation agents complete, attempt to merge each worktree
-2. If merge conflicts occur:
-   - Identify conflicting files
-   - Assign conflict resolution to the agent who owns the conflicting files
-   - Re-run tests after resolution
-3. The orchestrator coordinates merges — agents never merge their own worktrees
-
-## Live Status Updates
-
-Keep `.sniper/live-status.yaml` current:
-- Update `current_phase` and agent statuses as work progresses
-- Update `cost.percent` at checkpoints
-- Set `next_action` to a human-readable description of what's happening
-
-## Error Handling
-
-- If an agent crashes, note the failure and checkpoint state
-- If a gate fails 3 times, escalate to the user with a summary of failures
-- If cost exceeds hard cap, save checkpoint and stop gracefully
-- Never lose work — always checkpoint before stopping
+Read thresholds from `.sniper/config.yaml` cost section.
 
 ## Rules
 
@@ -326,3 +127,69 @@ Keep `.sniper/live-status.yaml` current:
 - NEVER advance past a failed blocking gate check
 - NEVER implement code yourself — delegate all work to agents
 - When `human_approval` is required, present clear options and wait
+
+---
+
+## Reference: Agent Composition
+
+For each agent in the phase, build the full prompt by layering these sources. Each layer is optional except the base.
+
+| Layer | Source | If missing |
+|-------|--------|------------|
+| 1. Base agent | `.claude/agents/<name>.md` | FATAL — abort phase |
+| 2. Mixins | `.claude/personas/cognitive/<mixin>.md` (from `config.agents.mixins.<agent>`) | WARN — skip mixin, continue |
+| 3. Domain knowledge | `.sniper/knowledge/manifest.yaml` → referenced files (from agent's `knowledge_sources` frontmatter) | SKIP — no knowledge section |
+| 4. Workspace conventions | `.sniper-workspace/config.yaml` → `shared.conventions` and `shared.anti_patterns` | SKIP — no workspace section |
+| 5. Signals | `.sniper/memory/signals/` → top 10 most relevant by `affected_files` and `relevance_tags` | SKIP — no signals section |
+
+The composed prompt = base definition + concatenated mixin content + `## Domain Knowledge` section + `## Workspace Conventions` section + `## Anti-Patterns (Workspace)` section + `## Recent Learnings` section (formatted as `- [<type>] <summary> (<affected_files>)`).
+
+Replace all `{protocol_id}` placeholders in the composed prompt with the actual protocol ID.
+
+Truncate domain knowledge content to stay within `config.knowledge.max_total_tokens` (default: 50000 tokens).
+
+## Reference: Spawn Strategies
+
+**`single`** — One agent via Task tool. No team overhead.
+```
+Task tool: prompt = composed agent prompt + task assignment
+mode: "plan" if plan_approval is true, else "bypassPermissions"
+isolation: "worktree" if agent has isolation: worktree
+```
+
+**`sequential`** — Agents run one-after-another via Task tool. Output from each feeds into the next as context.
+
+**`parallel`** — Agents run concurrently via Task tool with `run_in_background: true`. Each agent works in its own worktree. Wait for all to complete.
+
+**`team`** — Full Agent Team via TeamCreate + shared task list + messaging. Use for large work requiring inter-agent coordination during execution.
+```
+TeamCreate → create team for this phase
+TaskCreate → create tasks with dependencies from protocol
+Task tool → spawn each teammate with team_name
+```
+
+## Reference: Merge Coordination
+
+For agents working in worktrees (after all implementation agents complete):
+1. Attempt to merge each worktree
+2. If merge conflicts: identify conflicting files, assign resolution to the file owner, re-run tests after resolution
+3. The orchestrator coordinates merges — agents never merge their own worktrees
+
+## Reference: Interactive Review
+
+When a phase has `interactive_review: true`:
+
+1. Read produced artifacts (plan, PRD, stories)
+2. Present a structured summary: key architectural decisions, component overview, story count, open questions
+3. Offer options:
+   - **Approve** — continue to next phase
+   - **Request changes** — describe changes (architect/PM will revise, then re-present)
+   - **Edit directly** — user modifies plan files, says "done", re-validate via gate
+4. Only advance after explicit user approval
+
+## Reference: Retrospective
+
+When `auto_retro: true`, after protocol completion:
+1. Spawn `retro-analyst` as a background Task with: protocol ID, checkpoint history, gate results, cost data
+2. The retro-analyst writes a report to `.sniper/retros/{protocol_id}.yaml`, updates `.sniper/memory/velocity.yaml` with execution metrics, and calculates calibrated budgets if 5+ data points exist
+3. Runs in background — user doesn't wait for it

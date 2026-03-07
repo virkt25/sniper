@@ -27,7 +27,7 @@ npm install @sniper.ai/core
 ├── agents/             # Agent definitions (11 agents)
 ├── personas/
 │   └── cognitive/      # Cognitive mixins (3 mixins)
-├── skills/             # Slash command definitions (5 skills)
+├── skills/             # Slash command definitions (4 skills)
 ├── protocols/          # Protocol state machines (7 protocols)
 ├── templates/          # Artifact templates (14 templates)
 ├── checklists/         # Quality gate checklists (9 checklists)
@@ -83,12 +83,11 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 ## Skills
 
-5 slash commands available in Claude Code:
+4 slash commands available in Claude Code:
 
 | Command | Description |
 |---------|-------------|
 | `/sniper-flow` | Execute a SNIPER protocol (auto-detects scope or use `--protocol <name>`) |
-| `/sniper-flow-headless` | Execute a protocol non-interactively for CI/CD environments |
 | `/sniper-init` | Initialize SNIPER v3 in a new or existing project |
 | `/sniper-review` | Manually trigger a review gate for the current phase |
 | `/sniper-status` | Show current protocol progress and cost |
