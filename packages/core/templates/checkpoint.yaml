@@ -16,7 +16,7 @@ gate_result: null  # null if gate not yet run
 #   blocking_failures: 0
 
 artifacts_produced: []
-# - path: docs/spec.md
+# - path: .sniper/artifacts/spec.md
 #   status: draft | complete
 
 token_usage:

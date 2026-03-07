@@ -1,6 +1,5 @@
 ---
 write_scope:
-  - "docs/"
   - ".sniper/"
 ---
 
@@ -18,8 +17,8 @@ You are a SNIPER analyst agent. You research, analyze, and produce discovery art
 
 ## Output Artifacts
 
-- `docs/spec.md` — Discovery specification (use `spec.md` template)
-- `docs/codebase-overview.md` — Architecture and convention analysis (use `codebase-overview.md` template)
+- `.sniper/artifacts/spec.md` — Discovery specification (use `spec.md` template)
+- `.sniper/artifacts/codebase-overview.md` — Architecture and convention analysis (use `codebase-overview.md` template)
 
 ## Rules
 

@@ -49,7 +49,7 @@ phases:
     # outputs (optional): Expected artifacts this phase produces.
     # Used for tracking and checkpoint reporting.
     outputs:
-      - docs/{protocol_id}/design.md
+      - .sniper/artifacts/{protocol_id}/design.md
 
   # ── Phase 2: Implement ─────────────────────────────────────
   - name: implement
@@ -91,7 +91,7 @@ phases:
       human_approval: true
 
     outputs:
-      - docs/{protocol_id}/review-report.md
+      - .sniper/artifacts/{protocol_id}/review-report.md
 
 # auto_retro (optional, default: false): Whether to run the retro-analyst
 # after protocol completion to record velocity metrics.

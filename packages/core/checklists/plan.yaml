@@ -4,33 +4,33 @@ description: Planning phase quality gate
 
 checks:
   - id: has_context_section
-    check: grep:docs/{protocol_id}/plan.md:"## Context"
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Context"
     blocking: true
     description: Architecture plan includes Context section
   - id: has_decisions_section
-    check: grep:docs/{protocol_id}/plan.md:"## Decisions"
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Decisions"
     blocking: true
     description: Architecture plan includes Decisions section
   - id: has_components_section
-    check: grep:docs/{protocol_id}/plan.md:"## Components"
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Components"
     blocking: true
     description: Architecture plan includes Components section
   - id: has_data_model_section
-    check: grep:docs/{protocol_id}/plan.md:"## Data Model"
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Data Model"
     blocking: true
     description: Architecture plan includes Data Model section
 
   - id: ears_criteria
     description: All stories have EARS acceptance criteria
-    check: grep:docs/{protocol_id}/stories/:"shall"
+    check: grep:.sniper/artifacts/{protocol_id}/stories/:"shall"
     blocking: true
 
   - id: open_questions
     description: No unresolved open questions remain
-    check: "!grep:docs/{protocol_id}/:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
+    check: "!grep:.sniper/artifacts/{protocol_id}/:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
     blocking: false
 
   - id: token_budget
     description: Architecture plan within character budget (~4000 tokens = 16000 chars)
-    check: wc:docs/{protocol_id}/plan.md:<16000
+    check: wc:.sniper/artifacts/{protocol_id}/plan.md:<16000
     blocking: false

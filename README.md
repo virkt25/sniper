@@ -8,15 +8,14 @@ SNIPER is a framework for orchestrating Claude Code agent teams through structur
 
 ## How It Works
 
-SNIPER breaks projects into phases, each driven by a slash command that spawns a coordinated team of AI agents:
+SNIPER breaks projects into protocol-driven phases, orchestrated by `/sniper-flow`:
 
-1. **Discover** (`/sniper-discover`) — Parallel agents analyze requirements, codebase, and constraints
-2. **Plan** (`/sniper-plan`) — Architects and specialists produce PRDs, architecture docs, and tech specs
-3. **Solve** (`/sniper-solve`) — Shards work into epics and stories with clear acceptance criteria
-4. **Sprint** (`/sniper-sprint`) — Parallel implementation teams build, test, and integrate
-5. **Review** (`/sniper-review`) — Quality gates validate phase outputs before advancing
+1. **Discover** — Agents analyze requirements, codebase, and constraints
+2. **Plan** — Architects and specialists produce PRDs, architecture docs, and tech specs
+3. **Implement** — Parallel agents build in isolated worktrees with file ownership boundaries
+4. **Review** — Quality gates validate phase outputs before advancing
 
-Each agent is composed from layered personas (cognitive style, process role, technical expertise, domain knowledge) and assigned specific tasks with file ownership boundaries.
+Each protocol defines which phases to run (e.g., `full` runs all four, `patch` skips to implement + review). Agents are composed from layered personas (cognitive style, role, domain knowledge) and assigned tasks with ownership boundaries.
 
 ## Packages
 
@@ -40,12 +39,8 @@ npm install -g @sniper.ai/cli
 cd your-project
 sniper init
 
-# Start the lifecycle
-# (use slash commands in Claude Code)
-/sniper-discover
-/sniper-plan
-/sniper-solve
-/sniper-sprint
+# Start a protocol in Claude Code
+/sniper-flow
 ```
 
 ## Development

@@ -13,7 +13,7 @@ phases:
       checklist: refactor-analyze
       human_approval: false
     outputs:
-      - docs/{protocol_id}/plan.md  # Analysis/plan for this refactor
+      - .sniper/artifacts/{protocol_id}/plan.md  # Analysis/plan for this refactor
 
   - name: implement
     description: Apply refactoring changes
@@ -38,6 +38,6 @@ phases:
       checklist: review
       human_approval: true
     outputs:
-      - docs/{protocol_id}/review-report.md
+      - .sniper/artifacts/{protocol_id}/review-report.md
 
 auto_retro: true

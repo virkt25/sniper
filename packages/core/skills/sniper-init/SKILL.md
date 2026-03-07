@@ -76,7 +76,6 @@ Create the following directory structure:
 .claude/
   agents/                  ← Copied from @sniper.ai/core/agents/
   settings.json            ← Merge hooks from @sniper.ai/core/hooks/
-docs/
 CLAUDE.md                  ← Generated from template
 ```
 

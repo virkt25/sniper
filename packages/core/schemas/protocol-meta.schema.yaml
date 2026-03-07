@@ -1,7 +1,7 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "https://sniper.ai/schemas/protocol-meta"
 title: ProtocolMeta
-description: Metadata for a protocol run, stored at docs/{protocol_id}/meta.yaml.
+description: Metadata for a protocol run, stored at .sniper/artifacts/{protocol_id}/meta.yaml.
 type: object
 required:
   - id
@@ -11,8 +11,8 @@ required:
 properties:
   id:
     type: string
-    pattern: "^SNPR-\\d{4,}$"
-    description: Sequential protocol ID (e.g., SNPR-0001).
+    pattern: "^SNPR-\\d{8}-[a-f0-9]{4}$"
+    description: Timestamp-based protocol ID (e.g., SNPR-20260307-a3f2).
   protocol:
     type: string
     description: Protocol name (full, feature, patch, etc.).

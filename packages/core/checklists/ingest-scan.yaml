@@ -4,15 +4,15 @@ description: Ingest scan phase quality gate — verifies codebase overview was p
 checks:
   - id: codebase_overview_exists
     description: Codebase overview document exists
-    check: file:docs/codebase-overview.md
+    check: file:.sniper/artifacts/codebase-overview.md
     blocking: true
 
   - id: overview_has_structure
     description: Overview includes project structure section
-    check: grep:docs/codebase-overview.md:"## "
+    check: grep:.sniper/artifacts/codebase-overview.md:"## "
     blocking: false
 
   - id: overview_nonempty
     description: Overview is not a stub (at least 50 lines)
-    command: "test $(wc -l < docs/codebase-overview.md) -ge 50"
+    command: "test $(wc -l < .sniper/artifacts/codebase-overview.md) -ge 50"
     blocking: false
