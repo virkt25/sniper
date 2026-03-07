@@ -59,7 +59,7 @@ export async function composeMixin(
  * Deterministic JSON.stringify with sorted keys for stable comparisons.
  */
 function stableStringify(obj: unknown): string {
-  if (obj === null || typeof obj !== "object") return JSON.stringify(obj);
+  if (obj === null || obj === undefined || typeof obj !== "object") return JSON.stringify(obj ?? null);
   if (Array.isArray(obj)) return "[" + obj.map(stableStringify).join(",") + "]";
   const sorted = Object.keys(obj as Record<string, unknown>).sort();
   return "{" + sorted.map((k) => JSON.stringify(k) + ":" + stableStringify((obj as Record<string, unknown>)[k])).join(",") + "}";
@@ -242,38 +242,40 @@ export async function scaffoldProject(
     for (const plugin of config.plugins) {
       const pluginName = plugin.name;
       const pluginYamlPath = join(corePath, "..", "plugins", `plugin-${pluginName}`, "plugin.yaml");
-      if (await fileExists(pluginYamlPath)) {
-        const pluginContent = YAML.parse(await readFile(pluginYamlPath, "utf-8"));
-        if (pluginContent?.hooks) {
-          const pluginHooksFormatted: Record<string, unknown[]> = {};
-          for (const [event, entries] of Object.entries(pluginContent.hooks as Record<string, unknown[]>)) {
-            if (!Array.isArray(entries)) continue;
-            pluginHooksFormatted[event] = entries.map((entry: unknown) => {
-              // New format: { matcher: {object}, hooks: [...] }
-              if (
-                typeof entry === "object" &&
-                entry !== null &&
-                "matcher" in entry &&
-                typeof (entry as Record<string, unknown>).matcher === "object" &&
-                "hooks" in entry &&
-                Array.isArray((entry as Record<string, unknown>).hooks)
-              ) {
-                return entry;
-              }
-              // Legacy format: plain string command
-              const cmd = String(entry);
-              return {
-                matcher: {},
-                hooks: [{
-                  type: "command" as const,
-                  description: `${pluginName} plugin: ${cmd.split(" ")[0]}`,
-                  command: cmd,
-                }],
-              };
-            });
-          }
-          settings = mergeHooks(settings, { hooks: pluginHooksFormatted });
+      if (!(await fileExists(pluginYamlPath))) {
+        log.push(`Warning: plugin "${pluginName}" not found at ${pluginYamlPath}`);
+        continue;
+      }
+      const pluginContent = YAML.parse(await readFile(pluginYamlPath, "utf-8"));
+      if (pluginContent?.hooks) {
+        const pluginHooksFormatted: Record<string, unknown[]> = {};
+        for (const [event, entries] of Object.entries(pluginContent.hooks as Record<string, unknown[]>)) {
+          if (!Array.isArray(entries)) continue;
+          pluginHooksFormatted[event] = entries.map((entry: unknown) => {
+            // New format: { matcher: {object}, hooks: [...] }
+            if (
+              typeof entry === "object" &&
+              entry !== null &&
+              "matcher" in entry &&
+              typeof (entry as Record<string, unknown>).matcher === "object" &&
+              "hooks" in entry &&
+              Array.isArray((entry as Record<string, unknown>).hooks)
+            ) {
+              return entry;
+            }
+            // Legacy format: plain string command
+            const cmd = String(entry);
+            return {
+              matcher: {},
+              hooks: [{
+                type: "command" as const,
+                description: `${pluginName} plugin: ${cmd.split(" ")[0]}`,
+                command: cmd,
+              }],
+            };
+          });
         }
+        settings = mergeHooks(settings, { hooks: pluginHooksFormatted });
       }
     }
   }

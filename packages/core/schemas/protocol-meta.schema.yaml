@@ -55,4 +55,4 @@ properties:
     items:
       type: string
     description: Git commit SHAs produced during this run.
-additionalProperties: false
+additionalProperties: true

@@ -12,7 +12,10 @@ phases:
       checklist: discover
       human_approval: false
     outputs:
-      - docs/spec.md  # Living master doc
-      - docs/codebase-overview.md  # Living master doc
+      - docs/spec.md  # Living master doc — not per-protocol (explore has no versioned artifacts)
+      - docs/codebase-overview.md  # Living master doc — not per-protocol
 
+# Note: explore/ingest protocols write to master docs (docs/spec.md, docs/codebase-overview.md)
+# rather than per-protocol directories (docs/{protocol_id}/). A meta.yaml and registry entry
+# are still created by /sniper-flow, but the artifact directory may be empty.
 auto_retro: false  # Exploration doesn't need retros
