@@ -7,6 +7,22 @@ description: Language plugins, domain packs, and the SNIPER marketplace
 
 SNIPER ships a lean core and extends through **plugins** and **domain packs**. This page covers the available extensions, how they work together, and the marketplace for discovering community packages.
 
+## Monorepo Packages
+
+The SNIPER monorepo (`@sniper.ai/monorepo`) contains the following packages:
+
+| Package | Directory | Description |
+|---------|-----------|-------------|
+| [`@sniper.ai/core`](https://www.npmjs.com/package/@sniper.ai/core) | [`packages/core`](https://github.com/taranveer/sniper/tree/main/packages/core) | Framework core. Agents, personas, skills, protocols, checklists, templates, hooks, and schemas as raw YAML and Markdown files. No build step. |
+| [`@sniper.ai/cli`](https://www.npmjs.com/package/@sniper.ai/cli) | [`packages/cli`](https://github.com/taranveer/sniper/tree/main/packages/cli) | CLI tool (`sniper` binary). Scaffolds and manages SNIPER-enabled projects. Built with tsup, uses citty + @clack/prompts. |
+| [`@sniper.ai/mcp-knowledge`](https://www.npmjs.com/package/@sniper.ai/mcp-knowledge) | [`packages/mcp-knowledge`](https://github.com/taranveer/sniper/tree/main/packages/mcp-knowledge) | MCP server for domain knowledge indexing and retrieval. Indexes Markdown knowledge files from `.sniper/knowledge/` and exposes them to Claude Code agents via search, list, and get tools. |
+| [`@sniper.ai/plugin-typescript`](https://www.npmjs.com/package/@sniper.ai/plugin-typescript) | [`packages/plugins/plugin-typescript`](https://github.com/taranveer/sniper/tree/main/packages/plugins/plugin-typescript) | TypeScript language plugin. Commands, conventions, review checks, and agent mixins. |
+| [`@sniper.ai/plugin-python`](https://www.npmjs.com/package/@sniper.ai/plugin-python) | [`packages/plugins/plugin-python`](https://github.com/taranveer/sniper/tree/main/packages/plugins/plugin-python) | Python language plugin. pytest, ruff, mypy commands, PEP 8 conventions, and agent mixins. |
+| [`@sniper.ai/plugin-go`](https://www.npmjs.com/package/@sniper.ai/plugin-go) | [`packages/plugins/plugin-go`](https://github.com/taranveer/sniper/tree/main/packages/plugins/plugin-go) | Go language plugin. go test, golangci-lint, go vet commands, Effective Go conventions, and agent mixins. |
+| [`@sniper.ai/pack-sales-dialer`](https://www.npmjs.com/package/@sniper.ai/pack-sales-dialer) | [`packages/pack-sales-dialer`](https://github.com/taranveer/sniper/tree/main/packages/pack-sales-dialer) | Sales dialer domain pack. Telephony, TCPA compliance, CRM integration, and AI pipeline knowledge. |
+
+The core and CLI are the foundation; everything else is an extension. Language plugins and domain packs are covered in detail below.
+
 ## Language Plugins
 
 Language plugins add tooling commands, coding conventions, review checks, and agent knowledge mixins specific to a programming language. Install with:

@@ -11,7 +11,7 @@ Common issues and their solutions when working with SNIPER.
 
 ### "SNIPER is not initialized"
 
-**Problem:** A phase command fails with "Run `/sniper-init` first."
+**Problem:** A SNIPER command fails with "Run `/sniper-init` first."
 
 **Solution:** Ensure `.sniper/config.yaml` exists and has a non-empty `project.name`. Run `/sniper-init` if it does not exist.
 
@@ -25,7 +25,7 @@ Common issues and their solutions when working with SNIPER.
 
 **Problem:** Commands warn about schema version migration.
 
-**Solution:** SNIPER automatically migrates v1 configs to v2. If migration fails, check that `.sniper/config.yaml` is valid YAML with no syntax errors.
+**Solution:** SNIPER automatically migrates v2 configs to v3. If migration fails, check that `.sniper/config.yaml` is valid YAML with no syntax errors.
 
 ## Agent Spawning Issues
 
