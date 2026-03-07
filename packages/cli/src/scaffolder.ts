@@ -55,7 +55,6 @@ export async function composeMixin(
   return content;
 }
 
-
 /**
  * Merge hook definitions from core and plugins into a settings.json object.
  * Uses the Claude Code hooks format where matcher is a regex string:
