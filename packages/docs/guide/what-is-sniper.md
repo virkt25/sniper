@@ -5,7 +5,7 @@ description: Overview of SNIPER — the AI-powered project lifecycle framework f
 
 # What is SNIPER?
 
-SNIPER (Spawn, Navigate, Implement, Parallelize, Evaluate, Release) is a framework for orchestrating Claude Code agent teams through structured project phases. It transforms how you build software with AI by replacing ad-hoc prompting with a governed, repeatable lifecycle.
+SNIPER is an AI-powered framework for orchestrating Claude Code agent teams through structured project phases. It transforms how you build software with AI by replacing ad-hoc prompting with a governed, repeatable lifecycle.
 
 ## The Problem
 
@@ -20,20 +20,9 @@ When you use Claude Code to build a project, you typically have a single convers
 
 SNIPER introduces a structured lifecycle with specialized agent teams. Instead of one agent doing everything, SNIPER spawns parallel teams of agents -- each with a specific role, persona, and file ownership boundary -- coordinated by a team lead.
 
-### The 6-Phase Lifecycle
+### The Lifecycle
 
-The name SNIPER maps to six core activities:
-
-| Letter | Activity | What Happens |
-|--------|----------|--------------|
-| **S** | Spawn | Agent teams are created from composed persona layers |
-| **N** | Navigate | The team lead coordinates work, manages dependencies |
-| **I** | Implement | Agents produce artifacts (docs, code, tests) |
-| **P** | Parallelize | Multiple agents work simultaneously on independent tasks |
-| **E** | Evaluate | Review gates check quality before advancing |
-| **R** | Release | Completed work is verified and the next phase begins |
-
-In practice, the lifecycle runs through four main phases:
+SNIPER breaks projects into four protocol-driven phases:
 
 1. **Discover** -- A single agent (analyst) researches the codebase, assesses the problem space, and produces a spec and codebase overview
 2. **Plan** -- A 2-agent team (architect, product-manager) produces the architecture, PRD, and story breakdown
