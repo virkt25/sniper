@@ -6,7 +6,7 @@ import {
   access,
   cp,
 } from "node:fs/promises";
-import { join, resolve, sep } from "node:path";
+import { join } from "node:path";
 import YAML from "yaml";
 import { getCorePath } from "./config.js";
 import type { SniperConfigV3 } from "./config.js";
@@ -55,21 +55,12 @@ export async function composeMixin(
   return content;
 }
 
-/**
- * Deterministic JSON.stringify with sorted keys for stable comparisons.
- */
-function stableStringify(obj: unknown): string {
-  if (obj === null || obj === undefined || typeof obj !== "object") return JSON.stringify(obj ?? null);
-  if (Array.isArray(obj)) return "[" + obj.map(stableStringify).join(",") + "]";
-  const sorted = Object.keys(obj as Record<string, unknown>).sort();
-  return "{" + sorted.map((k) => JSON.stringify(k) + ":" + stableStringify((obj as Record<string, unknown>)[k])).join(",") + "}";
-}
 
 /**
  * Merge hook definitions from core and plugins into a settings.json object.
- * Uses the new Claude Code hooks format:
- *   { matcher: { tools: [...] }, hooks: [{ type, command, description }] }
- * Deduplicates by matcher (stable-stringified) and merges hooks arrays.
+ * Uses the Claude Code hooks format where matcher is a regex string:
+ *   { matcher: "ToolName", hooks: [{ type, command, description }] }
+ * Deduplicates by matcher string and merges hooks arrays.
  */
 export function mergeHooks(
   base: Record<string, unknown>,
@@ -91,11 +82,12 @@ export function mergeHooks(
 
       for (const entry of entries) {
         const typedEntry = entry as Record<string, unknown>;
-        const matcherKey = stableStringify(typedEntry.matcher || {});
+        // matcher is a regex string (or undefined for catch-all)
+        const matcherKey = String(typedEntry.matcher ?? "");
 
         // Find existing entry with same matcher
         const existing = hooks[event].find(
-          (h) => stableStringify((h as Record<string, unknown>).matcher || {}) === matcherKey,
+          (h) => String((h as Record<string, unknown>).matcher ?? "") === matcherKey,
         );
 
         if (existing) {
@@ -252,21 +244,28 @@ export async function scaffoldProject(
         for (const [event, entries] of Object.entries(pluginContent.hooks as Record<string, unknown[]>)) {
           if (!Array.isArray(entries)) continue;
           pluginHooksFormatted[event] = entries.map((entry: unknown) => {
-            // New format: { matcher: {object}, hooks: [...] }
+            // Standard format: { matcher: "string", hooks: [...] }
             if (
               typeof entry === "object" &&
               entry !== null &&
-              "matcher" in entry &&
-              typeof (entry as Record<string, unknown>).matcher === "object" &&
               "hooks" in entry &&
               Array.isArray((entry as Record<string, unknown>).hooks)
             ) {
-              return entry;
+              const e = entry as Record<string, unknown>;
+              // Convert legacy object matcher to string if needed
+              if (typeof e.matcher === "object" && e.matcher !== null) {
+                const tools = (e.matcher as Record<string, unknown>).tools;
+                if (Array.isArray(tools)) {
+                  e.matcher = tools.join("|");
+                } else {
+                  delete e.matcher;
+                }
+              }
+              return e;
             }
             // Legacy format: plain string command
             const cmd = String(entry);
             return {
-              matcher: {},
               hooks: [{
                 type: "command" as const,
                 description: `${pluginName} plugin: ${cmd.split(" ")[0]}`,
