@@ -25,6 +25,7 @@
     "url": "https://github.com/virkt25/sniper.git",
     "directory": "packages/pack-sales-dialer"
   },
+  "homepage": "https://sniperai.dev",
   "publishConfig": {
     "access": "public"
   }

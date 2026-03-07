@@ -7,7 +7,7 @@ CLI tool for scaffolding and managing [SNIPER](https://sniperai.dev/)-enabled pr
 
 ## What is SNIPER?
 
-SNIPER (**S**pawn, **N**avigate, **I**mplement, **P**arallelize, **E**valuate, **R**elease) is an AI-powered project lifecycle framework that orchestrates Claude Code agent teams through structured phases -- from discovery and planning through implementation and release. Each phase spawns coordinated teams of specialized agents composed from layered personas.
+SNIPER is an AI-powered project lifecycle framework that orchestrates Claude Code agent teams through structured phases -- from discovery and planning through implementation and release. Each phase spawns coordinated teams of specialized agents composed from layered personas.
 
 ## Quick Start
 

@@ -7,7 +7,7 @@ Framework core for [SNIPER](https://sniperai.dev) -- provides agents, personas, 
 
 ## What is SNIPER?
 
-SNIPER (**S**pawn, **N**avigate, **I**mplement, **P**arallelize, **E**valuate, **R**elease) is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
+SNIPER is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
 
 A full lifecycle runs through four phases: **Discover** (research and analysis), **Plan** (architecture and design), **Implement** (code with worktree isolation), and **Review** (multi-faceted code review). Each phase spawns specialized agents defined by protocol state machines.
 

@@ -1,6 +1,6 @@
 # SNIPER
 
-**Spawn, Navigate, Implement, Parallelize, Evaluate, Release**
+**AI-Powered Project Lifecycle Framework**
 
 SNIPER is a framework for orchestrating Claude Code agent teams through structured project lifecycle phases. It provides personas, team compositions, workflows, and slash commands that coordinate parallel AI agents to build software from discovery through deployment.
 

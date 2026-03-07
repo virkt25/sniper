@@ -34,11 +34,13 @@ The pack adds a **compliance-analyst** agent to the planning phase, ensuring reg
 
 Domain packs integrate at multiple points in the SNIPER lifecycle:
 
-- **Persona Composition.** When `/sniper-compose` builds agent spawn prompts, domain pack contexts are injected into the domain persona layer. This gives agents specialized knowledge about your project's domain.
-- **Discovery Phase.** During `/sniper-discover`, the analyst and risk-researcher agents reference domain contexts to produce informed briefs and risk assessments (e.g., identifying TCPA compliance as a risk area).
-- **Planning Phase.** During `/sniper-plan`, the architect and PM agents use domain knowledge to make technology choices grounded in real constraints (e.g., selecting Twilio for telephony, designing around WebRTC latency).
-- **Story Sharding.** During `/sniper-solve`, the scrum master can reference `suggested-epics.md` from the pack for pre-defined epic structures tailored to the domain.
-- **Implementation.** During `/sniper-sprint`, developers have domain context available for making implementation decisions aligned with industry standards.
+- **Persona Composition.** When `/sniper-flow` builds agent spawn prompts, domain pack contexts are injected into the domain persona layer. This gives agents specialized knowledge about your project's domain.
+- **Discovery Phase.** During the discover phase of `/sniper-flow`, the analyst and risk-researcher agents reference domain contexts to produce informed briefs and risk assessments (e.g., identifying TCPA compliance as a risk area).
+- **Planning Phase.** During the plan phase of `/sniper-flow`, the architect and PM agents use domain knowledge to make technology choices grounded in real constraints (e.g., selecting Twilio for telephony, designing around WebRTC latency).
+- **Story Sharding.** During the implement phase of `/sniper-flow`, the scrum master can reference `suggested-epics.md` from the pack for pre-defined epic structures tailored to the domain. Story sharding is now handled automatically as part of implementation.
+- **Implementation.** During the implement phase of `/sniper-flow`, developers have domain context available for making implementation decisions aligned with industry standards.
+
+`/sniper-flow` drives all phases automatically via protocol selection. Use `--protocol <name>` to select a specific protocol (e.g., `full`, `feature`, `patch`), or let it auto-detect the appropriate scope.
 
 ## Pack Structure
 

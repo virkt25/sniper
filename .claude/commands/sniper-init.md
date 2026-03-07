@@ -254,7 +254,7 @@ Check that `CLAUDE.md` exists in the project root. If it does, read it and verif
 # SNIPER Project
 
 ## Framework
-This project uses SNIPER (Spawn, Navigate, Implement, Parallelize, Evaluate, Release).
+This project uses the SNIPER framework.
 See `.sniper/config.yaml` for project settings.
 
 ## Quick Reference

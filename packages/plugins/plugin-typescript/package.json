@@ -21,6 +21,7 @@
     "url": "https://github.com/virkt25/sniper.git",
     "directory": "packages/plugins/plugin-typescript"
   },
+  "homepage": "https://sniperai.dev",
   "publishConfig": {
     "access": "public"
   }

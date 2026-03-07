@@ -22,13 +22,22 @@ The CLI reads your v2 `.sniper/config.yaml`, maps fields to the v3 schema, and w
 | Aspect | v2 | v3 |
 |--------|----|----|
 | Execution model | Separate slash commands per phase | `/sniper-flow` unified engine with protocol selection |
-| Agent system | Persona markdown files | Agent definitions with YAML frontmatter + persona composition |
+| Agent system | Persona markdown files (50--150 lines, layered composition) | Agent definitions with YAML frontmatter (`.claude/agents/*.md`) |
+| Spawn prompts | Assembly step to compose persona layers | Eliminated -- agents are self-contained |
+| Slash commands | 300--700 line slash commands | Skills (`.claude/commands/*/SKILL.md`), under 100 lines each |
 | State management | Config file `state` section | Checkpoints, live-status, and phase logs |
 | Quality gates | Simple pass/fail checklists | Multi-faceted review (scope, standards, risk) with severity scoring |
+| Gate enforcement | Checklist-based enforcement | Hook-enforced gates -- deterministic, hooks block advancement on failure |
 | Learning | Manual memory management | Auto-capture signals, velocity calibration, retrospectives |
+| Checkpointing | No checkpointing | Checkpoint/recovery system in `.sniper/checkpoints/` |
 | CI/CD | Not supported | `sniper run` headless mode with structured output |
 | Protocols | Implicit (always full lifecycle) | 7 built-in protocols + custom protocol support |
+| Domain packs | `pack/` directories | Plugins (`@sniper.ai/plugin-*`) with standardized `plugin.yaml` interface |
 | Plugins | Domain packs only | Language plugins + domain packs |
+| File ownership | Ownership boundaries | Expertise routing hints -- agents work in worktrees, routing is advisory |
+| Phase model | Linear phase model | Flow-based execution -- protocol selects phases, agents run continuously |
+| Team composition | Manual team YAMLs (`framework/teams/`) | Protocols (`protocols/*.yaml`) auto-select team composition |
+| Review trigger | `/sniper-review` (manual) | Gate hooks (automatic) -- `Stop` hooks fire review gates |
 
 ### Command Mapping
 
@@ -263,6 +272,124 @@ Run a small protocol to verify everything works:
 3. **Team YAML** -- v2 team files may have different field names. v3 team files use `compose` blocks for persona composition. Teams are regenerated from `@sniper.ai/core` during migration.
 
 4. **Spawn prompts** -- v2 spawn prompts are regenerated during migration. If you had custom spawn prompts, review them after migration.
+
+## Converting Custom v2 Personas
+
+If you wrote custom persona files in v2, convert them to v3 agents.
+
+**v2 persona** (`framework/personas/technical/my-specialist.md`):
+
+```markdown
+# My Specialist Persona
+
+## Role
+You are a payment systems specialist...
+
+## Responsibilities
+- Design payment flows
+- Implement Stripe integrations
+...
+```
+
+**v3 agent** (`.claude/agents/payment-specialist.md`):
+
+```markdown
+---
+name: payment-specialist
+description: Implements payment flows and Stripe integrations.
+permissionMode: bypassPermissions
+memory: project
+isolation: worktree
+skills:
+  - code-conventions
+allowed-tools: Read, Edit, Write, Bash, Grep, Glob, Task
+---
+
+You are a payment systems specialist. You implement payment flows
+and Stripe integrations following project conventions.
+
+## Expertise
+- Primary: Stripe API, payment flows, webhook handlers, refund logic
+- Always: PCI compliance considerations, idempotency keys, error recovery
+
+## Output
+- Working, tested code committed to your worktree branch
+- Update .sniper/checkpoints/ after each completed unit of work
+```
+
+Key differences:
+
+- YAML frontmatter replaces prose role descriptions
+- `allowed-tools` explicitly scopes what the agent can do
+- `isolation: worktree` gives the agent its own git worktree
+- Instructions are concise -- 20--30 lines, not 100+
+
+## Converting Domain Packs to Plugins
+
+v2 domain packs become v3 plugins with a `plugin.yaml` manifest.
+
+**v2 pack** (`packages/pack-sales-dialer/pack/`):
+
+```
+pack/
+  domain-knowledge.md
+  telephony-patterns.md
+  crm-integration.md
+```
+
+**v3 plugin** (e.g., `my-sales-dialer-plugin/`):
+
+```
+plugin.yaml
+mixins/
+  telephony.md
+  crm-integration.md
+conventions/
+  telephony-patterns.md
+review_checks/
+  telephony-review.yaml
+```
+
+The `plugin.yaml` declares what the plugin provides:
+
+```yaml
+name: sales-dialer
+type: domain
+version: 1.0.0
+provides:
+  agent_mixins:
+    - telephony
+    - crm-integration
+  conventions:
+    - telephony-patterns
+  review_checks:
+    - no-hardcoded-phone-numbers
+    - crm-sync-validation
+```
+
+Install with:
+
+```bash
+sniper plugin install pack-sales-dialer
+```
+
+## FAQ
+
+**Can I keep using v2 commands like `/sniper-sprint`?**
+
+No. v2 commands are removed. Use `/sniper-flow` which auto-selects the appropriate protocol.
+
+**What happens to my existing `.sniper/` artifacts from v2 runs?**
+
+They are preserved in `.sniper/v2-backup/` after migration. v3 uses a different artifact structure under `.sniper/artifacts/<protocol-id>/`.
+
+**Do I need to re-scaffold every time I change config?**
+
+Run `sniper init --refresh` to re-scaffold `.claude/` files from your updated config. This regenerates agents with current mixin composition.
+
+**Can I still manually select a protocol?**
+
+Yes. `/sniper-flow --protocol full` overrides auto-selection.
 
 ## Next Steps
 
