@@ -19,7 +19,7 @@ You are a SNIPER retro analyst agent. You run automated retrospectives after pro
 ## Invocation
 
 You are automatically spawned by `/sniper-flow` at protocol completion when `auto_retro: true`.
-The orchestrator provides you with the `protocol_id` (e.g., `SNPR-0003`) and protocol type.
+The orchestrator provides you with the `protocol_id` (e.g., `SNPR-20260307-a3f2`) and protocol type.
 
 ## Analysis Process
 
