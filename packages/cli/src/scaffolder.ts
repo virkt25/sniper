@@ -56,10 +56,20 @@ export async function composeMixin(
 }
 
 /**
+ * Deterministic JSON.stringify with sorted keys for stable comparisons.
+ */
+function stableStringify(obj: unknown): string {
+  if (obj === null || typeof obj !== "object") return JSON.stringify(obj);
+  if (Array.isArray(obj)) return "[" + obj.map(stableStringify).join(",") + "]";
+  const sorted = Object.keys(obj as Record<string, unknown>).sort();
+  return "{" + sorted.map((k) => JSON.stringify(k) + ":" + stableStringify((obj as Record<string, unknown>)[k])).join(",") + "}";
+}
+
+/**
  * Merge hook definitions from core and plugins into a settings.json object.
  * Uses the new Claude Code hooks format:
  *   { matcher: { tools: [...] }, hooks: [{ type, command, description }] }
- * Deduplicates by matcher (JSON-stringified) and merges hooks arrays.
+ * Deduplicates by matcher (stable-stringified) and merges hooks arrays.
  */
 export function mergeHooks(
   base: Record<string, unknown>,
@@ -81,11 +91,11 @@ export function mergeHooks(
 
       for (const entry of entries) {
         const typedEntry = entry as Record<string, unknown>;
-        const matcherKey = JSON.stringify(typedEntry.matcher || {});
+        const matcherKey = stableStringify(typedEntry.matcher || {});
 
         // Find existing entry with same matcher
         const existing = hooks[event].find(
-          (h) => JSON.stringify((h as Record<string, unknown>).matcher || {}) === matcherKey,
+          (h) => stableStringify((h as Record<string, unknown>).matcher || {}) === matcherKey,
         );
 
         if (existing) {
@@ -239,8 +249,15 @@ export async function scaffoldProject(
           for (const [event, entries] of Object.entries(pluginContent.hooks as Record<string, unknown[]>)) {
             if (!Array.isArray(entries)) continue;
             pluginHooksFormatted[event] = entries.map((entry: unknown) => {
-              // New format: { matcher: {...}, hooks: [...] }
-              if (typeof entry === "object" && entry !== null && "matcher" in entry) {
+              // New format: { matcher: {object}, hooks: [...] }
+              if (
+                typeof entry === "object" &&
+                entry !== null &&
+                "matcher" in entry &&
+                typeof (entry as Record<string, unknown>).matcher === "object" &&
+                "hooks" in entry &&
+                Array.isArray((entry as Record<string, unknown>).hooks)
+              ) {
                 return entry;
               }
               // Legacy format: plain string command
@@ -286,15 +303,15 @@ export async function scaffoldProject(
     log.push("Skipped CLAUDE.md (preserved user customizations)");
   }
 
-  // Create docs/ directory and registry
-  if (!isUpdate) {
-    await ensureDir(join(cwd, "docs"));
-    const registryTemplate = join(corePath, "templates", "registry.md");
-    const registryDest = join(cwd, "docs", "registry.md");
-    if ((await fileExists(registryTemplate)) && !(await fileExists(registryDest))) {
-      await cp(registryTemplate, registryDest);
-    }
-    log.push("Created docs/ with registry.md");
+  // Create docs/ directory and registry (on init or update if missing)
+  await ensureDir(join(cwd, "docs"));
+  const registryTemplate = join(corePath, "templates", "registry.md");
+  const registryDest = join(cwd, "docs", "registry.md");
+  if ((await fileExists(registryTemplate)) && !(await fileExists(registryDest))) {
+    await cp(registryTemplate, registryDest);
+    log.push(isUpdate ? "Created missing docs/registry.md" : "Created docs/ with registry.md");
+  } else if (!isUpdate) {
+    log.push("Created docs/");
   }
 
   return log;

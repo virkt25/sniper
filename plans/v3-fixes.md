@@ -1,7 +1,7 @@
 # SNIPER v3 Fixes & Improvements Plan
 
 > **Date**: 2026-03-07
-> **Status**: Planned
+> **Status**: Implemented
 > **Branch**: `fix/v3-issues-plan`
 
 ---
