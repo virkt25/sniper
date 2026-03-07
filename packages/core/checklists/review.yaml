@@ -1,5 +1,6 @@
 name: review
 description: Review phase quality gate
+# Note: {protocol_id} is resolved at gate-review time from the active checkpoint
 
 checks:
   - id: gate_checks_pass
@@ -9,7 +10,7 @@ checks:
 
   - id: spec_reconciliation
     description: Review report confirms spec compliance
-    check: file:docs/review-report.md
+    check: file:docs/{protocol_id}/review-report.md
     blocking: true
 
   - id: no_regressions
@@ -19,7 +20,7 @@ checks:
 
   - id: no_blocking_findings
     description: No blocking findings in review report
-    check: "!grep:docs/review-report.md:### Blocking"
+    check: "!grep:docs/{protocol_id}/review-report.md:### Blocking"
     blocking: true
 
   - id: spec_reconciled

@@ -25,6 +25,6 @@ phases:
       checklist: review
       human_approval: true
     outputs:
-      - docs/review-report.md
+      - docs/{protocol_id}/review-report.md
 
 auto_retro: false  # Patches are too small for retros

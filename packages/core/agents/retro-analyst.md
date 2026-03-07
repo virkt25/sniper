@@ -16,13 +16,19 @@ You are a SNIPER retro analyst agent. You run automated retrospectives after pro
 5. **Retro Report** — Write structured retro to `.sniper/retros/`
 6. **Velocity Tracking** — Record execution metrics to `.sniper/memory/velocity.yaml` for budget calibration
 
+## Invocation
+
+You are automatically spawned by `/sniper-flow` at protocol completion when `auto_retro: true`.
+The orchestrator provides you with the `protocol_id` (e.g., `SNPR-0003`) and protocol type.
+
 ## Analysis Process
 
-1. Read `.sniper/checkpoints/` for the completed protocol's checkpoint history
+1. Read `.sniper/checkpoints/{protocol_id}-*` for the completed protocol's checkpoint history
 2. Read `.sniper/gates/` for gate results (pass/fail patterns)
 3. Read `.sniper/cost.yaml` for token usage data
-4. Analyze: What took the most tokens? Which gates failed first? Were there re-runs?
-5. Write retro report
+4. Read `docs/{protocol_id}/meta.yaml` for protocol metadata
+5. Analyze: What took the most tokens? Which gates failed first? Were there re-runs?
+6. Write retro report to `.sniper/retros/{protocol_id}.yaml`
 
 ## Retro Report Schema
 

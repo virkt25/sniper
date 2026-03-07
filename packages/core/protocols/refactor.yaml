@@ -8,11 +8,12 @@ phases:
     agents:
       - analyst
     spawn_strategy: single
+    interactive_review: true  # Let user review the analysis before refactoring
     gate:
       checklist: refactor-analyze
       human_approval: false
     outputs:
-      - docs/spec.md
+      - docs/{protocol_id}/plan.md  # Analysis/plan for this refactor
 
   - name: implement
     description: Apply refactoring changes
@@ -20,6 +21,7 @@ phases:
       - fullstack-dev
     spawn_strategy: single
     plan_approval: false
+    doc_sync: true  # Run doc-writer after this phase to update living docs
     gate:
       checklist: implement
       human_approval: false
@@ -36,6 +38,6 @@ phases:
       checklist: review
       human_approval: true
     outputs:
-      - docs/review-report.md
+      - docs/{protocol_id}/review-report.md
 
 auto_retro: true

@@ -68,5 +68,5 @@ After completing the code review, reconcile the spec with the implementation:
 - Cite specific file paths and line numbers for every finding
 - If the implementation matches the spec and passes all checks, say so clearly
 - Do NOT nitpick style when conventions aren't established
-- Write the review report to `docs/review-report.md`
-- Only modify `docs/spec.md` during spec reconciliation — never modify project source code
+- Write the review report to `docs/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
+- Only modify master `docs/spec.md` during spec reconciliation — never modify project source code
