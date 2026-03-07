@@ -59,26 +59,41 @@ const SCOPE_TO_PACKAGES = {
 };
 
 /**
- * Discover all publishable packages in the monorepo.
+ * Discover all publishable packages in the monorepo dynamically
+ * by reading pnpm-workspace.yaml glob patterns.
  */
 function getAllPackages() {
-  const packages = [];
-  const dirs = [
-    "packages/core",
-    "packages/cli",
-    "packages/mcp-knowledge",
-    "packages/pack-sales-dialer",
-    "packages/plugins/plugin-typescript",
-    "packages/plugins/plugin-python",
-    "packages/plugins/plugin-go",
-  ];
+  const workspaceFile = readFileSync("pnpm-workspace.yaml", "utf-8");
+  const patterns = [...workspaceFile.matchAll(/- ["']?([^"'\n]+)["']?/g)].map((m) => m[1]);
 
-  for (const dir of dirs) {
-    const pkgPath = join(dir, "package.json");
-    if (existsSync(pkgPath)) {
-      const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-      if (!pkg.private) {
-        packages.push({ name: pkg.name, path: dir });
+  const packages = [];
+  for (const pattern of patterns) {
+    // Resolve glob: replace trailing /* with actual directory listing
+    const baseDir = pattern.replace(/\/\*$/, "");
+    if (!existsSync(baseDir)) continue;
+
+    if (pattern.endsWith("/*")) {
+      // Wildcard — enumerate subdirectories
+      const entries = readdirSync(baseDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const dir = join(baseDir, entry.name);
+        const pkgPath = join(dir, "package.json");
+        if (existsSync(pkgPath)) {
+          const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+          if (!pkg.private) {
+            packages.push({ name: pkg.name, path: dir });
+          }
+        }
+      }
+    } else {
+      // Exact path
+      const pkgPath = join(baseDir, "package.json");
+      if (existsSync(pkgPath)) {
+        const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+        if (!pkg.private) {
+          packages.push({ name: pkg.name, path: baseDir });
+        }
       }
     }
   }
