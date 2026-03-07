@@ -61,8 +61,18 @@ jobs:
           git push
 
       - name: Publish to npm
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish --provenance
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Publish each public package that has an unpublished version
+          for pkg in packages/core packages/cli packages/plugins/plugin-typescript packages/plugins/plugin-python packages/plugins/plugin-go; do
+            NAME=$(node -p "require('./$pkg/package.json').name")
+            VERSION=$(node -p "require('./$pkg/package.json').version")
+            # Check if this version is already published
+            if npm view "$NAME@$VERSION" version 2>/dev/null; then
+              echo "$NAME@$VERSION already published, skipping"
+            else
+              echo "Publishing $NAME@$VERSION"
+              cd "$pkg"
+              npm publish --provenance --access public
+              cd "$GITHUB_WORKSPACE"
+            fi
+          done
