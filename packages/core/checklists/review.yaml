@@ -24,6 +24,6 @@ checks:
     blocking: true
 
   - id: spec_reconciled
-    description: Spec has been reconciled with implementation
-    check: "grep:.sniper/artifacts/spec.md:Last reconciled:"
+    description: PRD has been reconciled with implementation
+    check: "grep:.sniper/artifacts/{protocol_id}/prd.md:Last reconciled:"
     blocking: false

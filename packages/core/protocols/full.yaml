@@ -4,43 +4,51 @@ budget: 2000000  # 2M tokens
 
 phases:
   - name: discover
-    description: Research and analyze codebase to produce discovery spec
+    description: Research problem space, analyze codebase, identify constraints
     agents:
       - analyst
-    spawn_strategy: single  # One agent, no team needed
-    interactive_review: true  # User reviews spec before architecture begins
+    spawn_strategy: single
+    interactive_review: true  # User reviews discovery brief before PRD begins
     gate:
       checklist: discover
       human_approval: true
     outputs:
-      - .sniper/artifacts/spec.md  # Living master doc
+      - .sniper/artifacts/discovery-brief.md  # Living master doc
       - .sniper/artifacts/codebase-overview.md  # Living master doc
 
-  - name: plan
-    description: Architecture design and PRD refinement
+  - name: define
+    description: Product requirements — what to build, success criteria, scope boundaries
+    agents:
+      - product-manager
+    spawn_strategy: single
+    interactive_review: true  # User reviews PRD before architecture begins — highest-leverage gate
+    gate:
+      checklist: define
+      human_approval: true
+    outputs:
+      - .sniper/artifacts/{protocol_id}/prd.md
+
+  - name: design
+    description: Architecture design against approved PRD requirements
     agents:
       - architect
-      - product-manager
-    spawn_strategy: team  # Multiple agents, use TeamCreate
+    spawn_strategy: single
     interactive_review: true  # User reviews architecture before story sharding
-    coordination:
-      - between: [architect, product-manager]
-        topic: Architecture must be finalized before PRD is updated
     gate:
-      checklist: plan
-      human_approval: true  # Human reviews architecture before stories are created
+      checklist: design
+      human_approval: true
     outputs:
       - .sniper/artifacts/{protocol_id}/plan.md
-      - .sniper/artifacts/{protocol_id}/prd.md
 
   - name: solve
     description: Epic sharding and story creation from approved architecture
     agents:
       - product-manager
     spawn_strategy: single
+    interactive_review: true  # User reviews story decomposition before implementation
     gate:
       checklist: solve
-      human_approval: false
+      human_approval: true  # Bad decomposition causes expensive rework — worth 5 minutes
     outputs:
       - .sniper/artifacts/{protocol_id}/stories/
 

@@ -4,9 +4,9 @@ description: Multi-dimensional review gate — scope, standards, and risk
 
 checks:
   # Scope Validation — does the implementation match requirements?
-  - id: scope_spec_match
-    description: Implementation addresses all spec requirements
-    check: file:.sniper/artifacts/spec.md
+  - id: scope_prd_match
+    description: PRD exists (scope validation is performed by code-reviewer agent)
+    check: file:.sniper/artifacts/{protocol_id}/prd.md
     blocking: true
 
   - id: scope_acceptance_criteria

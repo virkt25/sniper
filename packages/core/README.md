@@ -9,7 +9,7 @@ Framework core for [SNIPER](https://sniperai.dev) -- provides agents, personas, 
 
 SNIPER is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
 
-A full lifecycle runs through four phases: **Discover** (research and analysis), **Plan** (architecture and design), **Implement** (code with worktree isolation), and **Review** (multi-faceted code review). Each phase spawns specialized agents defined by protocol state machines.
+A full lifecycle runs through: **Discover** (research and analysis), **Define** (PRD and requirements), **Design** (architecture), **Solve** (story sharding), **Implement** (code with worktree isolation), **Review** (multi-faceted code review), and **Retro** (learnings and velocity). Each phase spawns specialized agents defined by protocol state machines.
 
 ## Overview
 
@@ -73,8 +73,8 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 | Protocol | Phases | Description |
 |----------|--------|-------------|
-| `full` | discover → plan → implement → review | Complete project lifecycle |
-| `feature` | plan → implement → review | Incremental feature development |
+| `full` | discover → define → design → solve → implement → review → retro | Complete project lifecycle |
+| `feature` | define → design → solve → implement → review → retro | Incremental feature development |
 | `patch` | implement → review | Quick fix with review |
 | `ingest` | scan → document → extract | Codebase ingestion and convention extraction |
 | `explore` | discover | Exploratory analysis only |
@@ -94,12 +94,13 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 ## Templates
 
-14 artifact templates:
+15 artifact templates:
 
 | Template | Type | Description |
 |----------|------|-------------|
 | `architecture.md` | Markdown | System architecture document |
-| `spec.md` | Markdown | Project specification |
+| `discovery-brief.md` | Markdown | Discovery research brief |
+| `prd.md` | Markdown | Product requirements document |
 | `story.md` | Markdown | User story with acceptance criteria |
 | `codebase-overview.md` | Markdown | Codebase analysis summary |
 | `review-report.md` | Markdown | Standard review report |
@@ -115,12 +116,15 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 ## Checklists
 
-9 quality gate checklists:
+11 quality gate checklists:
 
 | Checklist | Used by |
 |-----------|---------|
-| `discover` | full, explore protocols |
-| `plan` | full, feature protocols |
+| `discover` | full protocol |
+| `define` | full, feature protocols |
+| `design` | full, feature protocols |
+| `solve` | full, feature protocols |
+| `plan` | (deprecated — use define + design) |
 | `implement` | full, feature, patch, refactor, hotfix protocols |
 | `review` | full, feature, patch, refactor protocols |
 | `multi-faceted-review` | Multi-model review mode |

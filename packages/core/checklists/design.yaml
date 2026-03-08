@@ -1,26 +1,36 @@
-name: plan
-description: Planning phase quality gate (DEPRECATED — use define.yaml + design.yaml instead)
-# DEPRECATED: This checklist is retained for backward compatibility with custom protocols
-# that reference the combined "plan" phase. New protocols use separate "define" and "design" phases.
-# Note: {protocol_id} is resolved at gate-review time from the active checkpoint
+name: design
+description: Architecture quality gate — design completeness
 
 checks:
+  - id: plan_produced
+    description: Architecture plan exists
+    check: file:.sniper/artifacts/{protocol_id}/plan.md
+    blocking: true
+
   - id: has_context_section
+    description: Plan includes context and constraints
     check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Context"
     blocking: true
-    description: Architecture plan includes Context section
+
   - id: has_decisions_section
+    description: Plan documents key architectural decisions
     check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Decisions"
     blocking: true
-    description: Architecture plan includes Decisions section
+
   - id: has_components_section
+    description: Plan breaks down into components
     check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Components"
     blocking: true
-    description: Architecture plan includes Components section
+
   - id: has_data_model_section
+    description: Plan defines data model (or explicitly states N/A)
     check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Data Model"
-    blocking: true
-    description: Architecture plan includes Data Model section
+    blocking: false  # Not every feature requires a data model
+
+  - id: references_prd
+    description: Plan references the approved PRD
+    check: grep:.sniper/artifacts/{protocol_id}/plan.md:"prd.md"
+    blocking: false
 
   - id: open_questions
     description: No unresolved open questions remain

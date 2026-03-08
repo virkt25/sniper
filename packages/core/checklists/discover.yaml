@@ -2,19 +2,29 @@ name: discover
 description: Discovery phase quality gate
 
 checks:
-  - id: spec_produced
-    description: Discovery spec exists
-    check: file:.sniper/artifacts/spec.md
+  - id: discovery_brief_produced
+    description: Discovery brief exists
+    check: file:.sniper/artifacts/discovery-brief.md
     blocking: true
 
-  - id: scope_defined
-    description: Spec defines in-scope requirements
-    check: grep:.sniper/artifacts/spec.md:"## Requirements"
+  - id: findings_defined
+    description: Brief defines key findings
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Findings"
     blocking: true
+
+  - id: constraints_identified
+    description: Brief identifies constraints
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Constraints"
+    blocking: false
+
+  - id: risks_identified
+    description: Brief identifies risks
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Risks"
+    blocking: false
 
   - id: out_of_scope_explicit
-    description: Spec explicitly lists out-of-scope items
-    check: grep:.sniper/artifacts/spec.md:"## Out of Scope"
+    description: Brief explicitly lists out-of-scope items
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Out of Scope"
     blocking: false
 
   - id: codebase_overview
