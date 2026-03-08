@@ -4,7 +4,7 @@ budget: 2000000  # 2M tokens
 
 phases:
   - name: discover
-    description: Research, analyze codebase, produce discovery spec and PRD
+    description: Research and analyze codebase to produce discovery spec
     agents:
       - analyst
     spawn_strategy: single  # One agent, no team needed
