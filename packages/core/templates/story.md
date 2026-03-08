@@ -1,8 +1,8 @@
 ---
 status: pending  # pending | in_progress | completed | skipped
-assigned_agent: ""
-started_at: ""
-completed_at: ""
+assigned_agent:
+started_at:
+completed_at:
 ---
 
 # Story: [TITLE]

@@ -186,7 +186,6 @@ When a phase has `interactive_review: true`:
 2. Present a structured summary appropriate to the phase:
    - **discover:** scope, requirements, key findings, open questions
    - **plan:** key architectural decisions, component overview, data model, trade-offs
-   - **solve:** story count, epic breakdown, dependency graph
 3. Offer options:
    - **Approve** — continue to next phase
    - **Request changes** — describe changes (architect/PM will revise, then re-present)
