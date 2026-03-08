@@ -54,7 +54,7 @@ pnpm release        # Build + publish with changesets
 Agent definitions with YAML frontmatter specifying model, tools, and constraints. Scaffolded into `.claude/agents/` in target projects. Key pattern: lead-orchestrator is read-only (Write scoped to `.sniper/` only).
 
 ### Protocols (packages/core/protocols/)
-YAML state machines: `full` (discover→plan→implement→review), `feature` (plan→implement→review), `patch` (implement→review), `ingest` (scan→document→extract), `explore` (discover only), `refactor` (analyze→implement→review), `hotfix` (implement only, no gates). Each phase specifies agents, spawn strategy, and gate config.
+YAML state machines: `full` (discover→define→design→solve→implement→review→retro), `feature` (define→design→solve→implement→review→retro), `patch` (implement→review), `ingest` (scan→document→extract), `explore` (discover only), `refactor` (analyze→implement→review), `hotfix` (implement only, no gates). Each phase specifies agents, spawn strategy, and gate config.
 
 ### Skills (packages/core/skills/)
 SKILL.md files that become slash commands: `/sniper-flow` (the core execution engine, replaces 5 v2 commands), `/sniper-init`, `/sniper-status`, `/sniper-review`.
@@ -64,12 +64,12 @@ Language-specific extensions with `plugin.yaml` manifests defining commands, con
 
 ### v3.1 Features
 
-- **Phased Interactive Review** — Human review gates after discovery (spec/PRD), after architecture (plan), and before implementation. The `solve` phase (story sharding) runs only after architecture is approved. Story status is tracked in `live-status.yaml` and story frontmatter.
+- **Phased Interactive Review** — Human review gates after discovery (brief), after define (PRD), after design (architecture), and after solve (stories). PRD-first flow: requirements are defined before architecture. Story status is tracked in `live-status.yaml` and story frontmatter.
 - **Velocity Calibration** — Retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`. After 5+ executions of a protocol, calibrated budgets (p75) are used instead of configured defaults. Visible via `/sniper-status`.
 - **Multi-Faceted Review** — Code reviewer evaluates across three dimensions: scope validation, standards enforcement, and risk scoring (critical/high/medium/low severity).
 - **Multi-Model Review** — Optional gate review with multiple models. Configure `review.multi_model: true` in config. Supports consensus or majority-wins modes.
 - **Trigger Tables** — Map file patterns to agents or protocols via `triggers` config. Glob-matched against changed files during auto-detection.
-- **Spec Sync** — Code reviewer reconciles `docs/spec.md` with implementation reality after review (Kiro pattern).
+- **Spec Sync** — Code reviewer reconciles PRD with implementation reality after review (Kiro pattern).
 - **Self-Healing CI** — PostToolUse hook detects test/lint failures in Bash output and instructs the agent to fix before proceeding (Aider pattern).
 
 ## SNIPER Slash Commands

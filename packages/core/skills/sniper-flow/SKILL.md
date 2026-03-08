@@ -200,10 +200,12 @@ For agents working in worktrees (after all implementation agents complete):
 
 When a phase has `interactive_review: true`:
 
-1. Read produced artifacts from `.sniper/artifacts/{protocol_id}/` (e.g., `spec.md`, `plan.md`, `prd.md`)
+1. Read produced artifacts from `.sniper/artifacts/` or `.sniper/artifacts/{protocol_id}/` as appropriate
 2. Present a structured summary appropriate to the phase:
-   - **discover:** scope, requirements, key findings, open questions
-   - **plan:** key architectural decisions, component overview, data model, trade-offs
+   - **discover:** findings, constraints, codebase landscape, open questions
+   - **define:** requirements, success criteria, scope boundaries, out-of-scope items
+   - **design:** key architectural decisions, component overview, data model, trade-offs
+   - **solve:** story list, dependencies, acceptance criteria summary
 3. Offer options:
    - **Approve** — continue to next phase
    - **Request changes** — describe changes (architect/PM will revise, then re-present)

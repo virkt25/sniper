@@ -1,21 +1,31 @@
 name: feature
-description: Incremental feature — plan, implement, review
+description: Incremental feature — define, design, implement, review
 budget: 800000  # 800K tokens
 
 phases:
-  - name: plan
-    description: Feature design and architecture
+  - name: define
+    description: Product requirements for the feature
+    agents:
+      - product-manager
+    spawn_strategy: single
+    interactive_review: true  # User reviews PRD before architecture
+    gate:
+      checklist: define
+      human_approval: true
+    outputs:
+      - .sniper/artifacts/{protocol_id}/prd.md
+
+  - name: design
+    description: Technical design against approved requirements
     agents:
       - architect
-      - product-manager
-    spawn_strategy: sequential  # Architect designs first, PM refines PRD from that
+    spawn_strategy: single
     interactive_review: true  # User reviews architecture before story sharding
     gate:
-      checklist: plan
+      checklist: design
       human_approval: true
     outputs:
       - .sniper/artifacts/{protocol_id}/plan.md
-      - .sniper/artifacts/{protocol_id}/prd.md
 
   - name: solve
     description: Story creation from approved architecture
@@ -24,7 +34,7 @@ phases:
     spawn_strategy: single
     gate:
       checklist: solve
-      human_approval: false
+      human_approval: true  # Review story decomposition before implementation
     outputs:
       - .sniper/artifacts/{protocol_id}/stories/
 

@@ -26,7 +26,7 @@ discover → define → design → solve → implement → review → retro → 
 
 | # | Phase | What it does | Agents | Strategy | Human Gate |
 |---|-------|-------------|--------|----------|------------|
-| 1 | **discover** | Research problem space, analyze codebase, identify constraints | analyst | single | interactive_review |
+| 1 | **discover** | Research problem space, analyze codebase, identify constraints | analyst | single | interactive_review + human_approval |
 | 2 | **define** | Write PRD: requirements, success criteria, scope boundaries, out-of-scope | product-manager | single | interactive_review + human_approval |
 | 3 | **design** | Architecture plan designed *against* approved PRD | architect | single | interactive_review + human_approval |
 | 4 | **solve** | Shard approved architecture into stories | product-manager | single | human_approval |
