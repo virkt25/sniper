@@ -1,5 +1,11 @@
 # @sniper.ai/core
 
+## 3.3.0
+
+### Minor Changes
+
+- [#20](https://github.com/virkt25/sniper/pull/20) [`afebabd`](https://github.com/virkt25/sniper/commit/afebabdce5dfdbc2c7b128e7169cc1c8d21ee971) Thanks [@virkt25](https://github.com/virkt25)! - implement unified self-learning system
+
 ## 3.2.0
 
 ### Minor Changes

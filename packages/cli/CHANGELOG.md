@@ -1,5 +1,12 @@
 # @sniper.ai/cli
 
+## 3.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`afebabd`](https://github.com/virkt25/sniper/commit/afebabdce5dfdbc2c7b128e7169cc1c8d21ee971)]:
+  - @sniper.ai/core@3.3.0
+
 ## 3.2.0
 
 ### Minor Changes
