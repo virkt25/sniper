@@ -162,4 +162,4 @@ visibility:
   live_status: true          # Maintain .sniper/live-status.yaml
   checkpoints: true          # Write phase checkpoints
   cost_tracking: true        # Track token usage
-  auto_retro: true           # DEPRECATED — use retro phase in protocols instead
+  # auto_retro: true         # DEPRECATED — use retro phase in protocols instead
