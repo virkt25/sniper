@@ -1,5 +1,15 @@
 # @sniper.ai/core
 
+## 3.3.1
+
+### Patch Changes
+
+- [#21](https://github.com/virkt25/sniper/pull/21) [`fbc0da7`](https://github.com/virkt25/sniper/commit/fbc0da7a3dce27b01673b073b4f87132a0a97682) Thanks [@virkt25](https://github.com/virkt25)! - fix: reconcile protocol definitions with skill and checklist references
+
+  - Fix discover phase description in full protocol (remove incorrect PRD mention)
+  - Add strict agent list enforcement to sniper-flow skill
+  - Fix malformed grep path in plan checklist (missing plan.md filename)
+
 ## 3.3.0
 
 ### Minor Changes
