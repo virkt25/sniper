@@ -1,5 +1,12 @@
 # @sniper.ai/cli
 
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`4e503d4`](https://github.com/virkt25/sniper/commit/4e503d48c5d5743d4487ae75fe8eefa587d080cd)]:
+  - @sniper.ai/core@3.4.0
+
 ## 3.2.2
 
 ### Patch Changes

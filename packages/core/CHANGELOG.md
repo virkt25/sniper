@@ -1,5 +1,11 @@
 # @sniper.ai/core
 
+## 3.4.0
+
+### Minor Changes
+
+- [#22](https://github.com/virkt25/sniper/pull/22) [`4e503d4`](https://github.com/virkt25/sniper/commit/4e503d48c5d5743d4487ae75fe8eefa587d080cd) Thanks [@virkt25](https://github.com/virkt25)! - reorder protocol phases — PRD before architecture
+
 ## 3.3.1
 
 ### Patch Changes
