@@ -13,6 +13,12 @@ phases:
     #   status: active | completed | failed
     progress: 0  # percentage
 
+stories: []
+# - id: "001"
+#   title: ""
+#   status: pending  # pending | in_progress | completed | skipped
+#   assigned_agent: ""
+
 gate_results: []
 # - phase: discover
 #   result: pass

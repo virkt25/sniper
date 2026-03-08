@@ -4,18 +4,28 @@ budget: 800000  # 800K tokens
 
 phases:
   - name: plan
-    description: Feature design and story creation
+    description: Feature design and architecture
     agents:
       - architect
       - product-manager
-    spawn_strategy: sequential  # Architect designs first, PM writes stories from that
-    interactive_review: true  # Present plan to user for review/feedback before proceeding
+    spawn_strategy: sequential  # Architect designs first, PM refines PRD from that
+    interactive_review: true  # User reviews architecture before story sharding
     gate:
       checklist: plan
       human_approval: true
     outputs:
       - .sniper/artifacts/{protocol_id}/plan.md
       - .sniper/artifacts/{protocol_id}/prd.md
+
+  - name: solve
+    description: Story creation from approved architecture
+    agents:
+      - product-manager
+    spawn_strategy: single
+    gate:
+      checklist: solve
+      human_approval: false
+    outputs:
       - .sniper/artifacts/{protocol_id}/stories/
 
   - name: implement

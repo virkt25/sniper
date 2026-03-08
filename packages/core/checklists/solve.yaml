@@ -1,0 +1,29 @@
+name: solve
+description: Story sharding quality gate
+# Note: {protocol_id} is resolved at gate-review time from the active checkpoint
+
+checks:
+  - id: stories_exist
+    description: At least one story file exists
+    check: glob:.sniper/artifacts/{protocol_id}/stories/:*.md
+    blocking: true
+
+  - id: ears_criteria
+    description: All stories have EARS acceptance criteria
+    check: grep:.sniper/artifacts/{protocol_id}/stories/:"shall"
+    blocking: true
+
+  - id: stories_have_status
+    description: All stories have a status field in frontmatter
+    check: grep:.sniper/artifacts/{protocol_id}/stories/:"status:"
+    blocking: true
+
+  - id: stories_reference_architecture
+    description: Stories reference the architecture plan
+    check: grep:.sniper/artifacts/{protocol_id}/stories/:"plan.md"
+    blocking: false
+
+  - id: open_questions
+    description: No unresolved open questions in stories
+    check: "!grep:.sniper/artifacts/{protocol_id}/stories/:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
+    blocking: false

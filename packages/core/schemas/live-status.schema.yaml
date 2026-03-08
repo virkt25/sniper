@@ -76,6 +76,33 @@ properties:
           minimum: 0
           maximum: 100
           description: Phase completion percentage.
+  stories:
+    type: array
+    description: Per-story status tracking for the current protocol run.
+    items:
+      type: object
+      required:
+        - id
+        - title
+        - status
+      properties:
+        id:
+          type: string
+          description: Story identifier (e.g., "001", "002").
+        title:
+          type: string
+          description: Story title.
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - completed
+            - skipped
+          description: Current status of the story.
+        assigned_agent:
+          type: string
+          description: Agent assigned to implement this story.
   gate_results:
     type: array
     description: Results from completed gate reviews.

@@ -4,33 +4,44 @@ budget: 2000000  # 2M tokens
 
 phases:
   - name: discover
-    description: Research, analyze codebase, produce discovery spec
+    description: Research, analyze codebase, produce discovery spec and PRD
     agents:
       - analyst
     spawn_strategy: single  # One agent, no team needed
+    interactive_review: true  # User reviews spec/PRD before architecture begins
     gate:
       checklist: discover
-      human_approval: false
+      human_approval: true
     outputs:
       - .sniper/artifacts/spec.md  # Living master doc
       - .sniper/artifacts/codebase-overview.md  # Living master doc
 
   - name: plan
-    description: Architecture design, PRD creation, story breakdown
+    description: Architecture design and PRD refinement
     agents:
       - architect
       - product-manager
     spawn_strategy: team  # Multiple agents, use TeamCreate
-    interactive_review: true  # Present plan to user for review/feedback before proceeding
+    interactive_review: true  # User reviews architecture before story sharding
     coordination:
       - between: [architect, product-manager]
-        topic: Architecture must be approved before stories reference it
+        topic: Architecture must be finalized before PRD is updated
     gate:
       checklist: plan
-      human_approval: true  # Human reviews the plan before implementation
+      human_approval: true  # Human reviews architecture before stories are created
     outputs:
       - .sniper/artifacts/{protocol_id}/plan.md
       - .sniper/artifacts/{protocol_id}/prd.md
+
+  - name: solve
+    description: Epic sharding and story creation from approved architecture
+    agents:
+      - product-manager
+    spawn_strategy: single
+    gate:
+      checklist: solve
+      human_approval: false
+    outputs:
       - .sniper/artifacts/{protocol_id}/stories/
 
   - name: implement

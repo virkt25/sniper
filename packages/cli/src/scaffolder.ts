@@ -303,15 +303,14 @@ export async function scaffoldProject(
     log.push("Skipped CLAUDE.md (preserved user customizations)");
   }
 
-  // Create docs/ directory and registry (on init or update if missing)
-  await ensureDir(join(cwd, "docs"));
+  // Create artifacts directory and registry (on init or update if missing)
+  const artifactsDir = join(sniperDir, "artifacts");
+  await ensureDir(artifactsDir);
   const registryTemplate = join(corePath, "templates", "registry.md");
-  const registryDest = join(cwd, "docs", "registry.md");
+  const registryDest = join(artifactsDir, "registry.md");
   if ((await fileExists(registryTemplate)) && !(await fileExists(registryDest))) {
     await cp(registryTemplate, registryDest);
-    log.push(isUpdate ? "Created missing docs/registry.md" : "Created docs/ with registry.md");
-  } else if (!isUpdate) {
-    log.push("Created docs/");
+    log.push(isUpdate ? "Created missing .sniper/artifacts/registry.md" : "Created .sniper/artifacts/registry.md");
   }
 
   return log;

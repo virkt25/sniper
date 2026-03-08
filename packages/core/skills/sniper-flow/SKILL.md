@@ -84,6 +84,8 @@ commits: [git SHAs produced]
 
 Update `.sniper/live-status.yaml` with current phase, agent statuses, and cost percentage.
 
+After the `solve` phase completes, populate the `stories` array in `.sniper/live-status.yaml` by reading story files from `.sniper/artifacts/{protocol_id}/stories/`. During `implement`, update each story's status (`in_progress` → `completed`) as agents finish work on it.
+
 ### Gate
 
 1. Write `.sniper/pending-gate.yaml` with phase name and checklist reference
@@ -180,8 +182,10 @@ For agents working in worktrees (after all implementation agents complete):
 
 When a phase has `interactive_review: true`:
 
-1. Read produced artifacts from `.sniper/artifacts/{protocol_id}/` (e.g., `plan.md`, `prd.md`, `stories/`)
-2. Present a structured summary: key architectural decisions, component overview, story count, open questions
+1. Read produced artifacts from `.sniper/artifacts/{protocol_id}/` (e.g., `spec.md`, `plan.md`, `prd.md`)
+2. Present a structured summary appropriate to the phase:
+   - **discover:** scope, requirements, key findings, open questions
+   - **plan:** key architectural decisions, component overview, data model, trade-offs
 3. Offer options:
    - **Approve** — continue to next phase
    - **Request changes** — describe changes (architect/PM will revise, then re-present)
