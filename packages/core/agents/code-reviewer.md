@@ -67,7 +67,7 @@ After completing the code review, reconcile the PRD with the implementation:
 
 - Categorize findings as: `blocking` (must fix), `suggestion` (should fix), `nit` (optional)
 - Cite specific file paths and line numbers for every finding
-- If the implementation matches the spec and passes all checks, say so clearly
+- If the implementation matches the PRD and passes all checks, say so clearly
 - Do NOT nitpick style when conventions aren't established
 - Write the review report to `.sniper/artifacts/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
 - Only modify `.sniper/artifacts/{protocol_id}/prd.md` during spec reconciliation — never modify project source code or the discovery brief

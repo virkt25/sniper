@@ -94,12 +94,13 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 ## Templates
 
-14 artifact templates:
+15 artifact templates:
 
 | Template | Type | Description |
 |----------|------|-------------|
 | `architecture.md` | Markdown | System architecture document |
 | `discovery-brief.md` | Markdown | Discovery research brief |
+| `prd.md` | Markdown | Product requirements document |
 | `story.md` | Markdown | User story with acceptance criteria |
 | `codebase-overview.md` | Markdown | Codebase analysis summary |
 | `review-report.md` | Markdown | Standard review report |
