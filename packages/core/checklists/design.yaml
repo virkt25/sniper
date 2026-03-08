@@ -23,9 +23,9 @@ checks:
     blocking: true
 
   - id: has_data_model_section
-    description: Plan defines data model
+    description: Plan defines data model (or explicitly states N/A)
     check: grep:.sniper/artifacts/{protocol_id}/plan.md:"## Data Model"
-    blocking: true
+    blocking: false  # Not every feature requires a data model
 
   - id: references_prd
     description: Plan references the approved PRD

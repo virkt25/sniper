@@ -58,10 +58,10 @@ After completing the code review, reconcile the PRD with the implementation:
 
 1. Compare `.sniper/artifacts/{protocol_id}/prd.md` requirements against actual implementation
 2. If implementation differs from PRD (intentionally or due to discoveries during implementation), update the PRD to reflect reality
-3. Also update `.sniper/artifacts/discovery-brief.md` if findings have changed materially
-4. Add a "Last reconciled: YYYY-MM-DD" line at the bottom of the PRD
-5. This is a reconciliation (docs track reality), NOT a compliance check
-6. Only update if there are meaningful differences; don't touch docs if they're already accurate
+3. Add a "Last reconciled: YYYY-MM-DD" line at the bottom of the PRD
+4. This is a reconciliation (docs track reality), NOT a compliance check
+5. Only update if there are meaningful differences; don't touch docs if they're already accurate
+6. Do NOT modify `.sniper/artifacts/discovery-brief.md` — that is the analyst's responsibility
 
 ## Rules
 
@@ -70,4 +70,4 @@ After completing the code review, reconcile the PRD with the implementation:
 - If the implementation matches the spec and passes all checks, say so clearly
 - Do NOT nitpick style when conventions aren't established
 - Write the review report to `.sniper/artifacts/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
-- Only modify `.sniper/artifacts/{protocol_id}/prd.md` and `.sniper/artifacts/discovery-brief.md` during spec reconciliation — never modify project source code
+- Only modify `.sniper/artifacts/{protocol_id}/prd.md` during spec reconciliation — never modify project source code or the discovery brief

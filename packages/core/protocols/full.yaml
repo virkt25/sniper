@@ -45,6 +45,7 @@ phases:
     agents:
       - product-manager
     spawn_strategy: single
+    interactive_review: true  # User reviews story decomposition before implementation
     gate:
       checklist: solve
       human_approval: true  # Bad decomposition causes expensive rework — worth 5 minutes

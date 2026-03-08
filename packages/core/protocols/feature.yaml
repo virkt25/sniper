@@ -1,5 +1,5 @@
 name: feature
-description: Incremental feature — define, design, implement, review
+description: Incremental feature — define, design, solve, implement, review, retro
 budget: 800000  # 800K tokens
 
 phases:
@@ -32,6 +32,7 @@ phases:
     agents:
       - product-manager
     spawn_strategy: single
+    interactive_review: true  # User reviews story decomposition before implementation
     gate:
       checklist: solve
       human_approval: true  # Review story decomposition before implementation

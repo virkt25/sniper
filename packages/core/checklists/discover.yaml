@@ -8,13 +8,23 @@ checks:
     blocking: true
 
   - id: findings_defined
-    description: Brief defines key findings or requirements
-    check: grep:.sniper/artifacts/discovery-brief.md:"## Findings|## Requirements"
+    description: Brief defines key findings
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Findings"
     blocking: true
 
+  - id: requirements_defined
+    description: Brief defines requirements (alternative to findings)
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Requirements"
+    blocking: false  # Findings is the primary heading; Requirements is accepted as alternative
+
   - id: constraints_identified
-    description: Brief identifies constraints and risks
-    check: grep:.sniper/artifacts/discovery-brief.md:"## Constraints|## Risks"
+    description: Brief identifies constraints
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Constraints"
+    blocking: false
+
+  - id: risks_identified
+    description: Brief identifies risks
+    check: grep:.sniper/artifacts/discovery-brief.md:"## Risks"
     blocking: false
 
   - id: out_of_scope_explicit
