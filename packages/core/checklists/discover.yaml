@@ -12,11 +12,6 @@ checks:
     check: grep:.sniper/artifacts/discovery-brief.md:"## Findings"
     blocking: true
 
-  - id: requirements_defined
-    description: Brief defines requirements (alternative to findings)
-    check: grep:.sniper/artifacts/discovery-brief.md:"## Requirements"
-    blocking: false  # Findings is the primary heading; Requirements is accepted as alternative
-
   - id: constraints_identified
     description: Brief identifies constraints
     check: grep:.sniper/artifacts/discovery-brief.md:"## Constraints"
