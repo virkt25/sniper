@@ -63,10 +63,11 @@ For each phase in the protocol, execute these 5 steps:
 ### Execute
 
 1. Determine spawn strategy from protocol phase definition (`single`, `sequential`, `parallel`, or `team`)
-2. Spawn agents per [Reference: Spawn Strategies](#reference-spawn-strategies)
-3. Monitor via TaskList — if an agent is blocked, investigate and guide via SendMessage
-4. If an agent crashes: note the failure, continue with remaining agents
-5. After all parallel agents complete: coordinate worktree merges per [Reference: Merge Coordination](#reference-merge-coordination)
+2. Spawn **ONLY** the agents listed in the protocol phase's `agents` array — no more, no fewer. Do NOT infer additional agents from the phase description or outputs. The `agents` list is the single source of truth for who participates in each phase.
+3. Spawn agents per [Reference: Spawn Strategies](#reference-spawn-strategies)
+4. Monitor via TaskList — if an agent is blocked, investigate and guide via SendMessage
+5. If an agent crashes: note the failure, continue with remaining agents
+6. After all parallel agents complete: coordinate worktree merges per [Reference: Merge Coordination](#reference-merge-coordination)
 
 ### Checkpoint
 

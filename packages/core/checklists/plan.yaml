@@ -22,7 +22,7 @@ checks:
 
   - id: open_questions
     description: No unresolved open questions remain
-    check: "!grep:.sniper/artifacts/{protocol_id}/:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
+    check: "!grep:.sniper/artifacts/{protocol_id}/plan.md:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
     blocking: false
 
   - id: token_budget
