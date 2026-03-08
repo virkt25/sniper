@@ -73,4 +73,25 @@ phases:
     outputs:
       - .sniper/artifacts/{protocol_id}/review-report.md
 
-auto_retro: true  # Trigger retro-analyst after completion
+  - name: retro
+    description: Retrospective — extract learnings, update velocity, check learning effectiveness
+    agents:
+      - retro-analyst
+    spawn_strategy: single
+    gate:
+      checklist: retro
+      human_approval: false
+    outputs:
+      - .sniper/retros/{protocol_id}.yaml
+      - .sniper/memory/velocity.yaml
+      - .sniper/memory/learnings/
+
+  - name: curate
+    description: Review and consolidate learnings (skipped if not needed)
+    agents:
+      - memory-curator
+    spawn_strategy: single
+    skip_if: learning_count < 30 AND last_curation_within_5_protocols
+    gate:
+      checklist: none
+      human_approval: false

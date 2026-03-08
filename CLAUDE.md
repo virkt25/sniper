@@ -79,6 +79,7 @@ Language-specific extensions with `plugin.yaml` manifests defining commands, con
 - `/sniper-init` — Initialize SNIPER v3 in a project
 - `/sniper-status` — Show protocol progress and cost
 - `/sniper-review` — Manually trigger a review gate
+- `/sniper-learn` — Submit, review, or deprecate project learnings
 
 ## CLI Subcommands
 

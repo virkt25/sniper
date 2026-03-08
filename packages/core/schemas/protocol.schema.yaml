@@ -54,7 +54,9 @@ properties:
           properties:
             checklist:
               type: string
-              description: Name of the checklist to evaluate at the gate.
+              description: >
+                Name of the checklist to evaluate at the gate.
+                Use "none" to skip checklist evaluation (phase still completes normally).
             human_approval:
               type: boolean
               description: Whether a human must approve the gate before proceeding.
@@ -93,8 +95,19 @@ properties:
                 type: string
                 description: Description of the coordination requirement.
             additionalProperties: false
+        skip_if:
+          type: string
+          description: >
+            Predicate expression that, when true, causes this phase to be skipped.
+            Available variables: learning_count (active learnings),
+            last_curation_within_N_protocols (boolean).
+            Example: "learning_count < 30 AND last_curation_within_5_protocols"
       additionalProperties: false
   auto_retro:
     type: boolean
-    description: Whether to trigger the retro-analyst after protocol completion.
+    deprecated: true
+    description: >
+      DEPRECATED — Use a 'retro' phase in the phases list instead.
+      When true, spawns retro-analyst after protocol completion. Retained for
+      backward compatibility with custom protocols that don't define a retro phase.
 additionalProperties: false

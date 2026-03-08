@@ -78,6 +78,10 @@ properties:
         description: Concrete action items for future runs.
         items:
           type: string
+      learning_ids:
+        type: array
+        items: { type: string }
+        description: IDs of learnings created from this retro's findings.
   velocity:
     type: object
     description: Velocity metrics for this execution, used for budget calibration.

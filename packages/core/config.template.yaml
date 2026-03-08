@@ -24,6 +24,7 @@ agents:
     - code-reviewer
     - gate-reviewer
     - retro-analyst
+    - memory-curator
 
   # Cognitive mixins applied to agents during scaffolding
   # Format: agent-name: [mixin1, mixin2]
@@ -148,9 +149,17 @@ plugins: []
 # workspace:
 #   ref: "../.sniper-workspace"
 
+# Learning store configuration
+learning:
+  max_per_retro: 5              # Cap learnings created per retro
+  min_confidence: 0.4           # Threshold for composition into agent prompts
+  composition_limit: 10         # Max learnings composed per agent
+  staleness_threshold: 5        # Protocols without application before flagging
+  archive_after_days: 180       # Days after deprecation before archiving
+
 # Visibility settings
 visibility:
   live_status: true          # Maintain .sniper/live-status.yaml
   checkpoints: true          # Write phase checkpoints
   cost_tracking: true        # Track token usage
-  auto_retro: true           # Run retro after protocol completion
+  # auto_retro: true         # DEPRECATED — use retro phase in protocols instead
