@@ -1,5 +1,26 @@
 # @sniper.ai/cli
 
+## 3.2.0
+
+### Minor Changes
+
+- [#19](https://github.com/virkt25/sniper/pull/19) [`f954bc1`](https://github.com/virkt25/sniper/commit/f954bc1dd50671ac768525dd2f2659a02cb94630) Thanks [@virkt25](https://github.com/virkt25)! - phased interactive review gates and story status tracking
+
+### Patch Changes
+
+- [#19](https://github.com/virkt25/sniper/pull/19) [`f954bc1`](https://github.com/virkt25/sniper/commit/f954bc1dd50671ac768525dd2f2659a02cb94630) Thanks [@virkt25](https://github.com/virkt25)! - Add phased interactive review gates and story status tracking
+
+  - Add interactive review gate after discovery phase (spec/PRD review before architecture)
+  - Split plan phase into plan (architecture) + solve (story sharding) so users review architecture before stories are created
+  - Add story status tracking via YAML frontmatter in story template (pending, in_progress, completed, skipped)
+  - Add stories array to live-status for real-time story progress tracking
+  - Add solve checklist for story quality gate
+  - Move story-specific checks from plan checklist to new solve checklist
+  - Fix scaffolder to place registry.md in .sniper/artifacts/ instead of docs/
+
+- Updated dependencies [[`f954bc1`](https://github.com/virkt25/sniper/commit/f954bc1dd50671ac768525dd2f2659a02cb94630), [`f954bc1`](https://github.com/virkt25/sniper/commit/f954bc1dd50671ac768525dd2f2659a02cb94630)]:
+  - @sniper.ai/core@3.2.0
+
 ## 3.1.2
 
 ### Patch Changes
