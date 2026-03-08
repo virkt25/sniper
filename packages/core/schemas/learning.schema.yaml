@@ -1,0 +1,128 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/learning"
+title: Learning Record
+description: Schema for SNIPER learning records — unified store for project-specific learnings captured from retros, human feedback, CI failures, PR reviews, and gate failures.
+type: object
+required:
+  - id
+  - status
+  - confidence
+  - created_at
+  - source
+  - learning
+properties:
+  id:
+    type: string
+    pattern: "^L-\\d{8}-[a-f0-9]{4}$"
+    description: "Unique learning ID in format L-YYYYMMDD-XXXX (4-char hex suffix)."
+  status:
+    type: string
+    enum: [draft, active, validated, deprecated]
+    description: Lifecycle status of the learning.
+  confidence:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score (0.0–1.0). Changes over time based on reinforcement, contradictions, and decay."
+  created_at:
+    type: string
+    format: date-time
+    description: When the learning was first created.
+  updated_at:
+    type: string
+    format: date-time
+    description: When the learning was last modified.
+  expires_at:
+    type: string
+    format: date-time
+    description: "Optional expiration date. Null means never expires."
+
+  # Origin
+  source:
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        enum: [retro, human, ci_failure, pr_review, gate_failure]
+        description: How this learning entered the system.
+      protocol_id:
+        type: string
+        description: "Protocol ID that generated this learning (null for human-submitted)."
+      detail:
+        type: string
+        description: Context about how the learning was discovered.
+    additionalProperties: false
+
+  # The learning itself
+  learning:
+    type: string
+    description: The core insight or lesson learned.
+  anti_pattern:
+    type: string
+    description: What to avoid — the behavior that caused the problem.
+  correction:
+    type: string
+    description: What to do instead — the recommended approach.
+
+  # Scoping
+  scope:
+    type: object
+    properties:
+      agents:
+        type: array
+        items: { type: string }
+        description: "Agent personas this learning applies to. Null = all agents."
+      phases:
+        type: array
+        items: { type: string }
+        description: "Protocol phases this learning applies to. Null = all phases."
+      files:
+        type: array
+        items: { type: string }
+        description: "Glob patterns for relevant files. Null = all files."
+    additionalProperties: false
+
+  # Effectiveness tracking
+  applied_in:
+    type: array
+    items: { type: string }
+    description: Protocol IDs where this learning was composed into agent prompts.
+  reinforced_by:
+    type: array
+    items: { type: string }
+    description: Event or learning IDs that confirm this learning.
+  contradicted_by:
+    type: array
+    items: { type: string }
+    description: Learning IDs that contradict this learning.
+  superseded_by:
+    type: string
+    description: "If deprecated, the learning ID that replaced this one."
+
+  # Audit trail
+  history:
+    type: array
+    items:
+      type: object
+      required:
+        - timestamp
+        - event
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        event:
+          type: string
+          enum: [created, reinforced, contradicted, deprecated, validated_by_absence, recurrence_detected, confidence_adjusted, merged, human_confirmed, human_invalidated]
+        actor:
+          type: string
+          description: "Who triggered this event (agent name or 'human')."
+        detail:
+          type: string
+        confidence_delta:
+          type: number
+          description: "Change in confidence from this event (e.g., +0.1, -0.2)."
+      additionalProperties: false
+additionalProperties: false

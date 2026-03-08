@@ -96,5 +96,9 @@ properties:
       additionalProperties: false
   auto_retro:
     type: boolean
-    description: Whether to trigger the retro-analyst after protocol completion.
+    deprecated: true
+    description: >
+      DEPRECATED — Use a 'retro' phase in the phases list instead.
+      When true, spawns retro-analyst after protocol completion. Retained for
+      backward compatibility with custom protocols that don't define a retro phase.
 additionalProperties: false

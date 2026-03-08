@@ -42,6 +42,17 @@ Display the gate result:
 
 Save the gate result to `.sniper/gates/<phase>-<timestamp>.yaml`.
 
+### 6. Capture Feedback
+
+If the gate fails and the user provides feedback on what should change:
+
+1. Parse the feedback for actionable, generalizable patterns
+2. If the feedback describes a pattern (not a one-off fix):
+   - Create a learning with `source.type: human`, `confidence: 0.9`
+   - Scope to the reviewed phase and relevant agents
+   - Write to `.sniper/memory/learnings/`
+3. Note: "Learning `{id}` captured from review feedback."
+
 ## Rules
 
 - This is a manual trigger — it does NOT advance the protocol phase

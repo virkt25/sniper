@@ -40,4 +40,15 @@ phases:
     outputs:
       - .sniper/artifacts/{protocol_id}/review-report.md
 
-auto_retro: true
+  - name: retro
+    description: Retrospective — extract learnings, update velocity, check learning effectiveness
+    agents:
+      - retro-analyst
+    spawn_strategy: single
+    gate:
+      checklist: retro
+      human_approval: false
+    outputs:
+      - .sniper/retros/{protocol_id}.yaml
+      - .sniper/memory/velocity.yaml
+      - .sniper/memory/learnings/

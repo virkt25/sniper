@@ -1,7 +1,15 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "https://sniper.ai/schemas/signal"
 title: External Signal Record
-description: Schema for SNIPER signal records that capture learnings from CI failures, PR reviews, and production errors.
+deprecated: true
+superseded_by: learning.schema.yaml
+description: >
+  DEPRECATED — Superseded by learning.schema.yaml.
+  This schema is retained for backward compatibility. Existing signal files in
+  .sniper/memory/signals/ will be migrated to learnings by the memory-curator
+  agent on first run. Use /sniper-learn --review to trigger migration.
+  Original description: Schema for SNIPER signal records that capture learnings
+  from CI failures, PR reviews, and production errors.
 type: object
 required:
   - type

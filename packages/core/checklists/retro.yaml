@@ -1,0 +1,15 @@
+name: retro
+description: Gate checks for the retrospective phase
+
+checks:
+  - id: retro_report_exists
+    description: Retro report file exists
+    type: file_exists
+    path: ".sniper/retros/{protocol_id}.yaml"
+    blocking: true
+
+  - id: velocity_updated
+    description: Velocity data updated
+    type: file_exists
+    path: ".sniper/memory/velocity.yaml"
+    blocking: true
