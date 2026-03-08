@@ -64,6 +64,7 @@ Language-specific extensions with `plugin.yaml` manifests defining commands, con
 
 ### v3.1 Features
 
+- **Phased Interactive Review** — Human review gates after discovery (spec/PRD), after architecture (plan), and before implementation. The `solve` phase (story sharding) runs only after architecture is approved. Story status is tracked in `live-status.yaml` and story frontmatter.
 - **Velocity Calibration** — Retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`. After 5+ executions of a protocol, calibrated budgets (p75) are used instead of configured defaults. Visible via `/sniper-status`.
 - **Multi-Faceted Review** — Code reviewer evaluates across three dimensions: scope validation, standards enforcement, and risk scoring (critical/high/medium/low severity).
 - **Multi-Model Review** — Optional gate review with multiple models. Configure `review.multi_model: true` in config. Supports consensus or majority-wins modes.
