@@ -124,7 +124,6 @@ export const migrateCommand = defineCommand({
     console.log("  - domain_packs → plugins");
     console.log("  - state tracking → checkpoint files");
     console.log("  + routing (auto protocol selection)");
-    console.log("  + protocol routing");
     console.log("  + visibility settings");
 
     const confirm = await p.confirm({

@@ -75,7 +75,6 @@ export interface SniperConfigV3 {
   visibility: {
     live_status: boolean;
     checkpoints: boolean;
-
     auto_retro: boolean;
   };
 }
