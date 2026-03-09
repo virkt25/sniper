@@ -1,5 +1,11 @@
 # @sniper.ai/core
 
+## 4.0.0
+
+### Major Changes
+
+- [#23](https://github.com/virkt25/sniper/pull/23) [`e52398d`](https://github.com/virkt25/sniper/commit/e52398d0c5b48130239055c4a8febdb787571f87) Thanks [@virkt25](https://github.com/virkt25)! - remove token budget, cost tracking, and velocity systems
+
 ## 3.4.0
 
 ### Minor Changes
