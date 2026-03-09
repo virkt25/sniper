@@ -107,7 +107,6 @@ Each protocol is a YAML state machine defining the phase sequence:
 ```yaml
 name: full
 description: Complete project lifecycle
-budget: 2000000
 
 phases:
   - name: discover
@@ -167,14 +166,11 @@ timestamp: "2026-02-28T14:30:00Z"
 agents:
   - name: product-manager
     status: completed
-    tokens_used: 45000
   - name: architect
     status: completed
-    tokens_used: 62000
 commits:
   - sha: "abc123"
     message: "plan: PRD and architecture"
-total_tokens: 107000
 ```
 
 If execution is interrupted (timeout, crash, user stops), `/sniper-flow --resume` reads the last checkpoint and resumes from where it left off. Completed phases are not re-run.
@@ -223,26 +219,6 @@ Hooks fire on Claude Code events:
 
 - **Gate trigger** -- fires the gate-reviewer at phase boundaries
 - **Retro trigger** -- fires the retro-analyst when a protocol completes
-
-## Cost Tracking
-
-Token usage is tracked at multiple levels:
-
-```
-Protocol budget (e.g., 800K)
-  └── Phase budget (proportional)
-      └── Agent tokens (actual usage)
-```
-
-Three thresholds control behavior:
-
-| Threshold | Default | Behavior |
-|-----------|---------|----------|
-| `warn_threshold` | 70% | Log a warning |
-| `soft_cap` | 90% | Alert the user, suggest wrapping up |
-| `hard_cap` | 100% | Stop execution |
-
-View current cost with `/sniper-status`.
 
 ## File Ownership Enforcement
 

@@ -21,8 +21,3 @@ checks:
     description: PRD explicitly defines what is out of scope
     check: grep:.sniper/artifacts/{protocol_id}/prd.md:"## Out of Scope"
     blocking: true  # Out of scope must be explicit — this is where scope creep dies
-
-  - id: token_budget
-    description: PRD is concise (under 12000 chars)
-    check: wc:.sniper/artifacts/{protocol_id}/prd.md:<12000
-    blocking: false

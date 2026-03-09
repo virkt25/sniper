@@ -57,8 +57,7 @@ For each phase in the protocol, execute these 5 steps:
 
 1. Read protocol YAML for the current phase definition
 2. Read `.sniper/config.yaml` for agent config, ownership, commands
-3. Check `.sniper/memory/velocity.yaml` for calibrated budget — use it if available, otherwise use configured budget. Log which source is used.
-4. Compose agents per [Reference: Agent Composition](#reference-agent-composition)
+3. Compose agents per [Reference: Agent Composition](#reference-agent-composition)
 
 ### Execute
 
@@ -79,11 +78,10 @@ phase: <phase>
 timestamp: <ISO 8601>
 status: completed | failed
 agents: [status per agent]
-token_usage: [phase + cumulative]
 commits: [git SHAs produced]
 ```
 
-Update `.sniper/live-status.yaml` with current phase, agent statuses, and cost percentage.
+Update `.sniper/live-status.yaml` with current phase and agent statuses.
 
 After the `solve` phase completes, populate the `stories` array in `.sniper/live-status.yaml` by reading story files from `.sniper/artifacts/{protocol_id}/stories/`. During `implement`, update each story's status (`in_progress` → `completed`) as agents finish work on it.
 
@@ -107,25 +105,15 @@ After the `solve` phase completes, populate the `stories` array in `.sniper/live
 
 1. Write final checkpoint
 2. Update `.sniper/live-status.yaml` with `status: completed`
-3. Update `.sniper/artifacts/{protocol_id}/meta.yaml` with final status, token usage, commits, agents used
+3. Update `.sniper/artifacts/{protocol_id}/meta.yaml` with final status, commits, agents used
 4. Update `.sniper/artifacts/registry.md` entry from `in_progress` to `completed`
-5. Present summary: phases completed, gate results, token usage, learnings created
+5. Present summary: phases completed, gate results, learnings created
 6. **Backward compatibility:** If the protocol has `auto_retro: true` but no `retro` phase in its phases list (custom protocols), spawn retro-analyst as a single-agent phase before completing
-
-## Cost Tracking
-
-Maintain `.sniper/cost.yaml` throughout execution. At each checkpoint:
-- `warn_threshold` → log warning, continue
-- `soft_cap` → pause, ask user whether to continue
-- `hard_cap` → checkpoint and stop gracefully
-
-Read thresholds from `.sniper/config.yaml` cost section.
 
 ## Rules
 
 - ALWAYS generate a protocol ID and create `.sniper/artifacts/{protocol_id}/` before spawning any agent
 - ALWAYS checkpoint between phases
-- ALWAYS respect token budgets
 - ALWAYS present the plan for interactive review when `interactive_review: true`
 - NEVER skip a gate — every phase transition goes through its gate
 - NEVER advance past a failed blocking gate check
@@ -217,9 +205,9 @@ When a phase has `interactive_review: true`:
 > **Note:** The retro is now a first-class phase in protocols (full, feature, refactor). This reference is retained for backward compatibility with custom protocols using `auto_retro: true`.
 
 When `auto_retro: true` and no `retro` phase exists in the protocol:
-1. Spawn `retro-analyst` as a single-agent phase with: protocol ID, checkpoint history, gate results, cost data
-2. The retro-analyst writes a report to `.sniper/retros/{protocol_id}.yaml`, extracts learnings to `.sniper/memory/learnings/`, updates `.sniper/memory/velocity.yaml`, and checks effectiveness of previously applied learnings
-3. Run the retro gate checklist (retro report exists + velocity updated)
+1. Spawn `retro-analyst` as a single-agent phase with: protocol ID, checkpoint history, gate results
+2. The retro-analyst writes a report to `.sniper/retros/{protocol_id}.yaml`, extracts learnings to `.sniper/memory/learnings/`, and checks effectiveness of previously applied learnings
+3. Run the retro gate checklist (retro report exists)
 
 ## Reference: Review Gate Feedback Capture
 

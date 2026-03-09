@@ -24,9 +24,4 @@ gate_results: []
 #   result: pass
 #   timestamp: ""
 
-cost:
-  tokens_used: 0
-  budget: 0
-  percent: 0
-
 next_action: ""  # Human-readable description of what's next

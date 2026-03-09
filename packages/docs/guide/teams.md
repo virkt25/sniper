@@ -127,7 +127,7 @@ SNIPER v3 includes 12 agent definitions:
 | lead-orchestrator | Orchestration and delegation (read-only, scoped to `.sniper/`) |
 | product-manager | Requirements, PRD, and story creation |
 | qa-engineer | Test writing and quality assurance |
-| retro-analyst | Retrospective analysis and velocity tracking |
+| retro-analyst | Retrospective analysis and learning capture |
 
 ## Agent Spawn Strategy
 

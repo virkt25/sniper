@@ -77,9 +77,8 @@ headless:
 |------|---------|
 | `0` | Success (all gates passed) |
 | `1` | Gate failure (a review gate rejected the output) |
-| `2` | Cost exceeded (token budget was exceeded) |
-| `3` | Timeout (execution exceeded the time limit) |
-| `4` | Configuration error (invalid config or protocol) |
+| `2` | Timeout (execution exceeded the time limit) |
+| `3` | Configuration error (invalid config or protocol) |
 
 ## Output Formats
 
@@ -89,7 +88,7 @@ headless:
 sniper run patch --output json --auto-approve
 ```
 
-Returns a structured JSON object with protocol results, gate evaluations, artifact paths, and token usage.
+Returns a structured JSON object with protocol results, gate evaluations, and artifact paths.
 
 ### YAML
 

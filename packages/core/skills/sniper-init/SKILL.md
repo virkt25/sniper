@@ -76,7 +76,6 @@ Create the following directory structure:
   memory/
     learnings/             ← Unified learning store (replaces signals/)
     signals/               ← Legacy — kept for backward compat, migrated by memory-curator
-    velocity.yaml
     archive/               ← Deprecated learnings archived here
 .claude/
   agents/                  ← Copied from @sniper.ai/core/agents/

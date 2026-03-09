@@ -109,9 +109,7 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 | `workspace-config.yaml` | YAML | Workspace configuration |
 | `knowledge-manifest.yaml` | YAML | Knowledge base manifest |
 | `checkpoint.yaml` | YAML | Protocol checkpoint state |
-| `cost.yaml` | YAML | Token cost tracking |
 | `live-status.yaml` | YAML | Live protocol status |
-| `velocity.yaml` | YAML | Velocity calibration data |
 | `signal-record.yaml` | YAML | Signal event record |
 
 ## Checklists

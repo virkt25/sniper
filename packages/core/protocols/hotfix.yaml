@@ -1,6 +1,5 @@
 name: hotfix
 description: Critical fix — fastest path to production
-budget: 100000  # 100K tokens
 
 phases:
   - name: implement

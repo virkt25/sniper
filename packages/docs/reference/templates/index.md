@@ -30,9 +30,7 @@ Templates define the structure of artifacts produced by SNIPER agents during pro
 | Template | Format | Description |
 |----------|--------|-------------|
 | [Checkpoint](/reference/templates/checkpoint) | YAML | Phase checkpoint — snapshot of protocol state |
-| [Cost](/reference/templates/cost) | YAML | Cost tracking for protocol execution — token usage and budgets |
 | [Live Status](/reference/templates/live-status) | YAML | Real-time protocol progress |
-| [Velocity](/reference/templates/velocity) | YAML | Protocol execution history and calibrated budgets |
 
 ### Signals & Knowledge
 

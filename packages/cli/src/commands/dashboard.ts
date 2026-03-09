@@ -21,11 +21,6 @@ interface Checkpoint {
   timestamp: string;
   status: string;
   agents?: CheckpointAgent[];
-  token_usage?: {
-    phase_tokens?: number;
-    cumulative_tokens?: number;
-    budget_remaining?: number;
-  };
 }
 
 interface GateResult {
@@ -37,32 +32,13 @@ interface GateResult {
   protocol?: string;
 }
 
-interface VelocityExecution {
-  protocol: string;
-  completed_at: string;
-  wall_clock_seconds?: number;
-  tokens_used: number;
-  tokens_per_phase?: Record<string, number>;
-}
-
-interface Velocity {
-  executions?: VelocityExecution[];
-  calibrated_budgets?: Record<string, number>;
-  rolling_averages?: Record<string, number>;
-}
-
 interface DashboardData {
-  cost_breakdown: {
-    by_protocol: Record<string, { phase_tokens: number; cumulative_tokens: number; phases: string[] }>;
-    by_agent: Record<string, { tokens: number; tasks_completed: number; tasks_total: number }>;
-  };
-  performance_trends: {
-    executions: VelocityExecution[];
-    calibrated_budgets: Record<string, number>;
-    rolling_averages: Record<string, number>;
+  agent_summary: {
+    by_protocol: Record<string, { phases: string[] }>;
+    by_agent: Record<string, { tasks_completed: number; tasks_total: number }>;
   };
   gate_pass_rates: Record<string, { pass: number; fail: number; total_checks: number }>;
-  agent_efficiency: Record<string, { tokens_per_task: number; total_tokens: number; total_tasks: number }>;
+  agent_efficiency: Record<string, { total_tasks: number }>;
   timeline: Array<{ timestamp: string; type: string; protocol: string; phase?: string; status: string }>;
 }
 
@@ -85,50 +61,36 @@ async function readYamlDir<T>(dirPath: string): Promise<T[]> {
   return results;
 }
 
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return String(n);
-}
-
 // ── Data aggregation ──
 
 function aggregateData(
   checkpoints: Checkpoint[],
   gates: GateResult[],
-  velocity: Velocity | null,
   protocolFilter?: string,
 ): DashboardData {
   const filtered = protocolFilter
     ? checkpoints.filter((c) => c.protocol === protocolFilter)
     : checkpoints;
 
-  // Cost breakdown by protocol
-  const byProtocol: DashboardData["cost_breakdown"]["by_protocol"] = {};
+  // Summary by protocol
+  const byProtocol: DashboardData["agent_summary"]["by_protocol"] = {};
   for (const cp of filtered) {
     if (!byProtocol[cp.protocol]) {
-      byProtocol[cp.protocol] = { phase_tokens: 0, cumulative_tokens: 0, phases: [] };
+      byProtocol[cp.protocol] = { phases: [] };
     }
     const entry = byProtocol[cp.protocol];
-    entry.phase_tokens += cp.token_usage?.phase_tokens ?? 0;
-    if (cp.token_usage?.cumulative_tokens && cp.token_usage.cumulative_tokens > entry.cumulative_tokens) {
-      entry.cumulative_tokens = cp.token_usage.cumulative_tokens;
-    }
     if (!entry.phases.includes(cp.phase)) {
       entry.phases.push(cp.phase);
     }
   }
 
-  // Cost breakdown by agent
-  const byAgent: DashboardData["cost_breakdown"]["by_agent"] = {};
+  // Summary by agent
+  const byAgent: DashboardData["agent_summary"]["by_agent"] = {};
   for (const cp of filtered) {
-    const agentCount = cp.agents?.length ?? 1;
-    const tokensPerAgent = agentCount > 0 ? (cp.token_usage?.phase_tokens ?? 0) / agentCount : 0;
     for (const agent of cp.agents ?? []) {
       if (!byAgent[agent.name]) {
-        byAgent[agent.name] = { tokens: 0, tasks_completed: 0, tasks_total: 0 };
+        byAgent[agent.name] = { tasks_completed: 0, tasks_total: 0 };
       }
-      byAgent[agent.name].tokens += tokensPerAgent;
       byAgent[agent.name].tasks_completed += agent.tasks_completed;
       byAgent[agent.name].tasks_total += agent.tasks_total;
     }
@@ -149,22 +111,13 @@ function aggregateData(
     gateRates[key].total_checks += g.total_checks;
   }
 
-  // Agent efficiency (tokens per task)
+  // Agent efficiency
   const agentEfficiency: DashboardData["agent_efficiency"] = {};
   for (const [name, data] of Object.entries(byAgent)) {
-    const totalTasks = data.tasks_completed || 1;
     agentEfficiency[name] = {
-      tokens_per_task: Math.round(data.tokens / totalTasks),
-      total_tokens: Math.round(data.tokens),
       total_tasks: data.tasks_completed,
     };
   }
-
-  // Performance trends
-  const executions = velocity?.executions ?? [];
-  const filteredExecs = protocolFilter
-    ? executions.filter((e) => e.protocol === protocolFilter)
-    : executions;
 
   // Timeline (merge checkpoints and gates, sorted by timestamp)
   const timeline: DashboardData["timeline"] = [];
@@ -189,12 +142,7 @@ function aggregateData(
   timeline.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
   return {
-    cost_breakdown: { by_protocol: byProtocol, by_agent: byAgent },
-    performance_trends: {
-      executions: filteredExecs,
-      calibrated_budgets: velocity?.calibrated_budgets ?? {},
-      rolling_averages: velocity?.rolling_averages ?? {},
-    },
+    agent_summary: { by_protocol: byProtocol, by_agent: byAgent },
     gate_pass_rates: gateRates,
     agent_efficiency: agentEfficiency,
     timeline: timeline.slice(0, 20),
@@ -203,52 +151,28 @@ function aggregateData(
 
 // ── Formatted output ──
 
-function renderDashboard(data: DashboardData, config: Awaited<ReturnType<typeof readConfig>>): void {
-  // 1. Cost Breakdown
-  p.log.step("Cost Breakdown");
-  const protocols = Object.entries(data.cost_breakdown.by_protocol);
+function renderDashboard(data: DashboardData): void {
+  // 1. Agent Summary
+  p.log.step("Agent Summary");
+  const protocols = Object.entries(data.agent_summary.by_protocol);
   if (protocols.length === 0) {
     console.log("  No checkpoint data found.");
   } else {
     for (const [protocol, info] of protocols) {
-      const budget = config.routing.budgets[protocol];
-      const budgetStr = budget ? ` / ${formatTokens(budget)} budget` : "";
-      console.log(`  ${protocol}: ${formatTokens(info.cumulative_tokens)} cumulative${budgetStr}`);
-      console.log(`    Phase tokens: ${formatTokens(info.phase_tokens)} across ${info.phases.length} phase(s)`);
+      console.log(`  ${protocol}: ${info.phases.length} phase(s)`);
     }
   }
 
-  const agents = Object.entries(data.cost_breakdown.by_agent);
+  const agents = Object.entries(data.agent_summary.by_agent);
   if (agents.length > 0) {
     console.log("");
     console.log("  By Agent:");
     for (const [name, info] of agents) {
-      console.log(`    ${name.padEnd(24)} ${formatTokens(info.tokens).padStart(8)} tokens  (${info.tasks_completed}/${info.tasks_total} tasks)`);
+      console.log(`    ${name.padEnd(24)} ${info.tasks_completed}/${info.tasks_total} tasks`);
     }
   }
 
-  // 2. Performance Trends
-  p.log.step("Performance Trends");
-  const execs = data.performance_trends.executions;
-  if (execs.length === 0) {
-    console.log("  No execution history found.");
-  } else {
-    const byProto: Record<string, VelocityExecution[]> = {};
-    for (const e of execs) {
-      if (!byProto[e.protocol]) byProto[e.protocol] = [];
-      byProto[e.protocol].push(e);
-    }
-    for (const [proto, runs] of Object.entries(byProto)) {
-      const avg = Math.round(runs.reduce((s, r) => s + r.tokens_used, 0) / runs.length);
-      const calibrated = data.performance_trends.calibrated_budgets[proto];
-      const rolling = data.performance_trends.rolling_averages[proto];
-      console.log(`  ${proto}: ${runs.length} execution(s), avg ${formatTokens(avg)} tokens`);
-      if (rolling) console.log(`    Rolling average: ${formatTokens(rolling)}`);
-      if (calibrated) console.log(`    Calibrated budget (p75): ${formatTokens(calibrated)}`);
-    }
-  }
-
-  // 3. Gate Pass Rates
+  // 2. Gate Pass Rates
   p.log.step("Gate Pass Rates");
   const gateEntries = Object.entries(data.gate_pass_rates);
   if (gateEntries.length === 0) {
@@ -269,7 +193,7 @@ function renderDashboard(data: DashboardData, config: Awaited<ReturnType<typeof 
     console.log("  No agent data found.");
   } else {
     for (const [name, info] of effEntries) {
-      console.log(`  ${name.padEnd(24)} ${formatTokens(info.tokens_per_task).padStart(8)} tokens/task  (${info.total_tasks} tasks, ${formatTokens(info.total_tokens)} total)`);
+      console.log(`  ${name.padEnd(24)} ${info.total_tasks} tasks`);
     }
   }
 
@@ -292,7 +216,7 @@ function renderDashboard(data: DashboardData, config: Awaited<ReturnType<typeof 
 export const dashboardCommand = defineCommand({
   meta: {
     name: "dashboard",
-    description: "Show observability dashboard with cost, performance, gates, and agent metrics",
+    description: "Show observability dashboard with performance, gates, and agent metrics",
   },
   args: {
     protocol: {
@@ -314,26 +238,15 @@ export const dashboardCommand = defineCommand({
       process.exit(1);
     }
 
-    const config = await readConfig(cwd);
+    await readConfig(cwd);
 
     // Read data sources
     const sniperDir = join(cwd, ".sniper");
     const checkpoints = await readYamlDir<Checkpoint>(join(sniperDir, "checkpoints"));
     const gates = await readYamlDir<GateResult>(join(sniperDir, "gates"));
 
-    let velocity: Velocity | null = null;
-    const velocityPath = join(sniperDir, "memory", "velocity.yaml");
-    if (await pathExists(velocityPath)) {
-      try {
-        const raw = await readFile(velocityPath, "utf-8");
-        velocity = YAML.parse(raw) as Velocity;
-      } catch {
-        // Skip if unparseable
-      }
-    }
-
     const protocolFilter = args.protocol || undefined;
-    const data = aggregateData(checkpoints, gates, velocity, protocolFilter);
+    const data = aggregateData(checkpoints, gates, protocolFilter);
 
     if (args.json) {
       console.log(JSON.stringify(data, null, 2));
@@ -345,13 +258,13 @@ export const dashboardCommand = defineCommand({
       : "SNIPER Dashboard";
     p.intro(title);
 
-    if (checkpoints.length === 0 && gates.length === 0 && !velocity) {
+    if (checkpoints.length === 0 && gates.length === 0) {
       p.log.info("No observability data found yet. Run a protocol to generate metrics.");
       p.outro("");
       return;
     }
 
-    renderDashboard(data, config);
+    renderDashboard(data);
 
     p.outro("");
   },

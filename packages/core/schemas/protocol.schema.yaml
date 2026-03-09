@@ -6,7 +6,6 @@ type: object
 required:
   - name
   - description
-  - budget
   - phases
 properties:
   name:
@@ -15,10 +14,6 @@ properties:
   description:
     type: string
     description: Human-readable description of the protocol's purpose.
-  budget:
-    type: integer
-    minimum: 1
-    description: Maximum token budget for the entire protocol execution.
   phases:
     type: array
     minItems: 1

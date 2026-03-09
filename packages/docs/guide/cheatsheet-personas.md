@@ -23,7 +23,7 @@ SNIPER v3 ships 11 agent definitions. Each agent has a dedicated role, a model a
 | **code-reviewer** | opus | Multi-faceted code review: scope validation, standards enforcement, risk scoring. | `docs/` |
 | **qa-engineer** | sonnet | Writes tests, analyzes coverage, validates EARS acceptance criteria. | test files only |
 | **gate-reviewer** | haiku | Runs automated gate checks at phase boundaries. Lightweight and fast. | `.sniper/gates/` |
-| **retro-analyst** | sonnet | Post-protocol retrospective analysis. Tracks velocity and captures learnings. | `.sniper/` |
+| **retro-analyst** | sonnet | Post-protocol retrospective analysis. Captures learnings. | `.sniper/` |
 
 ### Agent groupings by protocol phase
 

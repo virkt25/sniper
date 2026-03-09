@@ -24,12 +24,6 @@ export interface SniperConfigV3 {
       feature_max_files: number;
     };
     default: string;
-    budgets: Record<string, number>;
-  };
-  cost: {
-    warn_threshold: number;
-    soft_cap: number;
-    hard_cap: number;
   };
   review?: {
     multi_model: boolean;
@@ -81,7 +75,6 @@ export interface SniperConfigV3 {
   visibility: {
     live_status: boolean;
     checkpoints: boolean;
-    cost_tracking: boolean;
     auto_retro: boolean;
   };
 }
@@ -147,7 +140,7 @@ function validateV3Config(data: unknown): SniperConfigV3 {
   const cfg = data as Record<string, unknown>;
 
   // Check required sections
-  for (const key of ["project", "agents", "routing", "cost", "stack"]) {
+  for (const key of ["project", "agents", "routing", "stack"]) {
     if (!cfg[key] || typeof cfg[key] !== "object") {
       throw new Error(`Invalid config.yaml: missing "${key}" section`);
     }
@@ -176,7 +169,6 @@ function validateV3Config(data: unknown): SniperConfigV3 {
     (cfg as Record<string, unknown>).visibility = {
       live_status: true,
       checkpoints: true,
-      cost_tracking: true,
       auto_retro: true,
     };
   }
@@ -223,18 +215,6 @@ export async function writeConfig(
   const content = YAML.stringify(config, { lineWidth: 0 });
   await writeFile(join(cwd, CONFIG_PATH), content, "utf-8");
 }
-
-// ── Default Budgets ──
-
-export const DEFAULT_BUDGETS = Object.freeze({
-  full: 2000000,
-  feature: 800000,
-  patch: 200000,
-  ingest: 1000000,
-  explore: 500000,
-  refactor: 600000,
-  hotfix: 100000,
-} as const);
 
 // ── Core Path Resolution ──
 

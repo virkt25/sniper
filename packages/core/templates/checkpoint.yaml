@@ -19,9 +19,4 @@ artifacts_produced: []
 # - path: .sniper/artifacts/spec.md
 #   status: draft | complete
 
-token_usage:
-  phase_tokens: 0
-  cumulative_tokens: 0
-  budget_remaining: 0
-
 notes: ""

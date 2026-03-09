@@ -1,6 +1,5 @@
 name: patch
 description: Quick fix — implement and review only
-budget: 200000  # 200K tokens
 
 phases:
   - name: implement

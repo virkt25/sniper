@@ -106,45 +106,13 @@ When agents are spawned, relevant signals are injected into their context:
 
 This means if a test failed because of a date mocking issue last week, the developer agent spawned this week receives that learning automatically.
 
-## Velocity Calibration
-
-The retro-analyst agent records execution metrics after each protocol completes:
-
-```yaml
-# .sniper/memory/velocity.yaml
-executions:
-  - protocol: feature
-    completed_at: "2025-12-15T14:30:00Z"
-    wall_clock_seconds: 1200
-    tokens_used: 650000
-    tokens_per_phase:
-      plan: 150000
-      implement: 400000
-      review: 100000
-calibrated_budgets:
-  feature: 700000
-  patch: 180000
-rolling_averages:
-  feature: 620000
-  patch: 165000
-```
-
-After 5+ executions of a protocol, SNIPER uses the calibrated p75 budget instead of the configured default. This means:
-
-- Token budgets automatically adjust to your project's reality
-- Protocols that consistently run under budget get tighter budgets
-- Protocols that consistently exceed budget get more room
-- View calibrated budgets with `/sniper-status`
-
 ## Retrospectives
 
 After protocols with `auto_retro: true` complete, the retro-analyst:
 
-1. Collects execution metrics (tokens, duration, agent count)
-2. Analyzes gate results (what passed, what failed, what was borderline)
-3. Reviews signal history for the protocol run
-4. Generates recommendations
-5. Updates velocity tracking
+1. Analyzes gate results (what passed, what failed, what was borderline)
+2. Reviews signal history for the protocol run
+3. Generates recommendations
 
 Retrospective output is stored in `.sniper/memory/retros/`.
 
@@ -155,7 +123,6 @@ Enable the learning system in `.sniper/config.yaml`:
 ```yaml
 visibility:
   auto_retro: true        # Run retrospectives after protocol completion
-  cost_tracking: true     # Track token usage per phase and agent
 
 memory:
   enabled: true

@@ -36,8 +36,3 @@ checks:
     description: No unresolved open questions remain
     check: "!grep:.sniper/artifacts/{protocol_id}/plan.md:\\*\\*TBD\\*\\*|\\*\\*TODO\\*\\*|\\*\\*OPEN\\*\\*"
     blocking: false
-
-  - id: token_budget
-    description: Architecture plan within character budget (~4000 tokens = 16000 chars)
-    check: wc:.sniper/artifacts/{protocol_id}/plan.md:<16000
-    blocking: false

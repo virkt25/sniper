@@ -54,7 +54,7 @@ The CLI will scaffold the project directories with all framework files:
   protocols/            # Protocol state and progress
   knowledge/            # Knowledge files for agent context
   memory/
-    signals/            # Velocity and execution signals
+    signals/            # Runtime signals from hooks and agents
   checklists/           # Review gate checklists (.yaml files)
   config.yaml           # Project configuration
 .claude/

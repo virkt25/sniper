@@ -88,7 +88,7 @@ Process frameworks define what to do but leave execution to the user. SNIPER is 
 
 - Define the process (protocols, phases, gates)
 - Execute the process (spawn agents, coordinate teams, evaluate gates)
-- Learn from the process (signals, retros, velocity calibration)
+- Learn from the process (signals, retros)
 
 ## When to Use SNIPER
 

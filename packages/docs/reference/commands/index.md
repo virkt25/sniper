@@ -15,7 +15,7 @@ SNIPER v3 provides five slash commands invoked in Claude Code. The core command 
 | [`/sniper-flow-headless`](/reference/commands/sniper-flow-headless) | Execute a protocol non-interactively for CI/CD environments |
 | [`/sniper-init`](/reference/commands/sniper-init) | Initialize SNIPER v3 in a new or existing project |
 | [`/sniper-review`](/reference/commands/sniper-review) | Manually trigger a review gate for the current phase |
-| [`/sniper-status`](/reference/commands/sniper-status) | Show current protocol progress and cost |
+| [`/sniper-status`](/reference/commands/sniper-status) | Show current protocol progress |
 
 ## Quick Start
 
@@ -59,7 +59,7 @@ All commands follow this pattern:
 1. **State check** — verify SNIPER is initialized and determine the current phase
 2. **Protocol selection** — auto-detect or use the specified protocol
 3. **Agent spawning** — spawn specialized agents defined by the protocol
-4. **Phase execution** — agents produce artifacts within token budgets
+4. **Phase execution** — agents produce artifacts
 5. **Quality gate** — review checklist evaluation before advancing
 
 ::: tip

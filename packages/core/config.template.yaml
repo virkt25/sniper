@@ -44,16 +44,6 @@ routing:
   # Default protocol when auto-detect is ambiguous
   default: feature
 
-  # Protocol token budgets (override protocol defaults)
-  budgets:
-    full: 2000000
-    feature: 800000
-    patch: 200000
-    ingest: 1000000
-    explore: 500000
-    refactor: 600000
-    hotfix: 100000
-
 # Trigger tables — map file patterns to agents or protocols
 # Example:
 #   - pattern: "src/api/**"
@@ -63,12 +53,6 @@ routing:
 #   - pattern: "infrastructure/**"
 #     protocol: full
 triggers: []
-
-# Cost enforcement
-cost:
-  warn_threshold: 0.7       # Warn at 70% of budget
-  soft_cap: 0.9              # Soft cap at 90% — agents must justify continuing
-  hard_cap: 1.0              # Hard cap at 100% — stop execution
 
 # Review configuration
 review:
@@ -161,5 +145,4 @@ learning:
 visibility:
   live_status: true          # Maintain .sniper/live-status.yaml
   checkpoints: true          # Write phase checkpoints
-  cost_tracking: true        # Track token usage
   # auto_retro: true         # DEPRECATED — use retro phase in protocols instead

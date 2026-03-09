@@ -135,7 +135,7 @@ After implementation completes, `/sniper-flow` advances to the review phase.
 
 Typically `human_approval: true` for this phase -- the human reviews the code-reviewer's findings and the actual code changes before approving.
 
-After the review passes, a retrospective automatically runs if `auto_retro` is enabled in the visibility config. The retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`.
+After the review passes, a retrospective automatically runs if `auto_retro` is enabled in the visibility config.
 
 ## Recovery
 
@@ -147,7 +147,7 @@ If any phase produces poor output:
 
 ## Resume and Checkpoints
 
-Every protocol run creates checkpoints in `.sniper/checkpoints/<protocol-id>/`. If a run is interrupted -- terminal closed, agent crash, budget exhaustion -- resume from the last checkpoint:
+Every protocol run creates checkpoints in `.sniper/checkpoints/<protocol-id>/`. If a run is interrupted -- terminal closed, agent crash, user stops -- resume from the last checkpoint:
 
 ```
 /sniper-flow --resume
@@ -158,40 +158,7 @@ Resume reads the latest checkpoint, identifies incomplete agents and their last 
 ### What Checkpoints Contain
 
 - **Event log** (`events.jsonl`) -- append-only log of every agent action and phase transition. Enables precise recovery.
-- **Phase snapshot** (`<protocol-id>-<phase>.yaml`) -- human-readable summary with agent status, artifacts produced, files touched, token usage, and a structured context summary for agent respawn.
-- **Cost tracking** (`cost.yaml`) -- cumulative token usage by agent.
-
-## Cost Tracking and Budget Enforcement
-
-Each protocol has a configurable token budget in `.sniper/config.yaml`:
-
-```yaml
-cost:
-  budgets:
-    full: 2000000       # 2M tokens
-    feature: 800000     # 800K tokens
-    patch: 200000       # 200K tokens
-    hotfix: 100000      # 100K tokens
-    explore: 500000     # 500K tokens
-    refactor: 600000    # 600K tokens
-    ingest: 1000000     # 1M tokens
-  hard_cap_multiplier: 1.2
-  alert_threshold: 0.7
-```
-
-### Enforcement Tiers
-
-| Tier | Threshold | What Happens |
-|------|-----------|--------------|
-| Warning | 70% consumed | Lead agent notified, human gets status update |
-| Soft cap | 100% consumed | Agents wrap up current work, no new tasks spawned |
-| Hard cap | 120% consumed | All agents halted, checkpoint written, human must resume with budget extension |
-
-A `PostToolUse` hook tracks token usage per agent. Per-agent sub-budgets prevent one agent from consuming the entire protocol budget.
-
-### Loop Detection
-
-If an agent makes more than 5 consecutive tool calls without producing new output (reading the same files repeatedly, attempting the same edits), the hook flags it as a potential loop and pauses the agent. The lead is notified to reassign or refine the task.
+- **Phase snapshot** (`<protocol-id>-<phase>.yaml`) -- human-readable summary with agent status, artifacts produced, files touched, and a structured context summary for agent respawn.
 
 ## Alternative Protocols
 
