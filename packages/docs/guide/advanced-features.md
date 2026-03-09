@@ -1,6 +1,6 @@
 ---
 title: Advanced Features
-description: Trigger tables, multi-model review, spec sync, logical revert, and velocity calibration
+description: Trigger tables, multi-model review, spec sync, and logical revert
 ---
 
 # Advanced Features
@@ -96,7 +96,7 @@ review:
 - **Pre-production releases** -- extra confidence before shipping
 
 ::: tip
-Multi-model review doubles or triples your token spend per gate. Use it selectively on high-stakes phases rather than everywhere.
+Multi-model review runs the gate evaluation multiple times. Use it selectively on high-stakes phases rather than everywhere.
 :::
 
 ## Spec Sync

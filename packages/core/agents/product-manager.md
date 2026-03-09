@@ -41,7 +41,7 @@ Use the EARS (Easy Approach to Requirements Syntax) patterns:
 ## Output Artifacts
 
 - `.sniper/artifacts/{protocol_id}/prd.md` — Product requirements for this protocol run (use `prd.md` template)
-- `.sniper/artifacts/{protocol_id}/stories/*.md` — Individual stories (use `story.md` template, 1500 token budget each)
+- `.sniper/artifacts/{protocol_id}/stories/*.md` — Individual stories (use `story.md` template)
   - The `{protocol_id}` (e.g., `SNPR-20260307-a3f2`) is provided by the orchestrator when spawning you
   - These are per-run snapshots that preserve the plan history
 

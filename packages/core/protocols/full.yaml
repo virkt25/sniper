@@ -1,6 +1,5 @@
 name: full
 description: Complete project lifecycle — discovery through review
-budget: 2000000  # 2M tokens
 
 phases:
   - name: discover
@@ -91,7 +90,6 @@ phases:
       human_approval: false
     outputs:
       - .sniper/retros/{protocol_id}.yaml
-      - .sniper/memory/velocity.yaml
       - .sniper/memory/learnings/
 
   - name: curate

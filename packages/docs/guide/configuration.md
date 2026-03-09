@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Configure .sniper/config.yaml — agents, protocols, budgets, gates, triggers, and plugins
+description: Configure .sniper/config.yaml — agents, protocols, gates, triggers, and plugins
 ---
 
 # Configuration
@@ -89,8 +89,8 @@ agents:
 ```
 
 - **default_model** is used for implementation and review agents
-- **planning_model** is used for the plan phase, where higher quality output justifies the cost
-- **max_teammates** limits the number of simultaneous agents to manage token budgets
+- **planning_model** is used for the plan phase, where higher quality output is important
+- **max_teammates** limits the number of simultaneous agents
 - **plan_approval** requires agents to describe their approach before executing
 - **coordination_timeout** triggers a check-in if a teammate has not reported progress
 - **base** lists the agent names available to protocols (must match agent definitions in `.claude/agents/`)
@@ -118,7 +118,7 @@ sniper plugin list
 
 ## Routing
 
-Controls protocol auto-detection and token budgets:
+Controls protocol auto-detection:
 
 ```yaml
 routing:
@@ -126,26 +126,9 @@ routing:
     patch_max_files: 3          # Max changed files to auto-select patch protocol
     feature_max_files: 10       # Max changed files to auto-select feature protocol
   default: full                 # Default protocol when auto-detect is inconclusive
-  budgets:                      # Token budgets per protocol (overridden by velocity calibration after 5+ runs)
-    full: 200000
-    feature: 100000
-    patch: 30000
 ```
 
 When you run `/sniper-flow` without specifying a protocol, SNIPER uses these thresholds to auto-detect the right protocol scope based on changed files.
-
-## Cost
-
-Controls cost tracking and guardrails:
-
-```yaml
-cost:
-  warn_threshold: 5.00        # Warn when cumulative cost exceeds this (USD)
-  soft_cap: 15.00             # Prompt for confirmation before continuing
-  hard_cap: 50.00             # Abort execution at this threshold
-```
-
-Cost is tracked per protocol execution in `.sniper/checkpoints/`. Use `/sniper-status` to view current cost.
 
 ## Review (Optional)
 
@@ -226,11 +209,10 @@ Controls what runtime data SNIPER tracks and displays:
 visibility:
   live_status: true           # Show real-time agent status during execution
   checkpoints: true           # Save phase checkpoints to .sniper/checkpoints/
-  cost_tracking: true         # Track token usage and cost per protocol run
   auto_retro: true            # Auto-run retrospective after protocol completion
 ```
 
-When `auto_retro` is enabled, the retro-analyst agent records execution metrics to `.sniper/memory/velocity.yaml` after each protocol run. After 5+ executions, calibrated budgets (p75) replace configured defaults.
+When `auto_retro` is enabled, the retro-analyst agent runs automatically after each protocol completion, updating memory files in `.sniper/memory/`.
 
 ## Triggers (Optional)
 

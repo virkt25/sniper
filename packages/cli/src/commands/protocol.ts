@@ -31,10 +31,6 @@ function validateProtocol(data: unknown): ValidationError[] {
   if (typeof proto.description !== "string" || proto.description.length === 0) {
     errors.push({ path: "description", message: "Required string field" });
   }
-  if (typeof proto.budget !== "number" || !Number.isInteger(proto.budget) || proto.budget < 1) {
-    errors.push({ path: "budget", message: "Required positive integer" });
-  }
-
   // Optional boolean
   if (proto.auto_retro !== undefined && typeof proto.auto_retro !== "boolean") {
     errors.push({ path: "auto_retro", message: "Must be a boolean" });
@@ -163,23 +159,6 @@ const createSubcommand = defineCommand({
       process.exit(0);
     }
 
-    const budgetStr = await p.text({
-      message: "Token budget:",
-      placeholder: "500000",
-      initialValue: "500000",
-      validate: (val) => {
-        const n = Number(val);
-        if (!Number.isInteger(n) || n < 1) return "Must be a positive integer";
-      },
-    });
-
-    if (p.isCancel(budgetStr)) {
-      p.cancel("Cancelled.");
-      process.exit(0);
-    }
-
-    const budget = Number(budgetStr);
-
     // Read the template from core
     let templateContent: string;
     try {
@@ -193,7 +172,6 @@ const createSubcommand = defineCommand({
       templateContent = YAML.stringify({
         name: args.name,
         description: description as string,
-        budget,
         phases: [
           {
             name: "implement",
@@ -214,14 +192,14 @@ const createSubcommand = defineCommand({
       const parsed = YAML.parse(templateContent) as Record<string, unknown>;
       parsed.name = protocolName;
       parsed.description = description as string;
-      parsed.budget = budget;
+      delete parsed.budget;
       content = YAML.stringify(parsed, { lineWidth: 0 });
     } catch {
       // Fallback to regex substitution for non-standard templates
       content = templateContent
         .replace(/^name: .+$/m, `name: ${protocolName}`)
         .replace(/^description: .+$/m, `description: ${YAML.stringify(description as string).trim()}`)
-        .replace(/^budget: .+$/m, `budget: ${budget}`);
+        .replace(/^budget: .+\n?/m, "");
     }
 
     // Ensure directory exists

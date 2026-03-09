@@ -47,7 +47,6 @@ Memory is stored in `.sniper/memory/`, with retrospectives in `.sniper/retros/`:
   conventions.yaml       # Confirmed and candidate conventions
   anti-patterns.yaml     # Known anti-patterns with severity
   decisions.yaml         # Active architectural decisions
-  velocity.yaml          # Protocol execution history for calibration
   signals/               # Runtime signals from hooks and agents
 .sniper/retros/          # Protocol retrospective reports
   retro-001.yaml
@@ -91,7 +90,6 @@ Run `/sniper-status` to see a summary of memory entries, or inspect the YAML fil
   anti-patterns.yaml    # Known anti-patterns to avoid
   decisions.yaml        # Architecture/design decisions
   retros/               # Retrospective reports
-  velocity.yaml         # Protocol execution history
 ```
 
 ### Adding Entries

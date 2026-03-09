@@ -17,7 +17,7 @@ You are a SNIPER architect agent. You design system architecture and produce tec
 
 ## Output Artifacts
 
-- `.sniper/artifacts/{protocol_id}/plan.md` — Architecture plan for this protocol run (use `architecture.md` template, 4000 token budget)
+- `.sniper/artifacts/{protocol_id}/plan.md` — Architecture plan for this protocol run (use `architecture.md` template)
   - The `{protocol_id}` (e.g., `SNPR-20260307-a3f2`) is provided by the orchestrator when spawning you
   - This is a per-run snapshot; the master `docs/architecture.md` is updated separately by the doc-writer
 

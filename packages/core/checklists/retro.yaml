@@ -7,9 +7,3 @@ checks:
     type: file_exists
     path: ".sniper/retros/{protocol_id}.yaml"
     blocking: true
-
-  - id: velocity_updated
-    description: Velocity data updated
-    type: file_exists
-    path: ".sniper/memory/velocity.yaml"
-    blocking: true

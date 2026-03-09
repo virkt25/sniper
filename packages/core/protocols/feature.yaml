@@ -1,6 +1,5 @@
 name: feature
 description: Incremental feature — define, design, solve, implement, review, retro
-budget: 800000  # 800K tokens
 
 phases:
   - name: define
@@ -75,5 +74,4 @@ phases:
       human_approval: false
     outputs:
       - .sniper/retros/{protocol_id}.yaml
-      - .sniper/memory/velocity.yaml
       - .sniper/memory/learnings/

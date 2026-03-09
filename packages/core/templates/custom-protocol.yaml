@@ -13,10 +13,6 @@ name: my-protocol
 # description (required): What this protocol accomplishes.
 description: Describe the goal of your custom protocol
 
-# budget (required): Maximum token budget for the entire execution.
-# Common ranges: 100K (hotfix), 800K (feature), 2M (full lifecycle)
-budget: 500000
-
 # phases (required): Ordered list of phases. Each phase runs sequentially.
 # The protocol engine executes phases top-to-bottom, gating between each.
 phases:
@@ -94,10 +90,10 @@ phases:
       - .sniper/artifacts/{protocol_id}/review-report.md
 
   # ── Phase 4: Retro (recommended) ──────────────────────────
-  # Runs the retro-analyst to extract learnings, update velocity, and check
+  # Runs the retro-analyst to extract learnings and check
   # learning effectiveness. Replaces the old auto_retro flag.
   - name: retro
-    description: Retrospective — extract learnings and update velocity
+    description: Retrospective — extract learnings
     agents:
       - retro-analyst
     spawn_strategy: single
@@ -106,7 +102,6 @@ phases:
       human_approval: false
     outputs:
       - .sniper/retros/{protocol_id}.yaml
-      - .sniper/memory/velocity.yaml
       - .sniper/memory/learnings/
 
   # ── Phase 5: Curate (optional) ────────────────────────────

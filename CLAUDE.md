@@ -40,9 +40,9 @@ pnpm release        # Build + publish with changesets
 - `packages/core/skills/` — Skill definitions (SKILL.md files → slash commands)
 - `packages/core/protocols/` — Protocol state machines (full, feature, patch, ingest, explore, refactor, hotfix)
 - `packages/core/checklists/` — Quality gate checklists
-- `packages/core/templates/` — Artifact templates with token budgets
+- `packages/core/templates/` — Artifact templates
 - `packages/core/hooks/` — Claude Code hook definitions
-- `packages/core/schemas/` — Runtime data schemas (checkpoint, cost, live-status, retro, gate-result, velocity)
+- `packages/core/schemas/` — Runtime data schemas (checkpoint, live-status, retro, gate-result)
 - `packages/cli/src/` — CLI source (commands, scaffolder, plugin-manager, config)
 - `packages/plugins/` — Language plugins
 - `docs/` — Project documentation
@@ -65,7 +65,6 @@ Language-specific extensions with `plugin.yaml` manifests defining commands, con
 ### v3.1 Features
 
 - **Phased Interactive Review** — Human review gates after discovery (brief), after define (PRD), after design (architecture), and after solve (stories). PRD-first flow: requirements are defined before architecture. Story status is tracked in `live-status.yaml` and story frontmatter.
-- **Velocity Calibration** — Retro-analyst records execution metrics to `.sniper/memory/velocity.yaml`. After 5+ executions of a protocol, calibrated budgets (p75) are used instead of configured defaults. Visible via `/sniper-status`.
 - **Multi-Faceted Review** — Code reviewer evaluates across three dimensions: scope validation, standards enforcement, and risk scoring (critical/high/medium/low severity).
 - **Multi-Model Review** — Optional gate review with multiple models. Configure `review.multi_model: true` in config. Supports consensus or majority-wins modes.
 - **Trigger Tables** — Map file patterns to agents or protocols via `triggers` config. Glob-matched against changed files during auto-detection.
@@ -77,7 +76,7 @@ Language-specific extensions with `plugin.yaml` manifests defining commands, con
 - `/sniper-flow` — Execute a protocol (auto-detects scope or use `--protocol <name>`)
 - `/sniper-flow --resume` — Resume an interrupted protocol
 - `/sniper-init` — Initialize SNIPER v3 in a project
-- `/sniper-status` — Show protocol progress and cost
+- `/sniper-status` — Show protocol progress
 - `/sniper-review` — Manually trigger a review gate
 - `/sniper-learn` — Submit, review, or deprecate project learnings
 

@@ -6,13 +6,11 @@ import {
   isV2Config,
   isV3Config,
   writeConfig,
-  DEFAULT_BUDGETS,
 } from "../config.js";
 import type { SniperConfigV2, SniperConfigV3 } from "../config.js";
 import { scaffoldProject } from "../scaffolder.js";
 import { writeFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import YAML from "yaml";
 
 function migrateV2ToV3(v2: SniperConfigV2): SniperConfigV3 {
   return {
@@ -45,12 +43,6 @@ function migrateV2ToV3(v2: SniperConfigV2): SniperConfigV3 {
         feature_max_files: 20,
       },
       default: "feature",
-      budgets: { ...DEFAULT_BUDGETS },
-    },
-    cost: {
-      warn_threshold: 0.7,
-      soft_cap: 0.9,
-      hard_cap: 1.0,
     },
     review: {
       multi_model: false,
@@ -78,7 +70,6 @@ function migrateV2ToV3(v2: SniperConfigV2): SniperConfigV3 {
     visibility: {
       live_status: true,
       checkpoints: true,
-      cost_tracking: true,
       auto_retro: true,
     },
   };
@@ -133,7 +124,7 @@ export const migrateCommand = defineCommand({
     console.log("  - domain_packs → plugins");
     console.log("  - state tracking → checkpoint files");
     console.log("  + routing (auto protocol selection)");
-    console.log("  + cost enforcement");
+    console.log("  + protocol routing");
     console.log("  + visibility settings");
 
     const confirm = await p.confirm({

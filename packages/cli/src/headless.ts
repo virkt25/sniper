@@ -8,9 +8,8 @@ import YAML from "yaml";
 export enum ExitCode {
   Success = 0,
   GateFail = 1,
-  CostExceeded = 2,
-  Timeout = 3,
-  ConfigError = 4,
+  Timeout = 2,
+  ConfigError = 3,
 }
 
 // ── Interfaces ──
@@ -28,14 +27,12 @@ export interface PhaseResult {
   name: string;
   status: "completed" | "failed" | "skipped";
   gate_result?: "passed" | "failed" | "auto_approved";
-  tokens: number;
 }
 
 export interface HeadlessResult {
   exitCode: ExitCode;
   protocol: string;
   phases: PhaseResult[];
-  totalTokens: number;
   duration: number;
   errors: string[];
 }
@@ -76,7 +73,6 @@ export class HeadlessRunner {
         exitCode: ExitCode.ConfigError,
         protocol: this.options.protocol,
         phases: [],
-        totalTokens: 0,
         duration: Date.now() - startTime,
         errors: [
           `Config error: ${err instanceof Error ? err.message : String(err)}`,
@@ -90,7 +86,6 @@ export class HeadlessRunner {
         exitCode: ExitCode.ConfigError,
         protocol: this.options.protocol,
         phases: [],
-        totalTokens: 0,
         duration: Date.now() - startTime,
         errors: [
           `Invalid protocol name: "${this.options.protocol}". Must be lowercase alphanumeric with hyphens.`,
@@ -122,7 +117,6 @@ export class HeadlessRunner {
         exitCode: ExitCode.ConfigError,
         protocol: this.options.protocol,
         phases: [],
-        totalTokens: 0,
         duration: Date.now() - startTime,
         errors: [
           `Unknown protocol: "${this.options.protocol}". Available: ${BUILT_IN_PROTOCOLS.join(", ")} (or define a custom protocol in .sniper/protocols/)`,
@@ -137,7 +131,6 @@ export class HeadlessRunner {
       exitCode: ExitCode.ConfigError,
       protocol: this.options.protocol,
       phases: [],
-      totalTokens: 0,
       duration: Date.now() - startTime,
       errors: [
         "Headless mode is not yet implemented. Protocol validation passed, but no execution occurred. Use /sniper-flow interactively instead.",
@@ -153,7 +146,6 @@ export class HeadlessRunner {
             protocol: result.protocol,
             status: exitCodeToStatus(result.exitCode),
             phases: result.phases,
-            total_tokens: result.totalTokens,
             duration_seconds: Math.round(result.duration / 1000),
             errors: result.errors,
           },
@@ -166,7 +158,6 @@ export class HeadlessRunner {
           protocol: result.protocol,
           status: exitCodeToStatus(result.exitCode),
           phases: result.phases,
-          total_tokens: result.totalTokens,
           duration_seconds: Math.round(result.duration / 1000),
           errors: result.errors,
         });
@@ -180,7 +171,6 @@ export class HeadlessRunner {
             protocol: result.protocol,
             status: exitCodeToStatus(result.exitCode),
             phases: result.phases,
-            total_tokens: result.totalTokens,
             duration_seconds: Math.round(result.duration / 1000),
             errors: result.errors,
           },
@@ -199,8 +189,6 @@ function exitCodeToStatus(code: ExitCode): string {
       return "success";
     case ExitCode.GateFail:
       return "gate_fail";
-    case ExitCode.CostExceeded:
-      return "cost_exceeded";
     case ExitCode.Timeout:
       return "timeout";
     case ExitCode.ConfigError:
@@ -215,17 +203,16 @@ function formatTextTable(result: HeadlessResult): string {
   lines.push(`Protocol: ${result.protocol}`);
   lines.push(`Status:   ${status}`);
   lines.push(`Duration: ${Math.round(result.duration / 1000)}s`);
-  lines.push(`Tokens:   ${result.totalTokens}`);
 
   if (result.phases.length > 0) {
     lines.push("");
-    lines.push("Phase            Status      Gate             Tokens");
-    lines.push("---------------- ----------- ---------------- ------");
+    lines.push("Phase            Status      Gate");
+    lines.push("---------------- ----------- ----------------");
     for (const phase of result.phases) {
       const name = phase.name.padEnd(16);
       const phaseStatus = phase.status.padEnd(11);
       const gate = (phase.gate_result ?? "-").padEnd(16);
-      lines.push(`${name} ${phaseStatus} ${gate} ${phase.tokens}`);
+      lines.push(`${name} ${phaseStatus} ${gate}`);
     }
   }
 

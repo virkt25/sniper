@@ -36,7 +36,7 @@ Agent definitions are stored in `packages/core/agents/` and scaffolded into `.cl
 | `qa-engineer` | Writes tests, analyzes coverage, and validates acceptance criteria | Implement |
 | `code-reviewer` | Reviews implementations with multi-faceted scope, standards, and risk scoring | Review |
 | `gate-reviewer` | Runs automated checklist checks at phase boundaries | Review |
-| `retro-analyst` | Runs automated retrospectives and tracks velocity metrics | Post-protocol |
+| `retro-analyst` | Runs automated retrospectives and captures learnings | Post-protocol |
 | `doc-writer` | Incrementally updates project documentation after implementation phases | Post-implement |
 
 #### Complete Agent Properties

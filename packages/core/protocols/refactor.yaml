@@ -1,6 +1,5 @@
 name: refactor
 description: Code improvement — analyze, refactor, and review
-budget: 600000  # 600K tokens
 
 phases:
   - name: analyze
@@ -50,5 +49,4 @@ phases:
       human_approval: false
     outputs:
       - .sniper/retros/{protocol_id}.yaml
-      - .sniper/memory/velocity.yaml
       - .sniper/memory/learnings/

@@ -17,7 +17,7 @@ In v3, all work flows through five slash commands. The core engine (`/sniper-flo
 | [`/sniper-flow-headless`](#sniper-flow-headless) | Non-interactive execution for CI/CD pipelines |
 | [`/sniper-init`](#sniper-init) | Scaffold `.sniper/` directory and project config |
 | [`/sniper-review`](#sniper-review) | Manually trigger a quality gate review |
-| [`/sniper-status`](#sniper-status) | Show protocol progress, cost, and velocity |
+| [`/sniper-status`](#sniper-status) | Show protocol progress and recent activity |
 
 ---
 
@@ -82,9 +82,8 @@ Non-interactive variant of `/sniper-flow` for CI/CD pipelines and automation. Sa
 |------|---------|
 | `0` | Success -- all phases and gates passed |
 | `1` | Gate failure -- a blocking gate check failed |
-| `2` | Cost exceeded -- token usage hit the hard cap |
-| `3` | Timeout -- execution exceeded the `--timeout` duration |
-| `4` | Config error -- invalid config, missing protocol, or initialization failure |
+| `2` | Timeout -- execution exceeded the `--timeout` duration |
+| `3` | Config error -- invalid config, missing protocol, or initialization failure |
 
 ---
 
@@ -129,7 +128,7 @@ Spawns a gate-reviewer agent, runs the phase checklist, and writes the result to
 
 ## `/sniper-status` {#sniper-status}
 
-Display project info, active protocol progress, cost tracking, recent activity, and velocity trends. Read-only -- never modifies any files.
+Display project info, active protocol progress, and recent activity. Read-only -- never modifies any files.
 
 Takes no arguments.
 
@@ -141,15 +140,15 @@ Every protocol is a YAML state machine that defines a sequence of phases, agent 
 
 ### Protocol Summary
 
-| Protocol | Phases | Budget | Auto Retro | Use Case |
-|----------|--------|--------|------------|----------|
-| [`full`](#protocol-full) | discover &rarr; plan &rarr; implement &rarr; review | 2M tokens | Yes | New projects, major reworks |
-| [`feature`](#protocol-feature) | plan &rarr; implement &rarr; review | 800K tokens | Yes | New features (5--20 files) |
-| [`patch`](#protocol-patch) | implement &rarr; review | 200K tokens | No | Bug fixes, small changes |
-| [`ingest`](#protocol-ingest) | scan &rarr; document &rarr; extract | 1M tokens | No | Reverse-engineer existing codebases |
-| [`explore`](#protocol-explore) | discover | 500K tokens | No | Research and analysis |
-| [`refactor`](#protocol-refactor) | analyze &rarr; implement &rarr; review | 600K tokens | Yes | Code improvement, no new features |
-| [`hotfix`](#protocol-hotfix) | implement | 100K tokens | No | Critical production fixes |
+| Protocol | Phases | Auto Retro | Use Case |
+|----------|--------|------------|----------|
+| [`full`](#protocol-full) | discover &rarr; plan &rarr; implement &rarr; review | Yes | New projects, major reworks |
+| [`feature`](#protocol-feature) | plan &rarr; implement &rarr; review | Yes | New features (5--20 files) |
+| [`patch`](#protocol-patch) | implement &rarr; review | No | Bug fixes, small changes |
+| [`ingest`](#protocol-ingest) | scan &rarr; document &rarr; extract | No | Reverse-engineer existing codebases |
+| [`explore`](#protocol-explore) | discover | No | Research and analysis |
+| [`refactor`](#protocol-refactor) | analyze &rarr; implement &rarr; review | Yes | Code improvement, no new features |
+| [`hotfix`](#protocol-hotfix) | implement | No | Critical production fixes |
 
 ### `full` {#protocol-full}
 

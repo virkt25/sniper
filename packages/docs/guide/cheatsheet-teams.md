@@ -33,7 +33,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `full` -- Complete Project Lifecycle
 
-4 phases -- discover, plan, implement, review -- budget: 2M tokens -- auto-retro: yes
+4 phases -- discover, plan, implement, review -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -50,7 +50,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `feature` -- Incremental Feature
 
-3 phases -- plan, implement, review -- budget: 800K tokens -- auto-retro: yes
+3 phases -- plan, implement, review -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -66,7 +66,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `patch` -- Quick Fix
 
-2 phases -- implement, review -- budget: 200K tokens -- auto-retro: no
+2 phases -- implement, review -- auto-retro: no
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -81,7 +81,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `ingest` -- Codebase Ingestion
 
-3 phases -- scan, document, extract -- budget: 1M tokens -- auto-retro: no
+3 phases -- scan, document, extract -- auto-retro: no
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -97,7 +97,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `refactor` -- Code Improvement
 
-3 phases -- analyze, implement, review -- budget: 600K tokens -- auto-retro: yes
+3 phases -- analyze, implement, review -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -113,7 +113,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `explore` -- Exploratory Analysis
 
-1 phase -- discover -- budget: 500K tokens -- auto-retro: no
+1 phase -- discover -- auto-retro: no
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -127,7 +127,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `hotfix` -- Critical Fix
 
-1 phase -- implement -- budget: 100K tokens -- auto-retro: no
+1 phase -- implement -- auto-retro: no
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|

@@ -92,22 +92,6 @@ properties:
             - draft
             - complete
           description: Whether the artifact is a draft or complete.
-  token_usage:
-    type: object
-    description: Token consumption metrics for this phase.
-    properties:
-      phase_tokens:
-        type: integer
-        minimum: 0
-        description: Tokens consumed during this phase.
-      cumulative_tokens:
-        type: integer
-        minimum: 0
-        description: Total tokens consumed across all phases up to and including this one.
-      budget_remaining:
-        type: number
-        minimum: 0
-        description: Remaining token budget.
   commits:
     type: array
     description: Git commits made during this phase, used for logical revert.

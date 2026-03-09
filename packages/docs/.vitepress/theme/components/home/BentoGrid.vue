@@ -52,7 +52,7 @@ const cells = [
     id: 4,
     area: 'cmd',
     title: 'Headless CI/CD',
-    desc: 'Run any protocol headlessly with sniper run. Auto-approve gates, set budgets, export JSON results.',
+    desc: 'Run any protocol headlessly with sniper run. Auto-approve gates, export JSON results.',
     extended: 'GitHub Actions integration out of the box. Self-healing CI detects test failures and instructs agents to fix before proceeding.',
   },
 ]

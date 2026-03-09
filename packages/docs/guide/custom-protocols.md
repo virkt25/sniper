@@ -9,15 +9,15 @@ SNIPER ships with 7 built-in protocols (`full`, `feature`, `patch`, `ingest`, `e
 
 ## Built-in Protocols
 
-| Protocol | Budget | Phases | Use Case |
-|----------|--------|--------|----------|
-| `full` | 2M tokens | discover → plan → implement → review | Complete greenfield lifecycle |
-| `feature` | 800K tokens | plan → implement → review | Incremental feature development |
-| `patch` | 200K tokens | implement → review | Bug fixes and small changes |
-| `ingest` | 1M tokens | scan → document → extract | Reverse-engineer an existing codebase |
-| `explore` | 500K tokens | discover | Exploratory research and analysis |
-| `refactor` | 600K tokens | analyze → implement → review | Code improvement without new features |
-| `hotfix` | 100K tokens | implement | Critical emergency fix, relaxed gates |
+| Protocol | Phases | Use Case |
+|----------|--------|----------|
+| `full` | discover → plan → implement → review | Complete greenfield lifecycle |
+| `feature` | plan → implement → review | Incremental feature development |
+| `patch` | implement → review | Bug fixes and small changes |
+| `ingest` | scan → document → extract | Reverse-engineer an existing codebase |
+| `explore` | discover | Exploratory research and analysis |
+| `refactor` | analyze → implement → review | Code improvement without new features |
+| `hotfix` | implement | Critical emergency fix, relaxed gates |
 
 ## Creating a Custom Protocol
 
@@ -30,8 +30,7 @@ sniper protocol create my-protocol
 The CLI prompts you for:
 
 1. **Description** -- what the protocol does
-2. **Token budget** -- total tokens allocated
-3. **Phases** -- which phases to include
+2. **Phases** -- which phases to include
 
 This generates a YAML file at `.sniper/protocols/my-protocol.yaml`.
 
@@ -42,7 +41,6 @@ Create a YAML file following this structure:
 ```yaml
 name: api-review
 description: Focused API contract review for microservices
-budget: 400000
 
 phases:
   - name: analyze
@@ -75,7 +73,6 @@ outputs:
 |-------|------|----------|-------------|
 | `name` | string | yes | Unique protocol identifier |
 | `description` | string | yes | What the protocol does |
-| `budget` | integer | yes | Total token budget |
 | `phases` | array | yes | Ordered list of phase definitions |
 | `phases[].name` | string | yes | Phase identifier |
 | `phases[].description` | string | yes | What this phase produces |
@@ -104,8 +101,7 @@ sniper protocol validate my-protocol
 
 Checks your protocol YAML against the schema and reports errors:
 
-- Missing required fields (`name`, `description`, `budget`, `phases`)
-- Invalid budget (must be a positive integer)
+- Missing required fields (`name`, `description`, `phases`)
 - Empty phases array
 - Invalid spawn strategy (must be `single` or `team`)
 - Invalid gate configuration (human_approval must be boolean)
@@ -144,7 +140,6 @@ triggers:
 ```yaml
 name: doc-refresh
 description: Regenerate and review project documentation
-budget: 300000
 
 phases:
   - name: analyze
@@ -177,7 +172,6 @@ outputs:
 ```yaml
 name: security-deep
 description: Deep security audit with threat modeling and pen-test planning
-budget: 800000
 
 phases:
   - name: threat-model

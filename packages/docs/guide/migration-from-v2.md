@@ -28,7 +28,7 @@ The CLI reads your v2 `.sniper/config.yaml`, maps fields to the v3 schema, and w
 | State management | Config file `state` section | Checkpoints, live-status, and phase logs |
 | Quality gates | Simple pass/fail checklists | Multi-faceted review (scope, standards, risk) with severity scoring |
 | Gate enforcement | Checklist-based enforcement | Hook-enforced gates -- deterministic, hooks block advancement on failure |
-| Learning | Manual memory management | Auto-capture signals, velocity calibration, retrospectives |
+| Learning | Manual memory management | Auto-capture signals, retrospectives |
 | Checkpointing | No checkpointing | Checkpoint/recovery system in `.sniper/checkpoints/` |
 | CI/CD | Not supported | `sniper run` headless mode with structured output |
 | Protocols | Implicit (always full lifecycle) | 7 built-in protocols + custom protocol support |
@@ -118,15 +118,6 @@ routing:
     patch_max_files: 5
     feature_max_files: 20
   default: feature
-  budgets:
-    full: 2000000
-    feature: 800000
-    patch: 200000
-
-cost:
-  warn_threshold: 0.7
-  soft_cap: 0.9
-  hard_cap: 1.0
 
 review:
   multi_model: false
@@ -143,7 +134,6 @@ plugins:
 visibility:
   live_status: true
   checkpoints: true
-  cost_tracking: true
   auto_retro: true
 ```
 
@@ -152,12 +142,11 @@ visibility:
 | Feature | Description |
 |---------|-------------|
 | `agents` section | Configure which agents are available, their models, and behavior |
-| `routing` section | Auto-detection rules and token budgets per protocol |
-| `cost` section | Token budget thresholds for warnings and hard stops |
+| `routing` section | Auto-detection rules for protocol selection |
 | `review.multi_model` | Enable multi-model consensus review |
 | `ownership` section | File ownership boundaries (moved from team YAML) |
 | `plugins` section | Language plugin registry |
-| `visibility` section | Control live status, checkpoints, cost tracking, retros |
+| `visibility` section | Control live status, checkpoints, retros |
 | `triggers` section | Map file patterns to agents or protocols |
 | `knowledge` section | External knowledge injection |
 | `headless` section | CI/CD configuration |
@@ -205,7 +194,6 @@ visibility:
     anti-patterns/
     decisions/
     signals/           # Auto-captured signals (new)
-    velocity.yaml      # Execution metrics (new)
   spawn-prompts/
   domain-packs/
   live-status.yaml     # Active protocol status (new)

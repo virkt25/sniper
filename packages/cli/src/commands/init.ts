@@ -1,10 +1,9 @@
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
-import { sniperConfigExists, readRawConfig, isV2Config, DEFAULT_BUDGETS } from "../config.js";
+import { sniperConfigExists, readRawConfig, isV2Config } from "../config.js";
 import type { SniperConfigV3 } from "../config.js";
 import { scaffoldProject } from "../scaffolder.js";
 import { pathExists } from "../fs-utils.js";
-import { readdir } from "node:fs/promises";
 import { join, basename } from "node:path";
 
 async function detectLanguage(cwd: string): Promise<string | null> {
@@ -176,12 +175,6 @@ export const initCommand = defineCommand({
           feature_max_files: 20,
         },
         default: "feature",
-        budgets: { ...DEFAULT_BUDGETS },
-      },
-      cost: {
-        warn_threshold: 0.7,
-        soft_cap: 0.9,
-        hard_cap: 1.0,
       },
       review: {
         multi_model: false,
@@ -215,7 +208,6 @@ export const initCommand = defineCommand({
       visibility: {
         live_status: true,
         checkpoints: true,
-        cost_tracking: true,
         auto_retro: true,
       },
     };

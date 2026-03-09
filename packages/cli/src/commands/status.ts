@@ -74,14 +74,6 @@ export const statusCommand = defineCommand({
           }
         }
 
-        // Cost
-        if (liveStatus.cost && typeof liveStatus.cost.percent === "number" && typeof liveStatus.cost.tokens_used === "number" && typeof liveStatus.cost.budget === "number") {
-          const pct = Math.max(0, Math.min(100, Math.round(liveStatus.cost.percent * 100)));
-          const bar = "=".repeat(Math.floor(pct / 5)) + "-".repeat(20 - Math.floor(pct / 5));
-          console.log(`\n  Cost: ${(liveStatus.cost.tokens_used / 1000).toFixed(0)}K / ${(liveStatus.cost.budget / 1000).toFixed(0)}K tokens (${pct}%)`);
-          console.log(`  [${bar}] ${pct}%`);
-        }
-
         if (liveStatus.next_action) {
           console.log(`\n  Next: ${liveStatus.next_action}`);
         }
@@ -93,26 +85,6 @@ export const statusCommand = defineCommand({
     // Routing config
     p.log.step("Protocol Routing:");
     console.log(`  Default: ${config.routing.default}`);
-    console.log(`  Budgets: full=${(config.routing.budgets.full / 1000000).toFixed(1)}M, feature=${(config.routing.budgets.feature / 1000).toFixed(0)}K, patch=${(config.routing.budgets.patch / 1000).toFixed(0)}K`);
-
-    // Velocity data
-    const velocityPath = join(cwd, ".sniper", "memory", "velocity.yaml");
-    if (await pathExists(velocityPath)) {
-      const velRaw = await readFile(velocityPath, "utf-8");
-      const velocity = YAML.parse(velRaw);
-
-      if (velocity && velocity.calibrated_budgets && Object.keys(velocity.calibrated_budgets).length > 0) {
-        p.log.step("Velocity (calibrated budgets):");
-        for (const [protocol, budget] of Object.entries(velocity.calibrated_budgets)) {
-          const configured = config.routing.budgets[protocol];
-          const calibrated = budget as number;
-          const avg = velocity.rolling_averages?.[protocol] as number | undefined;
-          const avgStr = avg ? `${(avg / 1000).toFixed(0)}K avg` : "";
-          const trend = configured && calibrated < configured * 0.9 ? "↓" : calibrated > configured * 1.1 ? "↑" : "→";
-          console.log(`  ${protocol}: ${avgStr} (calibrated: ${(calibrated / 1000).toFixed(0)}K, configured: ${configured ? (configured / 1000).toFixed(0) + "K" : "N/A"}) ${trend}`);
-        }
-      }
-    }
 
     p.outro("");
   },

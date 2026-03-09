@@ -1,6 +1,5 @@
 name: explore
 description: Exploratory analysis — understand a codebase or problem space
-budget: 500000  # 500K tokens
 
 phases:
   - name: discover
