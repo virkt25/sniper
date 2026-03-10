@@ -37,13 +37,13 @@ const TerminalDemo = defineAsyncComponent(() => import('./TerminalDemo.vue'))
         <div class="path-card">
           <span class="path-tag">Full Lifecycle</span>
           <h3>Greenfield Projects</h3>
-          <p>Start with an idea. The full protocol runs four phases: discover, plan, implement, review. Agent teams research, architect, build in parallel, and gate every transition.</p>
-          <code class="path-cmds">/sniper-flow &rarr; discover &rarr; plan &rarr; implement &rarr; review</code>
+          <p>Start with an idea. The full protocol runs seven phases: discover, define, design, solve, implement, review, retro. Agent teams research, architect, build in parallel, and gate every transition.</p>
+          <code class="path-cmds">/sniper-flow &rarr; discover &rarr; define &rarr; design &rarr; solve &rarr; implement &rarr; review &rarr; retro</code>
         </div>
         <div class="path-card">
           <span class="path-tag">Scoped Protocols</span>
           <h3>Targeted Work</h3>
-          <p>Already have code? Use scoped protocols: feature (plan + implement), patch (implement only), ingest (scan + document + extract), refactor, explore, or hotfix.</p>
+          <p>Already have code? Use scoped protocols: feature (define + design + solve + implement + review + retro), patch (implement + review), ingest (scan + document + extract), refactor, explore, or hotfix.</p>
           <code class="path-cmds">/sniper-flow --protocol feature | patch | ingest | refactor</code>
         </div>
       </div>

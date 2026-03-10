@@ -22,7 +22,6 @@ These checklists evaluate artifacts produced during protocol phases.
 | [implement](/reference/checklists/implement) | Full, Feature, Patch protocols | Evaluates implementation — code quality, tests |
 | [review](/reference/checklists/review) | All protocols with review phase | Final review of all phase artifacts |
 | [retro](/reference/checklists/retro) | Full, Feature, Refactor protocols | Evaluates retrospective completeness |
-| [plan](/reference/checklists/plan) | (deprecated) | Use define + design + solve instead |
 
 ### Protocol-Specific Checklists
 
