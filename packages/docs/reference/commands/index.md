@@ -12,8 +12,8 @@ SNIPER v3 provides five slash commands invoked in Claude Code. The core command 
 | Command | Description |
 |---------|-------------|
 | [`/sniper-flow`](/reference/commands/sniper-flow) | Execute a protocol — auto-detects scope or use `--protocol <name>` |
-| [`/sniper-flow-headless`](/reference/commands/sniper-flow-headless) | Execute a protocol non-interactively for CI/CD environments |
 | [`/sniper-init`](/reference/commands/sniper-init) | Initialize SNIPER v3 in a new or existing project |
+| [`/sniper-learn`](/reference/commands/sniper-learn) | Submit, review, or deprecate project learnings |
 | [`/sniper-review`](/reference/commands/sniper-review) | Manually trigger a review gate for the current phase |
 | [`/sniper-status`](/reference/commands/sniper-status) | Show current protocol progress |
 
@@ -44,12 +44,12 @@ SNIPER v3 provides five slash commands invoked in Claude Code. The core command 
 
 | Protocol | Phases | Use Case |
 |----------|--------|----------|
-| `full` | discover → plan → implement → review | Greenfield projects, major features |
-| `feature` | plan → implement → review | Adding features to existing projects |
+| `full` | discover → define → design → solve → implement → review → retro | Greenfield projects, major features |
+| `feature` | define → design → solve → implement → review → retro | Adding features to existing projects |
 | `patch` | implement → review | Small changes, bug fixes |
 | `ingest` | scan → document → extract | Reverse-engineering existing codebases |
 | `explore` | discover | Research and analysis only |
-| `refactor` | analyze → implement → review | Code refactoring with safety analysis |
+| `refactor` | analyze → implement → review → retro | Code refactoring with safety analysis |
 | `hotfix` | implement | Emergency fixes, no gates |
 
 ## Command Flow

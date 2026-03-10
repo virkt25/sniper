@@ -11,11 +11,14 @@ SNIPER is a framework for orchestrating Claude Code agent teams through structur
 SNIPER breaks projects into protocol-driven phases, orchestrated by `/sniper-flow`:
 
 1. **Discover** — Agents analyze requirements, codebase, and constraints
-2. **Plan** — Architects and specialists produce PRDs, architecture docs, and tech specs
-3. **Implement** — Parallel agents build in isolated worktrees with file ownership boundaries
-4. **Review** — Quality gates validate phase outputs before advancing
+2. **Define** — Product manager produces the PRD and requirements specification
+3. **Design** — Architect produces system architecture aligned with the PRD
+4. **Solve** — Stories are sharded into implementable units with acceptance criteria
+5. **Implement** — Parallel agents build in isolated worktrees with file ownership boundaries
+6. **Review** — Quality gates validate phase outputs before advancing
+7. **Retro** — Learnings are captured and codified into project memory
 
-Each protocol defines which phases to run (e.g., `full` runs all four, `patch` skips to implement + review). Agents are composed from layered personas (cognitive style, role, domain knowledge) and assigned tasks with ownership boundaries.
+Each protocol defines which phases to run (e.g., `full` runs all seven, `patch` skips to implement + review). Agents are composed from layered personas (cognitive style, role, domain knowledge) and assigned tasks with ownership boundaries.
 
 ## Packages
 

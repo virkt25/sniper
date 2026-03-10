@@ -93,10 +93,10 @@ Once SNIPER is initialized, these slash commands are available inside Claude Cod
 | Command | Description |
 |---------|-------------|
 | `/sniper-flow` | Execute a SNIPER protocol (auto-detects scope or use `--protocol <name>`) |
-| `/sniper-flow-headless` | Execute a protocol non-interactively for CI/CD environments |
 | `/sniper-init` | Initialize SNIPER v3 in a new or existing project |
+| `/sniper-learn` | Submit, review, or deprecate project learnings |
 | `/sniper-review` | Manually trigger a review gate for the current phase |
-| `/sniper-status` | Show current protocol progress and cost |
+| `/sniper-status` | Show current protocol progress |
 
 `/sniper-flow` is the core execution engine. It runs any of the 7 protocols: `full`, `feature`, `patch`, `ingest`, `explore`, `refactor`, `hotfix`.
 

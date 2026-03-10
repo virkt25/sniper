@@ -38,6 +38,7 @@ Agent definitions are stored in `packages/core/agents/` and scaffolded into `.cl
 | `gate-reviewer` | Runs automated checklist checks at phase boundaries | Review |
 | `retro-analyst` | Runs automated retrospectives and captures learnings | Post-protocol |
 | `doc-writer` | Incrementally updates project documentation after implementation phases | Post-implement |
+| `memory-curator` | Curates and maintains project memory (conventions, anti-patterns, decisions) | Post-protocol |
 
 #### Complete Agent Properties
 
@@ -57,6 +58,7 @@ The table below lists every core agent with its isolation mode, write scope, and
 | `gate-reviewer` | None | `.sniper/gates/` | All protocols at phase boundaries |
 | `retro-analyst` | None | `.sniper/` | Post-protocol (automatic via `auto_retro`) |
 | `doc-writer` | None | `CLAUDE.md`, `README.md`, `docs/architecture.md` | Post-implement |
+| `memory-curator` | None | `.sniper/memory/` | Post-protocol |
 
 The lead-orchestrator is a zero-capability orchestrator -- its Write access is scoped exclusively to `.sniper/` for checkpoints, status, and configuration. It reads the codebase to make informed delegation decisions but never edits project source code directly.
 
@@ -104,10 +106,13 @@ agents:
     - product-manager
     - backend-dev
     - frontend-dev
+    - fullstack-dev
     - qa-engineer
     - code-reviewer
     - gate-reviewer
     - retro-analyst
+    - doc-writer
+    - memory-curator
 
   # Cognitive mixins applied to agents during scaffolding
   # Format: agent-name: [mixin1, mixin2]
@@ -130,9 +135,17 @@ phases:
     agents: [analyst]
     spawn_strategy: single
 
-  - name: plan
-    agents: [architect, product-manager]
-    spawn_strategy: team
+  - name: define
+    agents: [product-manager]
+    spawn_strategy: single
+
+  - name: design
+    agents: [architect]
+    spawn_strategy: single
+
+  - name: solve
+    agents: [product-manager]
+    spawn_strategy: single
 
   - name: implement
     agents: [fullstack-dev, qa-engineer]
@@ -140,6 +153,10 @@ phases:
 
   - name: review
     agents: [code-reviewer]
+    spawn_strategy: single
+
+  - name: retro
+    agents: [retro-analyst]
     spawn_strategy: single
 ```
 
@@ -151,12 +168,12 @@ Rather than standalone commands for different workflows, v3 uses `/sniper-flow -
 
 | Protocol | Phases | Use Case |
 |----------|--------|----------|
-| `full` | discover, plan, implement, review | Greenfield features or major changes |
-| `feature` | plan, implement, review | Well-understood features with clear requirements |
+| `full` | discover, define, design, solve, implement, review, retro | Greenfield features or major changes |
+| `feature` | define, design, solve, implement, review, retro | Well-understood features with clear requirements |
 | `patch` | implement, review | Small changes to existing code |
 | `ingest` | scan, document, extract | Analyzing and documenting an existing codebase |
 | `explore` | discover | Research and analysis only |
-| `refactor` | analyze, implement, review | Restructuring existing code |
+| `refactor` | analyze, implement, review, retro | Restructuring existing code |
 | `hotfix` | implement | Emergency fixes with no gate checks |
 
 For example, to run a codebase analysis that was previously handled by a standalone ingest command:
@@ -197,7 +214,7 @@ When the memory system is active, composed prompts also include a memory layer w
 - **Anti-patterns** the agent must avoid (with severity levels)
 - **Key decisions** the agent should be aware of
 
-The memory layer is subject to a token budget (default: 2000 tokens). If memory exceeds the budget, entries are prioritized by severity and enforcement level.
+If memory entries are extensive, they are prioritized by severity and enforcement level to fit within context constraints.
 
 ## Custom Agents
 

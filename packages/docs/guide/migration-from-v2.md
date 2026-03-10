@@ -57,7 +57,7 @@ The CLI reads your v2 `.sniper/config.yaml`, maps fields to the v3 schema, and w
 | (new) | `/sniper-flow --protocol refactor` — refactoring with safety analysis |
 | (new) | `/sniper-flow --protocol explore` — discovery/research only |
 | (new) | `/sniper-flow --protocol patch` — small changes and bug fixes |
-| (new) | `/sniper-flow-headless` — CI/CD non-interactive execution |
+| (new) | `sniper run` — CI/CD non-interactive execution (CLI command, not a slash command) |
 
 ### Configuration Changes
 

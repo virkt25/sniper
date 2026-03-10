@@ -14,8 +14,8 @@ In v3, all work flows through five slash commands. The core engine (`/sniper-flo
 | Command | Purpose |
 |---------|---------|
 | [`/sniper-flow`](#sniper-flow) | Core execution engine -- runs any protocol |
-| [`/sniper-flow-headless`](#sniper-flow-headless) | Non-interactive execution for CI/CD pipelines |
 | [`/sniper-init`](#sniper-init) | Scaffold `.sniper/` directory and project config |
+| [`/sniper-learn`](#sniper-learn) | Submit, review, or deprecate project learnings |
 | [`/sniper-review`](#sniper-review) | Manually trigger a quality gate review |
 | [`/sniper-status`](#sniper-status) | Show protocol progress and recent activity |
 
@@ -37,8 +37,8 @@ The core protocol execution engine. Orchestrates agent teams through structured 
 
 ```
 /sniper-flow                        # Auto-detect protocol from request
-/sniper-flow --protocol full        # Full lifecycle (discover -> plan -> implement -> review)
-/sniper-flow --protocol feature     # Feature mini-lifecycle (plan -> implement -> review)
+/sniper-flow --protocol full        # Full lifecycle (discover -> define -> design -> solve -> implement -> review -> retro)
+/sniper-flow --protocol feature     # Feature mini-lifecycle (define -> design -> solve -> implement -> review -> retro)
 /sniper-flow --protocol patch       # Quick bug fix (implement -> review)
 /sniper-flow --protocol ingest      # Reverse-engineer an existing codebase
 /sniper-flow --protocol explore     # Exploratory analysis only
@@ -63,27 +63,19 @@ The core protocol execution engine. Orchestrates agent teams through structured 
 
 ---
 
-## `/sniper-flow-headless` {#sniper-flow-headless}
+## `/sniper-learn` {#sniper-learn}
 
-Non-interactive variant of `/sniper-flow` for CI/CD pipelines and automation. Same phase execution loop, but all interactive decisions are resolved automatically.
+Submit, review, or deprecate project learnings. Manages conventions, anti-patterns, and decisions in `.sniper/memory/`.
 
-**Arguments:**
+**Usage:**
 
-| Flag | Description |
-|------|-------------|
-| `--protocol <name>` | Protocol to run (required) |
-| `--output <format>` | Output format: `json`, `yaml`, or `text` |
-| `--auto-approve` | Auto-approve all quality gates |
-| `--timeout <minutes>` | Maximum execution time in minutes |
+```
+/sniper-learn                       # Interactive — choose submit, review, or deprecate
+```
 
-**Exit codes:**
-
-| Code | Meaning |
-|------|---------|
-| `0` | Success -- all phases and gates passed |
-| `1` | Gate failure -- a blocking gate check failed |
-| `2` | Timeout -- execution exceeded the `--timeout` duration |
-| `3` | Config error -- invalid config, missing protocol, or initialization failure |
+::: tip Headless / CI/CD Execution
+For non-interactive protocol execution in CI/CD pipelines, use the `sniper run` CLI command instead of a slash command. See [Headless & CI/CD](/guide/headless-ci) for details.
+:::
 
 ---
 
@@ -142,34 +134,40 @@ Every protocol is a YAML state machine that defines a sequence of phases, agent 
 
 | Protocol | Phases | Auto Retro | Use Case |
 |----------|--------|------------|----------|
-| [`full`](#protocol-full) | discover &rarr; plan &rarr; implement &rarr; review | Yes | New projects, major reworks |
-| [`feature`](#protocol-feature) | plan &rarr; implement &rarr; review | Yes | New features (5--20 files) |
+| [`full`](#protocol-full) | discover &rarr; define &rarr; design &rarr; solve &rarr; implement &rarr; review &rarr; retro | Yes | New projects, major reworks |
+| [`feature`](#protocol-feature) | define &rarr; design &rarr; solve &rarr; implement &rarr; review &rarr; retro | Yes | New features (5--20 files) |
 | [`patch`](#protocol-patch) | implement &rarr; review | No | Bug fixes, small changes |
 | [`ingest`](#protocol-ingest) | scan &rarr; document &rarr; extract | No | Reverse-engineer existing codebases |
 | [`explore`](#protocol-explore) | discover | No | Research and analysis |
-| [`refactor`](#protocol-refactor) | analyze &rarr; implement &rarr; review | Yes | Code improvement, no new features |
+| [`refactor`](#protocol-refactor) | analyze &rarr; implement &rarr; review &rarr; retro | Yes | Code improvement, no new features |
 | [`hotfix`](#protocol-hotfix) | implement | No | Critical production fixes |
 
 ### `full` {#protocol-full}
 
-Complete project lifecycle from discovery through review.
+Complete project lifecycle from discovery through retrospective.
 
 | Phase | Agents | Spawn | Gate | Human Approval | Key Outputs |
 |-------|--------|-------|------|----------------|-------------|
-| discover | analyst | single | discover | No | `docs/spec.md`, `docs/codebase-overview.md` |
-| plan | architect, product-manager | team | plan | Yes | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| discover | analyst | single | discover | No | `docs/discovery-brief.md`, `docs/codebase-overview.md` |
+| define | product-manager | single | define | Yes | `docs/prd.md` |
+| design | architect | single | design | Yes | `docs/architecture.md` |
+| solve | product-manager | single | solve | Yes | `docs/stories/` |
 | implement | fullstack-dev, qa-engineer | team | implement | No | Source code, test files |
 | review | code-reviewer | single | review | Yes | `docs/review-report.md` |
+| retro | retro-analyst | single | — | No | `.sniper/memory/` updates |
 
 ### `feature` {#protocol-feature}
 
-Incremental feature -- plan, implement, and review.
+Incremental feature -- define, design, solve, implement, review, and retro.
 
 | Phase | Agents | Spawn | Gate | Human Approval | Key Outputs |
 |-------|--------|-------|------|----------------|-------------|
-| plan | architect, product-manager | team | plan | Yes | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| define | product-manager | single | define | Yes | `docs/prd.md` |
+| design | architect | single | design | Yes | `docs/architecture.md` |
+| solve | product-manager | single | solve | Yes | `docs/stories/` |
 | implement | fullstack-dev, qa-engineer | team | implement | No | Source code, test files |
 | review | code-reviewer | single | review | Yes | `docs/review-report.md` |
+| retro | retro-analyst | single | — | No | `.sniper/memory/` updates |
 
 ### `patch` {#protocol-patch}
 

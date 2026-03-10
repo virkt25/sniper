@@ -11,10 +11,10 @@ The full lifecycle workflow takes a project from initial research through implem
 
 ```
 /sniper-init  -->  /sniper-flow
-   Setup           Phases 1-4 (discover → plan → implement → review)
+   Setup           Phases 1-7 (discover → define → design → solve → implement → review → retro)
 ```
 
-`/sniper-flow` is the unified protocol engine that drives all four phases automatically. It auto-detects the appropriate protocol scope, or you can specify one explicitly with `--protocol <name>` (e.g., `--protocol full`).
+`/sniper-flow` is the unified protocol engine that drives all seven phases automatically. It auto-detects the appropriate protocol scope, or you can specify one explicitly with `--protocol <name>` (e.g., `--protocol full`).
 
 ## Step 1: Initialize
 
@@ -58,35 +58,67 @@ The discover phase is the first phase executed by `/sniper-flow` when running th
 If artifacts already exist from a previous run, the agent enters amendment mode -- it updates existing content rather than starting from scratch.
 :::
 
-## Step 3: Plan (Phase 2)
+## Step 3: Define (Phase 2)
 
-After the discover phase completes and its gate passes, `/sniper-flow` automatically advances to the plan phase.
+After the discover phase completes and its gate passes, `/sniper-flow` automatically advances to the define phase.
 
-**Team:** 2 agents (architect, product-manager) with `spawn_strategy: team`
+**Agent:** 1 agent (product-manager) with `spawn_strategy: single`
 
 | Agent | Output |
 |-------|--------|
-| product-manager | `docs/prd.md`, `docs/stories/` |
+| product-manager | `docs/prd.md` |
+
+**How it works:**
+
+1. The product manager is spawned, reading all Phase 1 artifacts
+2. Produces the PRD with requirements specification
+3. Human reviews the PRD before architecture begins
+
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
+
+::: warning
+Setting `human_approval: false` on the define gate is strongly discouraged. Bad requirements cascade through the entire project.
+:::
+
+## Step 4: Design (Phase 3)
+
+After the define phase completes, `/sniper-flow` advances to the design phase.
+
+**Agent:** 1 agent (architect) with `spawn_strategy: single`
+
+| Agent | Output |
+|-------|--------|
 | architect | `docs/architecture.md` |
 
 **How it works:**
 
-1. Both agents are spawned as a team, reading all Phase 1 artifacts
-2. The product manager produces the PRD and breaks it into implementable stories
-3. The architect produces the system architecture, aligning with the PRD
-4. The architect may have `plan_approval: true` -- they must describe their approach before executing, and the lead must approve it
+1. The architect is spawned, reading the PRD and all prior artifacts
+2. Produces the system architecture aligned with the PRD
+3. Human reviews the architecture before story sharding begins
 
 **Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
-This is typically the most critical gate. The review evaluates artifacts against a detailed checklist covering requirement specificity, architecture completeness, and cross-document consistency.
+## Step 5: Solve (Phase 4)
 
-::: warning
-Setting `human_approval: false` on the plan gate is strongly discouraged. Bad architecture decisions cascade through the entire project.
-:::
+After the design phase completes, `/sniper-flow` advances to the solve phase.
 
-## Step 4: Implement (Phase 3)
+**Agent:** 1 agent (product-manager) with `spawn_strategy: single`
 
-Once the plan gate passes, `/sniper-flow` advances to the implement phase.
+| Agent | Output |
+|-------|--------|
+| product-manager | `docs/stories/` |
+
+**How it works:**
+
+1. The product manager is spawned, reading the PRD and architecture
+2. Breaks requirements into implementable stories with acceptance criteria
+3. Human reviews the story breakdown before implementation begins
+
+**Gate:** Configured per protocol YAML (`human_approval: boolean`)
+
+## Step 6: Implement (Phase 5)
+
+Once the solve gate passes, `/sniper-flow` advances to the implement phase.
 
 **Team:** 2 agents (fullstack-dev, qa-engineer) with `spawn_strategy: team`
 
@@ -111,7 +143,7 @@ Once the plan gate passes, `/sniper-flow` advances to the implement phase.
 
 **Gate:** Configured per protocol YAML (`human_approval: boolean`)
 
-## Step 5: Review (Phase 4)
+## Step 7: Review (Phase 6)
 
 After implementation completes, `/sniper-flow` advances to the review phase.
 
@@ -136,6 +168,25 @@ After implementation completes, `/sniper-flow` advances to the review phase.
 Typically `human_approval: true` for this phase -- the human reviews the code-reviewer's findings and the actual code changes before approving.
 
 After the review passes, a retrospective automatically runs if `auto_retro` is enabled in the visibility config.
+
+## Step 8: Retro (Phase 7)
+
+After the review phase passes, `/sniper-flow` runs the retrospective phase.
+
+**Agent:** 1 agent (retro-analyst) with `spawn_strategy: single`
+
+| Agent | Role |
+|-------|------|
+| retro-analyst | Captures learnings and updates project memory |
+
+**How it works:**
+
+1. The retro-analyst agent is spawned with context from the completed protocol
+2. Analyzes gate results, code changes, and patterns observed during execution
+3. Updates `.sniper/memory/` with new conventions, anti-patterns, and decisions
+4. Produces a retrospective report in `.sniper/retros/`
+
+This phase runs automatically when `auto_retro` is enabled and does not require human approval.
 
 ## Recovery
 
@@ -169,12 +220,14 @@ Not every project needs the full lifecycle. SNIPER provides right-sized protocol
 For scoped features where discovery is not needed.
 
 ```
-plan → implement → review
+define → design → solve → implement → review → retro
 ```
 
-Same as `full` minus the discover and decompose phases. The plan phase includes story decomposition. Best for features where requirements are clear and the domain is understood.
+Same as `full` minus the discover phase. Best for features where requirements are clear and the domain is understood.
 
-- **Plan phase** -- architect and product-manager produce architecture and stories. Human approval gate.
+- **Define phase** -- product-manager produces the PRD. Human approval gate.
+- **Design phase** -- architect produces architecture. Human approval gate.
+- **Solve phase** -- product-manager shards stories. Human approval gate.
 - **Implement phase** -- 2--3 subagents spawned via `Task` tool with worktree isolation.
 - **Review phase** -- code-reviewer evaluates the diff. Auto or human gate depending on config.
 
@@ -229,7 +282,7 @@ After explore completes, you typically follow up with a targeted protocol:
 Code improvement without behavior change.
 
 ```
-analyze → implement → review
+analyze → implement → review → retro
 ```
 
 **Analyze phase:**
