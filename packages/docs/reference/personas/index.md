@@ -21,7 +21,7 @@ Cognitive personas influence an agent's reasoning and decision-making priorities
 
 In v3, the distinction between "agents" and "personas" has been simplified:
 
-- **Agents** (`packages/core/agents/*.md`) define _who_ does the work — their role, constraints, and output. There are 12 specialized agents including lead-orchestrator, architect, backend-dev, code-reviewer, doc-writer, and more.
+- **Agents** (`packages/core/agents/*.md`) define _who_ does the work — their role, constraints, and output. There are 13 specialized agents including lead-orchestrator, architect, backend-dev, code-reviewer, doc-writer, and more.
 - **Cognitive personas** (`packages/core/personas/cognitive/*.md`) define _how_ agents think — overlaying a reasoning style like security-first or performance-focused.
 
 Agents are assigned to protocol phases. Cognitive personas are optionally applied to agents via configuration to adjust their approach.

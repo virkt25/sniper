@@ -30,7 +30,7 @@ const cells = [
   {
     id: 1,
     area: 'persona',
-    title: '11 Specialized Agents',
+    title: '13 Specialized Agents',
     desc: 'Each agent has a defined role, model preference, and tool constraints. The lead orchestrator is read-only.',
     extended: 'Agents compose cognitive mixins (security-first, performance-focused, devil\'s advocate) for specialized thinking. Plugins inject language-specific knowledge.',
   },
@@ -39,7 +39,7 @@ const cells = [
     area: 'gates',
     title: 'Multi-Faceted Review',
     desc: 'Three dimensions: scope validation, standards enforcement, and risk scoring with severity levels.',
-    extended: '9 checklists cover quality, spec compliance, and security. Optional multi-model review uses consensus or majority-wins across providers.',
+    extended: '13 checklists cover quality, spec compliance, and security. Optional multi-model review uses consensus or majority-wins across providers.',
   },
   {
     id: 3,

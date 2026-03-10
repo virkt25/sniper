@@ -9,9 +9,9 @@ Quick reference for how SNIPER v3 assembles agent teams. In v3, there are no sta
 
 For a deeper explanation of how agents collaborate, see [Teams](/guide/teams). For the overall framework design, see [Architecture](/guide/architecture).
 
-## The 11 Agents
+## The 13 Agents
 
-Every agent team in SNIPER v3 is composed from this fixed roster of 11 agents.
+Every agent team in SNIPER v3 is composed from this fixed roster of 13 agents.
 
 | Agent | Model | Role | Writes To |
 |-------|-------|------|-----------|
@@ -25,7 +25,9 @@ Every agent team in SNIPER v3 is composed from this fixed roster of 11 agents.
 | `qa-engineer` | Sonnet | Test writing, coverage analysis, acceptance validation | test files only |
 | `code-reviewer` | Opus | Multi-faceted review, risk scoring, spec reconciliation | `docs/` |
 | `gate-reviewer` | Haiku | Automated checklist execution at phase boundaries | `.sniper/gates/` |
-| `retro-analyst` | Sonnet | Post-protocol retrospective and velocity tracking | `.sniper/` |
+| `retro-analyst` | Sonnet | Post-protocol retrospective and learning capture | `.sniper/` |
+| `doc-writer` | Sonnet | Incremental documentation updates | `CLAUDE.md`, `README.md`, `docs/` |
+| `memory-curator` | Sonnet | Curates project memory (conventions, anti-patterns) | `.sniper/memory/` |
 
 ## Protocol Phase Map
 
@@ -33,34 +35,36 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `full` -- Complete Project Lifecycle
 
-4 phases -- discover, plan, implement, review -- auto-retro: yes
+7 phases -- discover, define, design, solve, implement, review, retro -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
 | **discover** | `analyst` | single | discover | No |
-| **plan** | `architect`, `product-manager` | team | plan | Yes |
+| **define** | `product-manager` | single | define | Yes |
+| **design** | `architect` | single | design | Yes |
+| **solve** | `product-manager` | single | solve | Yes |
 | **implement** | `fullstack-dev`, `qa-engineer` | team | implement | No |
 | **review** | `code-reviewer` | single | review | Yes |
+| **retro** | `retro-analyst` | single | — | No |
 
-**Coordination:** architect and product-manager coordinate so architecture is approved before stories reference it. Implement phase uses plan approval (agents present their approach before coding).
-
-**Outputs:** `docs/spec.md`, `docs/codebase-overview.md`, `docs/architecture.md`, `docs/prd.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
+**Outputs:** `docs/discovery-brief.md`, `docs/codebase-overview.md`, `docs/prd.md`, `docs/architecture.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
 
 ---
 
 ### `feature` -- Incremental Feature
 
-3 phases -- plan, implement, review -- auto-retro: yes
+6 phases -- define, design, solve, implement, review, retro -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
-| **plan** | `architect`, `product-manager` | team | plan | Yes |
+| **define** | `product-manager` | single | define | Yes |
+| **design** | `architect` | single | design | Yes |
+| **solve** | `product-manager` | single | solve | Yes |
 | **implement** | `fullstack-dev`, `qa-engineer` | team | implement | No |
 | **review** | `code-reviewer` | single | review | Yes |
+| **retro** | `retro-analyst` | single | — | No |
 
-**Coordination:** Same as full protocol. Implement phase uses plan approval.
-
-**Outputs:** `docs/architecture.md`, `docs/prd.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
+**Outputs:** `docs/prd.md`, `docs/architecture.md`, `docs/stories/`, source code, test files, `docs/review-report.md`
 
 ---
 
@@ -97,7 +101,7 @@ Each protocol defines a sequence of phases. Each phase lists which agents are sp
 
 ### `refactor` -- Code Improvement
 
-3 phases -- analyze, implement, review -- auto-retro: yes
+4 phases -- analyze, implement, review, retro -- auto-retro: yes
 
 | Phase | Agents | Strategy | Gate | Human Approval |
 |-------|--------|----------|------|----------------|
@@ -146,8 +150,8 @@ Which agents appear in which protocols at a glance.
 | Agent | full | feature | patch | ingest | refactor | explore | hotfix |
 |-------|:----:|:-------:|:-----:|:------:|:--------:|:-------:|:------:|
 | `analyst` | discover | -- | -- | scan, document, extract | analyze | discover | -- |
-| `architect` | plan | plan | -- | -- | -- | -- | -- |
-| `product-manager` | plan | plan | -- | -- | -- | -- | -- |
+| `architect` | design | design | -- | -- | -- | -- | -- |
+| `product-manager` | define, solve | define, solve | -- | -- | -- | -- | -- |
 | `fullstack-dev` | implement | implement | implement | -- | implement | -- | implement |
 | `qa-engineer` | implement | implement | -- | -- | -- | -- | -- |
 | `code-reviewer` | review | review | review | -- | review | -- | -- |

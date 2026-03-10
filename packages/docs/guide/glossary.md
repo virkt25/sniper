@@ -54,7 +54,7 @@ A large unit of work produced during the plan phase. Each epic contains 3-8 stor
 ## F
 
 ### Feature Lifecycle
-A scoped mini-lifecycle for adding a single feature to an existing project. Runs through plan, implement, and review phases. Invoked with `/sniper-flow --protocol feature`.
+A scoped mini-lifecycle for adding a single feature to an existing project. Runs through define, design, solve, implement, review, and retro phases. Invoked with `/sniper-flow --protocol feature`.
 
 ### File Ownership
 Directory-level boundaries that restrict which files each agent can modify. Defined in the `ownership` section of config.yaml and injected into spawn prompts. Prevents teammates from stepping on each other's work during implement phases.
@@ -88,7 +88,7 @@ A named group of directory patterns in the `ownership` section of config.yaml (e
 ## P
 
 ### Phase
-A distinct stage in a protocol with a specific purpose, agents, outputs, and review gate. Phases vary by protocol -- for example, the full protocol runs discover, plan, implement, and review.
+A distinct stage in a protocol with a specific purpose, agents, outputs, and review gate. Phases vary by protocol -- for example, the full protocol runs discover, define, design, solve, implement, review, and retro.
 
 ### Phase Log
 In v3, phase execution is tracked through checkpoint files in `.sniper/checkpoints/` and the live-status file at `.sniper/live-status.yaml`. Each checkpoint records the phase context, start time, completion time, and approval status.
@@ -116,7 +116,7 @@ The fully assembled instruction given to an agent when created. Contains merged 
 The phase where development agents (fullstack-dev, qa-engineer) write code and tests. Run via `/sniper-flow`, which advances through the protocol's phases including implementation. Agents must get their plan approved before coding when `plan_approval: true` is set.
 
 ### Story
-A self-contained implementation unit produced during the plan phase. Each story embeds all context from PRD, architecture, and UX spec needed for implementation. Stories have Given/When/Then acceptance criteria, file ownership, complexity estimates, and test requirements. Stored in `docs/stories/`.
+A self-contained implementation unit produced during the solve phase. Each story embeds all context from PRD, architecture, and UX spec needed for implementation. Stories have Given/When/Then acceptance criteria, file ownership, complexity estimates, and test requirements. Stored in `docs/stories/`.
 
 ### Strict Gate
 A review gate mode that requires explicit human approval. Cannot be skipped. Failures block advancement entirely.
@@ -133,7 +133,7 @@ The coordinating role (you, via Claude Code) during team execution. The lead spa
 One of the four persona layers. Adds domain-specific technical expertise (e.g., backend, frontend, security, ai-ml). Optional in composition.
 
 ### Token Budget
-The maximum number of tokens allocated for the memory layer in spawn prompts. Default: 2000. When memory exceeds the budget, entries are prioritized by severity.
+(Removed in v3.4) Previously controlled memory allocation in spawn prompts. Memory entries are now prioritized by severity without a fixed token budget.
 
 ## W
 
