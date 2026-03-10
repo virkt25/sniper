@@ -156,7 +156,7 @@ export default withMermaid(defineConfig({
             { text: 'Domain Packs', link: '/guide/domain-packs' },
             { text: 'Workspace Mode', link: '/guide/workspace-mode' },
             { text: 'Memory System', link: '/guide/memory' },
-            { text: 'Signals & Learning', link: '/guide/signals-and-learning' },
+            { text: 'Learning System', link: '/guide/signals-and-learning' },
             { text: 'Advanced Features', link: '/guide/advanced-features' },
           ],
         },

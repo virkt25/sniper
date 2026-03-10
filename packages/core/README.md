@@ -9,7 +9,7 @@ Framework core for [SNIPER](https://sniperai.dev) -- provides agents, personas, 
 
 SNIPER is an AI-powered project lifecycle framework for orchestrating Claude Code agent teams through structured phases. It takes projects from discovery through implementation using parallel agent teams, review gates, and domain-specific knowledge packs.
 
-A full lifecycle runs through: **Discover** (research and analysis), **Define** (PRD and requirements), **Design** (architecture), **Solve** (story sharding), **Implement** (code with worktree isolation), **Review** (multi-faceted code review), and **Retro** (learnings and velocity). Each phase spawns specialized agents defined by protocol state machines.
+A full lifecycle runs through: **Discover** (research and analysis), **Define** (PRD and requirements), **Design** (architecture), **Solve** (story sharding), **Implement** (code with worktree isolation), **Review** (multi-faceted code review), and **Retro** (learnings and memory). Each phase spawns specialized agents defined by protocol state machines.
 
 ## Overview
 
@@ -24,13 +24,13 @@ npm install @sniper.ai/core
 ## Contents
 
 ```
-├── agents/             # Agent definitions (11 agents)
+├── agents/             # Agent definitions (13 agents)
 ├── personas/
 │   └── cognitive/      # Cognitive mixins (3 mixins)
-├── skills/             # Slash command definitions (4 skills)
+├── skills/             # Slash command definitions (5 skills)
 ├── protocols/          # Protocol state machines (7 protocols)
-├── templates/          # Artifact templates (14 templates)
-├── checklists/         # Quality gate checklists (9 checklists)
+├── templates/          # Artifact templates (15 templates)
+├── checklists/         # Quality gate checklists (13 checklists)
 ├── hooks/              # Claude Code hook definitions (2 files)
 ├── schemas/            # Runtime data schemas (13 schemas)
 ├── config.template.yaml
@@ -39,7 +39,7 @@ npm install @sniper.ai/core
 
 ## Agents
 
-11 agent definitions, each with YAML frontmatter specifying write scope or isolation mode:
+13 agent definitions, each with YAML frontmatter specifying write scope or isolation mode:
 
 | Agent | Description |
 |-------|-------------|
@@ -53,7 +53,9 @@ npm install @sniper.ai/core
 | `qa-engineer` | Writes tests, analyzes coverage, validates acceptance criteria |
 | `code-reviewer` | Multi-faceted code review (scope, standards, risk scoring) |
 | `gate-reviewer` | Runs automated checks at phase boundaries |
-| `retro-analyst` | Post-protocol retrospectives and velocity tracking |
+| `retro-analyst` | Post-protocol retrospectives and learning capture |
+| `doc-writer` | Incrementally updates project documentation after implementation |
+| `memory-curator` | Curates and maintains project memory (conventions, anti-patterns, decisions) |
 
 ## Cognitive Mixins
 
@@ -83,14 +85,15 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 
 ## Skills
 
-4 slash commands available in Claude Code:
+5 slash commands available in Claude Code:
 
 | Command | Description |
 |---------|-------------|
 | `/sniper-flow` | Execute a SNIPER protocol (auto-detects scope or use `--protocol <name>`) |
 | `/sniper-init` | Initialize SNIPER v3 in a new or existing project |
+| `/sniper-learn` | Submit, review, or deprecate project learnings |
 | `/sniper-review` | Manually trigger a review gate for the current phase |
-| `/sniper-status` | Show current protocol progress and cost |
+| `/sniper-status` | Show current protocol progress |
 
 ## Templates
 
@@ -110,11 +113,11 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 | `knowledge-manifest.yaml` | YAML | Knowledge base manifest |
 | `checkpoint.yaml` | YAML | Protocol checkpoint state |
 | `live-status.yaml` | YAML | Live protocol status |
-| `signal-record.yaml` | YAML | Signal event record |
+| `signal-record.yaml` | YAML | Signal event record (deprecated) |
 
 ## Checklists
 
-11 quality gate checklists:
+13 quality gate checklists:
 
 | Checklist | Used by |
 |-----------|---------|
@@ -122,9 +125,10 @@ Domain-specific knowledge is provided separately by domain packs (e.g., `@sniper
 | `define` | full, feature protocols |
 | `design` | full, feature protocols |
 | `solve` | full, feature protocols |
-| `plan` | (deprecated — use define + design) |
 | `implement` | full, feature, patch, refactor, hotfix protocols |
 | `review` | full, feature, patch, refactor protocols |
+| `retro` | full, feature, refactor protocols |
+| `plan` | (deprecated — use define + design + solve) |
 | `multi-faceted-review` | Multi-model review mode |
 | `ingest-scan` | ingest protocol (scan phase) |
 | `ingest-document` | ingest protocol (document phase) |

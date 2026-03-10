@@ -16,9 +16,12 @@ These checklists evaluate artifacts produced during protocol phases.
 | Checklist | Used By | Description |
 |-----------|---------|-------------|
 | [discover](/reference/checklists/discover) | Full, Explore protocols | Evaluates discovery artifacts — brief, risks, research |
-| [plan](/reference/checklists/plan) | Full, Feature protocols | Evaluates planning artifacts — architecture, specs |
+| [define](/reference/checklists/define) | Full, Feature protocols | Evaluates PRD and requirements |
+| [design](/reference/checklists/design) | Full, Feature protocols | Evaluates architecture document |
+| [solve](/reference/checklists/solve) | Full, Feature protocols | Evaluates story breakdown and acceptance criteria |
 | [implement](/reference/checklists/implement) | Full, Feature, Patch protocols | Evaluates implementation — code quality, tests |
 | [review](/reference/checklists/review) | All protocols with review phase | Final review of all phase artifacts |
+| [retro](/reference/checklists/retro) | Full, Feature, Refactor protocols | Evaluates retrospective completeness |
 
 ### Protocol-Specific Checklists
 

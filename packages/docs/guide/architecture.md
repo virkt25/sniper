@@ -13,7 +13,7 @@ SNIPER is built on four Claude Code capabilities:
 
 | Claude Code Primitive | SNIPER Abstraction |
 |----------------------|-------------------|
-| **Skills** (SKILL.md files → slash commands) | `/sniper-flow`, `/sniper-init`, `/sniper-status`, `/sniper-review` |
+| **Skills** (SKILL.md files → slash commands) | `/sniper-flow`, `/sniper-init`, `/sniper-learn`, `/sniper-status`, `/sniper-review` |
 | **Subagents** (custom agents with tool restrictions) | Agent definitions in `.sniper/agents/` |
 | **Agent Teams** (shared task list, mailbox messaging) | Team YAML files in `.sniper/teams/` |
 | **Hooks** (PreToolUse, PostToolUse, Stop events) | Hook definitions in `.sniper/hooks/` |
@@ -116,11 +116,25 @@ phases:
       checklist: discover
       human_approval: false
 
-  - name: plan
-    agents: [architect, product-manager]
-    spawn_strategy: team
+  - name: define
+    agents: [product-manager]
+    spawn_strategy: single
     gate:
-      checklist: plan
+      checklist: define
+      human_approval: true
+
+  - name: design
+    agents: [architect]
+    spawn_strategy: single
+    gate:
+      checklist: design
+      human_approval: true
+
+  - name: solve
+    agents: [product-manager]
+    spawn_strategy: single
+    gate:
+      checklist: solve
       human_approval: true
 
   - name: implement
@@ -137,6 +151,10 @@ phases:
     gate:
       checklist: review
       human_approval: true
+
+  - name: retro
+    agents: [retro-analyst]
+    spawn_strategy: single
 ```
 
 ### Spawn Strategies
@@ -192,7 +210,7 @@ When an agent is spawned, its context is assembled from multiple sources:
 │  │ (security)   │  │ (telephony)  │           │
 │  └─────────────┘  └──────────────┘           │
 │  ┌─────────────────────────────────┐         │
-│  │ Memory (conventions, signals)   │         │
+│  │ Memory (conventions, learnings) │         │
 │  └─────────────────────────────────┘         │
 │  ┌─────────────────────────────────┐         │
 │  │ Task + ownership + implement rules │       │
@@ -213,7 +231,7 @@ Hooks fire on Claude Code events:
 ### PostToolUse Hooks
 
 - **Self-healing CI** -- detects test/lint failures in Bash output and instructs the agent to fix before continuing
-- **Signal capture** -- auto-captures CI failure patterns to `.sniper/memory/signals/`
+- **Learning capture** -- auto-captures CI failure patterns for the learning system
 
 ### Stop Hooks
 

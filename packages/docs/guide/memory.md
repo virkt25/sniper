@@ -65,9 +65,9 @@ visibility:
 
 When `auto_retro` is enabled in the protocol, the retro-analyst agent runs automatically after the review phase completes, updating memory files in `.sniper/memory/`.
 
-### Token Budget
+### Memory Prioritization
 
-The `token_budget` controls how much memory context is included in each spawn prompt. When memory exceeds the budget, entries are prioritized:
+When memory entries are extensive, they are prioritized for inclusion in spawn prompts:
 
 1. High-severity anti-patterns (always included)
 2. Conventions with `enforcement: both` or `enforcement: review_gate`
@@ -171,20 +171,6 @@ Conventions are filtered by the `applies_to` field, so backend developers see ba
 When workspace mode is enabled, workspace-level memory also exists at `{workspace_path}/memory/`. Workspace conventions apply across all repos and are labeled `[WORKSPACE]` in spawn prompts.
 
 Cross-repo patterns that appear consistently in 2+ repos can be promoted to workspace memory. This can happen automatically during retrospectives (if `auto_promote: true`) or manually.
-
-## Estimation Calibration
-
-The memory system also tracks estimation accuracy in `.sniper/memory/estimates.yaml`:
-
-```yaml
-calibration:
-  velocity_factor: 1.0
-  common_underestimates: []
-  last_updated: null
-  executions_analyzed: 0
-```
-
-Over multiple executions, this data helps calibrate story complexity estimates.
 
 ## Next Steps
 

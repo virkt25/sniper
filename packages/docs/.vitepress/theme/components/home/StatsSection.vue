@@ -2,9 +2,9 @@
 import { ref, onMounted } from 'vue'
 
 const stats = [
-  { value: 11, label: 'Agents' },
+  { value: 13, label: 'Agents' },
   { value: 7, label: 'Protocols' },
-  { value: 14, label: 'Templates' },
+  { value: 15, label: 'Templates' },
   { value: 13, label: 'Schemas' },
   { value: 3, label: 'Plugins' },
 ]

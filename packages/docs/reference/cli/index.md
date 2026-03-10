@@ -26,7 +26,7 @@ npm install -g @sniper.ai/cli
 | `sniper marketplace` | Search the SNIPER marketplace for packages |
 | `sniper revert` | Revert a failed phase using logical revert plan |
 | `sniper dashboard` | Project dashboard |
-| `sniper signal` | Signal management |
+| `sniper signal` | Signal management (deprecated — use `/sniper-learn` instead) |
 | `sniper knowledge` | Knowledge base management |
 | `sniper sphere` | Sphere management |
 

@@ -17,10 +17,13 @@ All phases are executed through `/sniper-flow`, the core protocol engine. There 
 
 | Phase | Used In | Agents | Outputs | Gate |
 |-------|---------|--------|---------|------|
-| **discover** | full, explore | analyst | spec, codebase overview | Flexible |
-| **plan** | full, feature | architect, product-manager | architecture, PRD, stories | Strict |
+| **discover** | full, explore | analyst | discovery brief, codebase overview | Flexible |
+| **define** | full, feature | product-manager | PRD, requirements | Strict |
+| **design** | full, feature | architect | architecture document | Strict |
+| **solve** | full, feature | product-manager | stories with acceptance criteria | Strict |
 | **implement** | full, feature, patch, refactor, hotfix | fullstack-dev, qa-engineer | source code, tests | Flexible |
 | **review** | full, feature, patch, refactor | code-reviewer | review report | Strict |
+| **retro** | full, feature, refactor | retro-analyst | retrospective, memory updates | Auto |
 | **scan** | ingest | analyst | codebase overview | Auto |
 | **document** | ingest | analyst | spec | Auto |
 | **extract** | ingest | analyst | conventions | Auto |
@@ -34,12 +37,12 @@ A protocol is a YAML state machine that chains phases together into a complete w
 
 | Protocol | Command | Phases | Use Case |
 |----------|---------|--------|----------|
-| **full** | `/sniper-flow` | discover &rarr; plan &rarr; implement &rarr; review | Greenfield projects, major features |
-| **feature** | `/sniper-flow --protocol feature` | plan &rarr; implement &rarr; review | Incremental feature on an existing codebase |
+| **full** | `/sniper-flow` | discover &rarr; define &rarr; design &rarr; solve &rarr; implement &rarr; review &rarr; retro | Greenfield projects, major features |
+| **feature** | `/sniper-flow --protocol feature` | define &rarr; design &rarr; solve &rarr; implement &rarr; review &rarr; retro | Incremental feature on an existing codebase |
 | **patch** | `/sniper-flow --protocol patch` | implement &rarr; review | Bug fix or small change |
 | **ingest** | `/sniper-flow --protocol ingest` | scan &rarr; document &rarr; extract | Reverse-engineer artifacts from existing code |
 | **explore** | `/sniper-flow --protocol explore` | discover | Read-only codebase analysis |
-| **refactor** | `/sniper-flow --protocol refactor` | analyze &rarr; implement &rarr; review | Code improvement and cleanup |
+| **refactor** | `/sniper-flow --protocol refactor` | analyze &rarr; implement &rarr; review &rarr; retro | Code improvement and cleanup |
 | **hotfix** | `/sniper-flow --protocol hotfix` | implement | Critical fix, no gates |
 
 When you run `/sniper-flow` without `--protocol`, the lead-orchestrator auto-detects the best protocol based on your intent. Use `--protocol <name>` to override. Interrupted protocols can be resumed with `/sniper-flow --resume`.
@@ -48,7 +51,7 @@ See [Custom Protocols](/guide/custom-protocols) for how to define your own.
 
 ## Agents
 
-In v3, agents are defined as standalone files in `packages/core/agents/`. Each agent has a YAML frontmatter specifying its model, tools, and constraints, followed by Markdown instructions. The 11 built-in agents are:
+In v3, agents are defined as standalone files in `packages/core/agents/`. Each agent has a YAML frontmatter specifying its model, tools, and constraints, followed by Markdown instructions. The 13 built-in agents are:
 
 - **lead-orchestrator** — coordinates agent teams, read-only (only writes to `.sniper/`)
 - **analyst** — researches markets, competitors, and user needs during discovery
@@ -60,7 +63,9 @@ In v3, agents are defined as standalone files in `packages/core/agents/`. Each a
 - **qa-engineer** — writes and runs tests, validates acceptance criteria
 - **code-reviewer** — reviews code quality, patterns, and standards
 - **gate-reviewer** — evaluates phase artifacts against quality checklists
-- **retro-analyst** — records execution metrics and produces retrospectives
+- **retro-analyst** — produces retrospectives and captures learnings
+- **doc-writer** — incrementally updates project documentation after implementation
+- **memory-curator** — curates and maintains project memory (conventions, anti-patterns, decisions)
 
 ## Cognitive Personas
 
@@ -91,22 +96,38 @@ When a phase launches the architect agent, the lead-orchestrator merges the `sec
 When a protocol phase requires multiple agents, SNIPER spawns a team using Claude Code's `TeamCreate` and `Task` tools. The protocol YAML defines which agents participate and how they coordinate.
 
 ```yaml
-# From protocols/full.yaml — plan phase
-- name: plan
-  description: Architecture design, PRD creation, story breakdown
+# From protocols/full.yaml — define phase
+- name: define
+  description: PRD and requirements specification
+  agents:
+    - product-manager
+  spawn_strategy: single
+  gate:
+    checklist: define
+    human_approval: true
+  outputs:
+    - docs/prd.md
+
+- name: design
+  description: System architecture aligned with PRD
   agents:
     - architect
-    - product-manager
-  spawn_strategy: team  # Multiple agents, use TeamCreate
-  coordination:
-    - between: [architect, product-manager]
-      topic: Architecture must be approved before stories reference it
+  spawn_strategy: single
   gate:
-    checklist: plan
+    checklist: design
     human_approval: true
   outputs:
     - docs/architecture.md
-    - docs/prd.md
+
+- name: solve
+  description: Story sharding with acceptance criteria
+  agents:
+    - product-manager
+  spawn_strategy: single
+  gate:
+    checklist: solve
+    human_approval: true
+  outputs:
     - docs/stories/
 ```
 
@@ -138,10 +159,13 @@ Artifacts are the documents and code produced by each phase. They persist on dis
 
 | Phase | Artifacts |
 |-------|-----------|
-| discover | `docs/spec.md`, `docs/codebase-overview.md` |
-| plan | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| discover | `docs/discovery-brief.md`, `docs/codebase-overview.md` |
+| define | `docs/prd.md` |
+| design | `docs/architecture.md` |
+| solve | `docs/stories/` |
 | implement | Source code and test files in the project's source directories |
 | review | `docs/review-report.md` |
+| retro | `.sniper/memory/` updates |
 | ingest (scan) | `docs/codebase-overview.md` |
 | ingest (document) | `docs/spec.md` |
 | ingest (extract) | `.sniper/conventions.yaml` |

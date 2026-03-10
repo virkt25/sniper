@@ -54,7 +54,7 @@ The CLI will scaffold the project directories with all framework files:
   protocols/            # Protocol state and progress
   knowledge/            # Knowledge files for agent context
   memory/
-    signals/            # Runtime signals from hooks and agents
+    conventions.yaml    # Learned conventions
   checklists/           # Review gate checklists (.yaml files)
   config.yaml           # Project configuration
 .claude/
@@ -124,7 +124,7 @@ Since the discovery gate defaults to <span class="gate-flexible">FLEXIBLE</span>
 
 ## Continue the Lifecycle
 
-After discovery completes, the lifecycle continues through plan, implement, and review phases. You have two ways to advance:
+After discovery completes, the lifecycle continues through define, design, solve, implement, review, and retro phases. You have two ways to advance:
 
 ### Option A: Use `/sniper-flow` (Recommended)
 
@@ -140,8 +140,8 @@ After discovery completes, the lifecycle continues through plan, implement, and 
 You can also target a specific protocol directly:
 
 ```
-/sniper-flow --protocol full        # Run the full lifecycle (discover → plan → implement → review)
-/sniper-flow --protocol feature     # Scoped feature work (plan → implement → review)
+/sniper-flow --protocol full        # Run the full lifecycle (discover → define → design → solve → implement → review → retro)
+/sniper-flow --protocol feature     # Scoped feature work (define → design → solve → implement → review → retro)
 /sniper-flow --protocol patch       # Quick fix (implement → review)
 ```
 
@@ -181,7 +181,7 @@ your-project/
   .claude/
     agents/             # Agent definitions
   docs/                 # Artifacts produced by phases
-    stories/            # Story files (from plan phase)
+    stories/            # Story files (from solve phase)
   CLAUDE.md             # Claude Code instructions referencing SNIPER
 ```
 
@@ -189,4 +189,4 @@ your-project/
 
 - [Core Concepts](/guide/core-concepts) -- understand the framework's building blocks
 - [Configuration](/guide/configuration) -- customize every aspect of your setup
-- [Full Lifecycle](/guide/full-lifecycle) -- detailed walkthrough of all four phases
+- [Full Lifecycle](/guide/full-lifecycle) -- detailed walkthrough of all seven phases

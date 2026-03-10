@@ -11,12 +11,12 @@ SNIPER ships with 7 built-in protocols (`full`, `feature`, `patch`, `ingest`, `e
 
 | Protocol | Phases | Use Case |
 |----------|--------|----------|
-| `full` | discover → plan → implement → review | Complete greenfield lifecycle |
-| `feature` | plan → implement → review | Incremental feature development |
+| `full` | discover → define → design → solve → implement → review → retro | Complete greenfield lifecycle |
+| `feature` | define → design → solve → implement → review → retro | Incremental feature development |
 | `patch` | implement → review | Bug fixes and small changes |
 | `ingest` | scan → document → extract | Reverse-engineer an existing codebase |
 | `explore` | discover | Exploratory research and analysis |
-| `refactor` | analyze → implement → review | Code improvement without new features |
+| `refactor` | analyze → implement → review → retro | Code improvement without new features |
 | `hotfix` | implement | Critical emergency fix, relaxed gates |
 
 ## Creating a Custom Protocol

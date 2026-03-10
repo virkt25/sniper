@@ -30,7 +30,7 @@ Every project follows a protocol -- a state machine that defines phases, agents,
 /sniper-flow --protocol full
 ```
 
-This single command executes: discover → plan → implement → review, spawning the right teams at each phase, evaluating quality gates between transitions.
+This single command executes: discover → define → design → solve → implement → review → retro, spawning the right teams at each phase, evaluating quality gates between transitions.
 
 ### Layered Persona Composition
 

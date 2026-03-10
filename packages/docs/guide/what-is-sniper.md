@@ -22,12 +22,15 @@ SNIPER introduces a structured lifecycle with specialized agent teams. Instead o
 
 ### The Protocol Phases
 
-SNIPER breaks projects into four protocol-driven phases:
+SNIPER breaks projects into seven protocol-driven phases:
 
-1. **Discover** -- A single agent (analyst) researches the codebase, assesses the problem space, and produces a spec and codebase overview
-2. **Plan** -- A 2-agent team (architect, product-manager) produces the architecture, PRD, and story breakdown
-3. **Implement** -- A 2-agent team (fullstack-dev, qa-engineer) writes code and tests in isolated worktrees
-4. **Review** -- A single agent (code-reviewer) performs multi-faceted code review with scope validation, standards enforcement, and risk scoring
+1. **Discover** -- A single agent (analyst) researches the codebase, assesses the problem space, and produces a discovery brief and codebase overview
+2. **Define** -- The product-manager produces the PRD and requirements specification
+3. **Design** -- The architect produces system architecture aligned with the PRD
+4. **Solve** -- Stories are sharded into implementable units with acceptance criteria
+5. **Implement** -- A 2-agent team (fullstack-dev, qa-engineer) writes code and tests in isolated worktrees
+6. **Review** -- A single agent (code-reviewer) performs multi-faceted code review with scope validation, standards enforcement, and risk scoring
+7. **Retro** -- The retro-analyst captures learnings and codifies them into project memory
 
 Each phase produces concrete artifacts (markdown files in `docs/`) and passes through a review gate before the next phase can begin.
 

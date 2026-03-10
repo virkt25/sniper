@@ -21,12 +21,26 @@ phases:
       human_approval: false
       checklist: discover.yaml
 
-  plan:
-    agents: [architect, product-manager]
-    spawn_strategy: team
+  define:
+    agents: [product-manager]
+    spawn_strategy: single
     gate:
       human_approval: true
-      checklist: plan.yaml
+      checklist: define.yaml
+
+  design:
+    agents: [architect]
+    spawn_strategy: single
+    gate:
+      human_approval: true
+      checklist: design.yaml
+
+  solve:
+    agents: [product-manager]
+    spawn_strategy: single
+    gate:
+      human_approval: true
+      checklist: solve.yaml
 
   implement:
     agents: [fullstack-dev, qa-engineer]
@@ -41,6 +55,13 @@ phases:
     gate:
       human_approval: true
       checklist: review.yaml
+
+  retro:
+    agents: [retro-analyst]
+    spawn_strategy: single
+    gate:
+      human_approval: false
+      checklist: retro.yaml
 ```
 
 ### Phase Fields
@@ -75,14 +96,17 @@ Mixins are short Markdown snippets in `packages/core/personas/cognitive/` that m
 
 ### Full Protocol (`full.yaml`)
 
-The full protocol defines four phases with distinct team compositions:
+The full protocol defines seven phases with distinct team compositions:
 
 | Phase | Agents | Spawn Strategy | Outputs |
 |-------|--------|---------------|---------|
-| discover | analyst | single | `docs/spec.md`, `docs/codebase-overview.md` |
-| plan | architect, product-manager | team | `docs/architecture.md`, `docs/prd.md`, `docs/stories/` |
+| discover | analyst | single | `docs/discovery-brief.md`, `docs/codebase-overview.md` |
+| define | product-manager | single | `docs/prd.md` |
+| design | architect | single | `docs/architecture.md` |
+| solve | product-manager | single | `docs/stories/` |
 | implement | fullstack-dev, qa-engineer | team | Code changes, tests |
 | review | code-reviewer | single | Review report with scope, standards, and risk scoring |
+| retro | retro-analyst | single | Retrospective report, memory updates |
 
 ### Feature Protocol (`feature.yaml`)
 
@@ -90,9 +114,12 @@ A scoped mini-lifecycle for single features. Skips discovery:
 
 | Phase | Agents | Spawn Strategy |
 |-------|--------|---------------|
-| plan | architect, product-manager | team |
+| define | product-manager | single |
+| design | architect | single |
+| solve | product-manager | single |
 | implement | fullstack-dev, qa-engineer | team |
 | review | code-reviewer | single |
+| retro | retro-analyst | single |
 
 ### Patch Protocol (`patch.yaml`)
 
@@ -112,7 +139,7 @@ Quick fixes that skip planning:
 
 ## Available Agents
 
-SNIPER v3 includes 12 agent definitions:
+SNIPER v3 includes 13 agent definitions:
 
 | Agent | Typical Role |
 |-------|-------------|
@@ -128,6 +155,7 @@ SNIPER v3 includes 12 agent definitions:
 | product-manager | Requirements, PRD, and story creation |
 | qa-engineer | Test writing and quality assurance |
 | retro-analyst | Retrospective analysis and learning capture |
+| memory-curator | Curates and maintains project memory |
 
 ## Agent Spawn Strategy
 

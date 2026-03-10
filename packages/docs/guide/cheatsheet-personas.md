@@ -9,7 +9,7 @@ Quick reference for the SNIPER v3 persona system. In v3, agent roles are defined
 
 ## Agents {#agents}
 
-SNIPER v3 ships 11 agent definitions. Each agent has a dedicated role, a model assignment, and scoped write permissions.
+SNIPER v3 ships 13 agent definitions. Each agent has a dedicated role, a model assignment, and scoped write permissions.
 
 | Agent | Model | Role | Write Scope |
 |-------|-------|------|-------------|
@@ -24,12 +24,18 @@ SNIPER v3 ships 11 agent definitions. Each agent has a dedicated role, a model a
 | **qa-engineer** | sonnet | Writes tests, analyzes coverage, validates EARS acceptance criteria. | test files only |
 | **gate-reviewer** | haiku | Runs automated gate checks at phase boundaries. Lightweight and fast. | `.sniper/gates/` |
 | **retro-analyst** | sonnet | Post-protocol retrospective analysis. Captures learnings. | `.sniper/` |
+| **doc-writer** | sonnet | Incrementally updates project documentation after implementation. | `CLAUDE.md`, `README.md`, `docs/` |
+| **memory-curator** | sonnet | Curates and maintains project memory (conventions, anti-patterns, decisions). | `.sniper/memory/` |
 
 ### Agent groupings by protocol phase
 
 **Discover** -- analyst
 
-**Plan** -- architect, product-manager
+**Define** -- product-manager
+
+**Design** -- architect
+
+**Solve** -- product-manager
 
 **Implement** -- fullstack-dev + qa-engineer (full protocol), or backend-dev + frontend-dev + qa-engineer (spawned by lead-orchestrator based on project config)
 
@@ -116,7 +122,7 @@ When a cognitive persona is applied, its thinking framework is injected into the
 
 | Concept | What it defines | Where it lives | How many |
 |---------|----------------|----------------|----------|
-| **Agent** | Role, model, write scope, responsibilities | `packages/core/agents/*.md` | 11 |
+| **Agent** | Role, model, write scope, responsibilities | `packages/core/agents/*.md` | 13 |
 | **Cognitive persona** | Thinking style, decision framework | `packages/core/personas/cognitive/*.md` | 3 |
 | **Protocol** | Phase sequence, which agents to spawn | `packages/core/protocols/*.yaml` | 7 |
 

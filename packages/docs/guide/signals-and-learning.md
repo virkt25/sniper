@@ -1,74 +1,31 @@
 ---
-title: Signals & Learning
-description: Auto-capture CI failures, PR feedback, and production errors as learning signals
+title: Learning System
+description: How SNIPER captures and codifies learnings across protocol executions
 ---
 
-# Signals & Learning
+# Learning System
 
-SNIPER captures external signals -- CI failures, review comments, test flakiness -- and feeds them back into agent behavior. This creates a learning loop where the framework gets smarter over time.
+SNIPER captures learnings from protocol executions -- CI failures, review findings, retrospective insights -- and codifies them into project memory. This creates a learning loop where agents improve across runs.
 
-## How Signals Work
+## How Learning Works
 
 ```
-CI failure → signal captured → stored in memory → injected into next agent spawn
+Protocol execution → retrospective → learnings captured → stored in memory → injected into next agent spawn
 ```
 
-The signal system has three components:
+The learning system has three components:
 
-1. **Signal hooks** -- PostToolUse hooks that detect failures in Bash output
-2. **Signal storage** -- YAML files in `.sniper/memory/signals/`
-3. **Signal injection** -- Agents receive relevant signals in their spawn prompts
+1. **Self-healing hooks** -- PostToolUse hooks that detect failures in Bash output and instruct agents to fix them
+2. **Retrospectives** -- Post-protocol analysis that extracts patterns and codifies them
+3. **Memory injection** -- Agents receive relevant learnings in their spawn prompts
 
-## Signal Hooks
+## The `/sniper-learn` Command
 
-SNIPER's `signal-hooks.json` defines PostToolUse hooks that watch Bash output for failure patterns:
+Use `/sniper-learn` to manually submit, review, or deprecate project learnings:
 
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "description": "Auto-capture CI failure signals from test/lint output",
-        "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -qiE '(FAIL|FAILED|ERROR|exit code [1-9])'; then echo 'SIGNAL: CI failure detected — capturing to .sniper/memory/signals/'; fi"
-      }
-    ]
-  }
-}
-```
-
-When a test fails or a linter reports errors, the hook automatically captures:
-
-- **Type** -- `ci_failure`, `pr_review_comment`, `production_error`, `manual`
-- **Source** -- which command produced the failure
-- **Timestamp** -- when it occurred
-- **Summary** -- brief description of the signal
-- **Details** -- full error output or context
-- **Learning** -- extracted pattern for future avoidance
-- **Relevance tags** -- categorization tags for signal matching
-- **Affected files** -- files mentioned in the error output
-
-## Signal Schema
-
-Each signal is stored as a YAML file:
-
-```yaml
-type: ci_failure
-source: vitest
-timestamp: "2026-02-28T14:30:00Z"
-summary: "JWT expiry test failing in auth module"
-details: |
-  FAIL tests/api/auth.test.ts
-  Expected: token to be expired
-  Received: token still valid
-learning: "JWT expiry validation requires mocking Date.now()"
-relevance_tags:
-  - auth
-  - testing
-affected_files:
-  - src/api/auth.ts
-  - tests/api/auth.test.ts
-```
+- **Submit** a new convention, anti-pattern, or decision
+- **Review** candidate learnings and promote or reject them
+- **Deprecate** outdated learnings that no longer apply
 
 ## Self-Healing CI
 
@@ -96,15 +53,15 @@ Agent writes code → runs tests → tests fail → hook fires → agent fixes �
 
 The agent does not mark its task complete until tests pass. No human intervention needed.
 
-## Signal Injection
+## Learning Injection
 
-When agents are spawned, relevant signals are injected into their context:
+When agents are spawned, relevant learnings are injected into their context:
 
-1. The lead-orchestrator reads `.sniper/memory/signals/`
-2. Signals matching the current phase and affected files are selected
-3. Selected signals are appended to the agent's spawn prompt under a `## Signals` section
+1. The lead-orchestrator reads `.sniper/memory/` (conventions, anti-patterns, decisions)
+2. Learnings matching the current phase and agent role are selected
+3. Selected learnings are appended to the agent's spawn prompt under a `## Project Memory` section
 
-This means if a test failed because of a date mocking issue last week, the developer agent spawned this week receives that learning automatically.
+This means if a test failed because of a date mocking issue last week and it was captured as a convention, the developer agent spawned this week receives that learning automatically.
 
 ## Retrospectives
 
@@ -123,11 +80,6 @@ Enable the learning system in `.sniper/config.yaml`:
 ```yaml
 visibility:
   auto_retro: true        # Run retrospectives after protocol completion
-
-memory:
-  enabled: true
-  auto_codify: true       # Auto-extract conventions from retros
-  token_budget: 8000      # Max tokens for memory in spawn prompts
 ```
 
 ## Next Steps
