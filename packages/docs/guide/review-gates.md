@@ -207,8 +207,13 @@ You can run a review at any time with:
 
 This evaluates the current active phase. The command reads the phase from the protocol checkpoint, loads the appropriate checklist, and produces a full report.
 
+## Structured Decision Prompts
+
+Review gates are quality checkpoints between phases. For mid-phase questions and decision points that arise during agent execution, see [Structured Decision Prompts](/guide/structured-decisions). SDPs complement gates — they handle ambiguity within a phase, while gates enforce quality at phase boundaries.
+
 ## Next Steps
 
+- [Structured Decision Prompts](/guide/structured-decisions) -- how agents surface mid-phase questions
 - [Configuration](/guide/configuration) -- configure gates and protocols
 - [Full Lifecycle](/guide/full-lifecycle) -- see gates in action across the lifecycle
 - [Reference: Checklists](/reference/checklists/) -- browse all available checklists

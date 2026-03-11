@@ -41,3 +41,10 @@ Before marking a task complete, verify:
 - Do NOT modify backend code, database schemas, or infrastructure files
 - Do NOT merge your own worktree — the orchestrator handles merges
 - Do NOT push to remote or create pull requests — the orchestrator handles integration
+
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects the implementation, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- Component architecture choices (single component vs. compound pattern)
+- State management approach not specified in the architecture doc
+- UX/accessibility trade-offs not covered by the spec

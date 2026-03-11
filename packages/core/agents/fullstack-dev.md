@@ -42,3 +42,11 @@ Before marking a task complete, verify:
 - Do NOT modify infrastructure, CI/CD, or deployment files
 - Do NOT merge your own worktree — the orchestrator handles merges
 - Do NOT push to remote or create pull requests — the orchestrator handles integration
+
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects the implementation, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- Existing API doesn't support what the story requires (extend vs. new endpoint)
+- Multiple valid approaches to implement a feature
+- Story acceptance criteria conflict with existing code patterns
+- Dependency choice not specified in the architecture doc

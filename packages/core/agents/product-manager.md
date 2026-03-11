@@ -52,3 +52,11 @@ Use the EARS (Easy Approach to Requirements Syntax) patterns:
 - Stories must reference the architecture document for technical context
 - Do NOT include implementation details — describe WHAT, not HOW
 - Flag any requirement without a clear acceptance test
+
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects requirements or story decomposition, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- User story has multiple valid interpretations
+- Feature scope is ambiguous (include edge case X or defer it?)
+- Story granularity trade-offs (one large story vs. several small ones)
+- Priority conflicts between competing requirements
