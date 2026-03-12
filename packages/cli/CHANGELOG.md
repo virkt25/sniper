@@ -1,5 +1,12 @@
 # @sniper.ai/cli
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`03dc85b`](https://github.com/virkt25/sniper/commit/03dc85bb6a97f7a30a6d20126bd6768fe3bf1b59)]:
+  - @sniper.ai/core@4.1.0
+
 ## 4.0.0
 
 ### Major Changes

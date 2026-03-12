@@ -1,5 +1,11 @@
 # @sniper.ai/core
 
+## 4.1.0
+
+### Minor Changes
+
+- [#25](https://github.com/virkt25/sniper/pull/25) [`03dc85b`](https://github.com/virkt25/sniper/commit/03dc85bb6a97f7a30a6d20126bd6768fe3bf1b59) Thanks [@virkt25](https://github.com/virkt25)! - structured decision prompts for agent-to-user questions
+
 ## 4.0.0
 
 ### Major Changes
