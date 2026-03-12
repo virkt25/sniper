@@ -48,7 +48,7 @@ After auto-detection, check trigger tables: run `git diff --name-only` and match
 2. **Create artifact directory:** `mkdir -p .sniper/artifacts/{protocol_id}/`
 3. **Initialize decisions log:** Copy `decisions.yaml` template to `.sniper/artifacts/{protocol_id}/decisions.yaml`
 4. **Write metadata:** Create `.sniper/artifacts/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
-4. **Append to registry:** Add a row to `.sniper/artifacts/registry.md`. If registry doesn't exist, create it with a header row first.
+5. **Append to registry:** Add a row to `.sniper/artifacts/registry.md`. If registry doesn't exist, create it with a header row first.
 
 ## 3. Phase Execution Loop
 
@@ -224,6 +224,11 @@ decisions:
     agent: architect
     context: "Authentication strategy for the API"
     selected_option: 0
+    selected_label: "JWT with refresh tokens"
+    options_snapshot:
+      - "JWT with refresh tokens"
+      - "Session-based auth"
+      - "OAuth2 with external provider"
     custom_response: null
     timestamp: 2026-03-11T14:30:00Z
 ```

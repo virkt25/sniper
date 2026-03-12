@@ -6,7 +6,7 @@ When you encounter a question, ambiguity, or fork where the user's intent is unc
 
 Present decisions exactly like this:
 
-```
+```markdown
 Decision needed: {title}
 
 {1-3 sentences of context — what you're working on, what triggered the question}

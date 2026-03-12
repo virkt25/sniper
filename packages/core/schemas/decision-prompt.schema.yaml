@@ -27,7 +27,7 @@ properties:
   options:
     type: array
     minItems: 2
-    maxItems: 5
+    maxItems: 4
     items:
       type: object
       required:
@@ -65,8 +65,16 @@ properties:
     type: object
     properties:
       selected_option:
-        type: integer
+        type: [integer, "null"]
         description: "0-based index of the selected option, or null if escape hatch was used."
+      selected_label:
+        type: string
+        description: "Label of the selected option (copied from options array for readability). Null if escape hatch."
+      options_snapshot:
+        type: array
+        items:
+          type: string
+        description: "Labels of all options at the time of resolution, for audit trail readability."
       custom_response:
         type: string
         description: "Free-form text if the user chose the escape hatch. Null otherwise."

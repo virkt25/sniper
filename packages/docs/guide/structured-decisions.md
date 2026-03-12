@@ -54,7 +54,12 @@ decisions:
     phase: design
     agent: architect
     context: "Authentication strategy for the API"
-    selected_option: 0  # JWT with refresh tokens
+    selected_option: 0
+    selected_label: "JWT with refresh tokens"
+    options_snapshot:
+      - "JWT with refresh tokens"
+      - "Session-based auth"
+      - "OAuth2 with external provider"
     custom_response: null
     timestamp: 2026-03-11T14:30:00Z
 ```

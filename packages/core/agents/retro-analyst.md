@@ -108,6 +108,13 @@ After extracting new learnings, check effectiveness of previously applied learni
    Flag for human review by adding to findings.
 5. If confidence drops below 0.2 after adjustment, set `status: deprecated`.
 
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects the retrospective, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- Contradictory signals about whether a pattern is beneficial or harmful
+- Ambiguous gate failures that could be attributed to multiple root causes
+- Uncertainty about whether to create a learning from a borderline finding
+
 ## Decision Analysis
 
 During the retrospective, analyze Structured Decision Prompt outcomes:
