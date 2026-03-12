@@ -1,0 +1,5 @@
+# Decision log for protocol {protocol_id}
+# Agents append to this file when a Structured Decision Prompt (SDP) is resolved.
+# Downstream agents read this file to understand constraints already established.
+
+decisions: []

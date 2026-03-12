@@ -1,0 +1,86 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://sniper.ai/schemas/decision-prompt"
+title: Decision Prompt
+description: Schema for Structured Decision Prompts (SDPs) — the format agents use to present questions, ambiguities, and decision points to the user with concrete options and a recommendation.
+type: object
+required:
+  - id
+  - phase
+  - agent
+  - context
+  - options
+  - recommendation
+properties:
+  id:
+    type: string
+    pattern: "^D-[a-z]+-\\d{3}$"
+    description: "Unique decision ID in format D-{phase}-{seq} (e.g., D-design-001)."
+  phase:
+    type: string
+    description: Protocol phase where the decision arose.
+  agent:
+    type: string
+    description: Agent requesting the decision.
+  context:
+    type: string
+    description: "1-3 sentences explaining what the agent is working on and what triggered the question."
+  options:
+    type: array
+    minItems: 2
+    maxItems: 4
+    items:
+      type: object
+      required:
+        - label
+        - description
+      properties:
+        label:
+          type: string
+          description: Short option name (e.g., "JWT with refresh tokens").
+        description:
+          type: string
+          description: "1-2 sentence explanation including trade-offs."
+      additionalProperties: false
+  recommendation:
+    type: object
+    required:
+      - option_index
+      - rationale
+    properties:
+      option_index:
+        type: integer
+        minimum: 0
+        description: 0-based index into the options array.
+      rationale:
+        type: string
+        description: Why this option is recommended given the project context.
+    additionalProperties: false
+  escape_hatch:
+    type: string
+    default: "Custom response / discuss further"
+    description: Label for the free-form input option (always rendered as the last numbered choice).
+
+  # Resolution (filled after user responds)
+  resolution:
+    type: object
+    properties:
+      selected_option:
+        type: [integer, "null"]
+        description: "0-based index of the selected option, or null if escape hatch was used."
+      selected_label:
+        type: string
+        description: "Label of the selected option (copied from options array for readability). Null if escape hatch."
+      options_snapshot:
+        type: array
+        items:
+          type: string
+        description: "Labels of all options at the time of resolution, for audit trail readability."
+      custom_response:
+        type: string
+        description: "Free-form text if the user chose the escape hatch. Null otherwise."
+      timestamp:
+        type: string
+        format: date-time
+        description: When the decision was resolved.
+    additionalProperties: false
+additionalProperties: false

@@ -25,8 +25,9 @@ The orchestrator provides you with the `protocol_id` (e.g., `SNPR-20260307-a3f2`
 1. Read `.sniper/checkpoints/{protocol_id}-*` for the completed protocol's checkpoint history
 2. Read `.sniper/gates/` for gate results (pass/fail patterns)
 3. Read `.sniper/artifacts/{protocol_id}/meta.yaml` for protocol metadata
-4. Analyze: Which gates failed first? Were there re-runs?
-5. Write retro report to `.sniper/retros/{protocol_id}.yaml`
+4. Read `.sniper/artifacts/{protocol_id}/decisions.yaml` for Structured Decision Prompt outcomes
+5. Analyze: Which gates failed first? Were there re-runs? Were recommendations overridden?
+6. Write retro report to `.sniper/retros/{protocol_id}.yaml`
 
 ## Retro Report Schema
 
@@ -106,6 +107,33 @@ After extracting new learnings, check effectiveness of previously applied learni
    ```
    Flag for human review by adding to findings.
 5. If confidence drops below 0.2 after adjustment, set `status: deprecated`.
+
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects the retrospective, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- Contradictory signals about whether a pattern is beneficial or harmful
+- Ambiguous gate failures that could be attributed to multiple root causes
+- Uncertainty about whether to create a learning from a borderline finding
+
+## Decision Analysis
+
+During the retrospective, analyze Structured Decision Prompt outcomes:
+
+1. Read `.sniper/artifacts/{protocol_id}/decisions.yaml`
+2. Count total decisions, recommendation acceptance rate, and escape hatch usage
+3. For decisions where the user overrode the recommendation:
+   - Check if the non-recommended choice led to downstream issues (gate failures, rework)
+   - If the override was successful, create a learning capturing the user's preference pattern (`confidence: 0.85`, `source.type: human`)
+   - If the override led to issues, note it as a `needs_improvement` finding
+4. Include decision summary in the retro report:
+   ```yaml
+   decisions_analyzed:
+     total: <count>
+     recommendation_accepted: <count>
+     recommendation_overridden: <count>
+     escape_hatch_used: <count>
+     override_success_rate: <percentage>
+   ```
 
 ## Signal Analysis
 

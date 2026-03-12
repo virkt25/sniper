@@ -49,3 +49,12 @@ When a workspace is detected (`.sniper-workspace/` exists in a parent directory)
 - Spawn agents with `mode: "plan"` when the protocol specifies `plan_approval: true`
 - Prefer TaskCreate + Task tool over direct SendMessage for work assignments
 - When a gate fails, DO NOT advance — reassign failed checks to appropriate agents
+
+## Structured Decision Prompts
+
+Agents may present Structured Decision Prompts (SDPs) to the user during execution. When this happens:
+
+1. **Do NOT treat an SDP pause as a stall or failure** — the agent is waiting for user input
+2. **Pass decisions forward** — when spawning agents, include the current decisions log (`.sniper/artifacts/{protocol_id}/decisions.yaml`) so agents don't re-ask settled questions
+3. **Include in interactive review** — when presenting phase summaries during interactive review, list all decisions made during the phase so the user has full visibility
+4. **Initialize the decisions log** — during protocol initialization, create `.sniper/artifacts/{protocol_id}/decisions.yaml` from the decisions template

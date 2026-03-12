@@ -46,8 +46,9 @@ After auto-detection, check trigger tables: run `git diff --name-only` and match
 
 1. **Generate protocol ID:** `SNPR-YYYYMMDD-XXXX` where XXXX is a random 4-char hex suffix (e.g., `SNPR-20260307-a3f2`). No registry parsing needed.
 2. **Create artifact directory:** `mkdir -p .sniper/artifacts/{protocol_id}/`
-3. **Write metadata:** Create `.sniper/artifacts/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
-4. **Append to registry:** Add a row to `.sniper/artifacts/registry.md`. If registry doesn't exist, create it with a header row first.
+3. **Initialize decisions log:** Copy `decisions.yaml` template to `.sniper/artifacts/{protocol_id}/decisions.yaml`
+4. **Write metadata:** Create `.sniper/artifacts/{protocol_id}/meta.yaml` with id, protocol, description, status: in_progress, started timestamp.
+5. **Append to registry:** Add a row to `.sniper/artifacts/registry.md`. If registry doesn't exist, create it with a header row first.
 
 ## 3. Phase Execution Loop
 
@@ -133,6 +134,7 @@ For each agent in the phase, build the full prompt by layering these sources. Ea
 | 3. Domain knowledge | `.sniper/knowledge/manifest.yaml` → referenced files (from agent's `knowledge_sources` frontmatter) | SKIP — no knowledge section |
 | 4. Workspace conventions | `.sniper-workspace/config.yaml` → `shared.conventions` and `shared.anti_patterns` | SKIP — no workspace section |
 | 5. Learnings | `.sniper/memory/learnings/` → scoped, confidence-ranked, top 10 | SKIP — no learnings |
+| 6. Decisions | `.sniper/artifacts/{protocol_id}/decisions.yaml` → prior decisions | SKIP — no decisions yet |
 
 **Learning Composition (Layer 5):**
 
@@ -151,7 +153,7 @@ After composing learnings into the prompt, record the current protocol ID in eac
 
 **Backward compatibility:** If `.sniper/memory/signals/` contains files but `.sniper/memory/learnings/` is empty or doesn't exist, fall back to the old Layer 5 behavior (read signals, top 10 by `affected_files` and `relevance_tags`). Log a warning: "Legacy signals detected. Run `/sniper-learn --review` to migrate."
 
-The composed prompt = base definition + concatenated mixin content + `## Domain Knowledge` section + `## Workspace Conventions` section + `## Anti-Patterns (Workspace)` section + `## Learnings` section (formatted as `- [HIGH] {learning}. Anti-pattern: {anti_pattern}. Instead: {correction}.` or `- [MEDIUM] {learning}.`).
+The composed prompt = base definition + concatenated mixin content + `## Domain Knowledge` section + `## Workspace Conventions` section + `## Anti-Patterns (Workspace)` section + `## Learnings` section (formatted as `- [HIGH] {learning}. Anti-pattern: {anti_pattern}. Instead: {correction}.` or `- [MEDIUM] {learning}.`) + `## Prior Decisions` section (from `decisions.yaml`, so agents don't re-ask settled questions).
 
 Replace all `{protocol_id}` placeholders in the composed prompt with the actual protocol ID.
 
@@ -189,16 +191,51 @@ For agents working in worktrees (after all implementation agents complete):
 When a phase has `interactive_review: true`:
 
 1. Read produced artifacts from `.sniper/artifacts/` or `.sniper/artifacts/{protocol_id}/` as appropriate
-2. Present a structured summary appropriate to the phase:
+2. Read `.sniper/artifacts/{protocol_id}/decisions.yaml` for any Structured Decision Prompts resolved during this phase
+3. Present a structured summary appropriate to the phase:
    - **discover:** findings, constraints, codebase landscape, open questions
    - **define:** requirements, success criteria, scope boundaries, out-of-scope items
    - **design:** key architectural decisions, component overview, data model, trade-offs
    - **solve:** story list, dependencies, acceptance criteria summary
-3. Offer options:
+4. If decisions were made during the phase, include a **Decisions** section listing each decision: the question, the selected option, and the rationale
+5. Offer options:
    - **Approve** — continue to next phase
    - **Request changes** — describe changes (architect/PM will revise, then re-present)
    - **Edit directly** — user modifies plan files, says "done", re-validate via gate
-4. Only advance after explicit user approval
+6. Only advance after explicit user approval
+
+## Reference: Structured Decision Prompts
+
+Agents may present Structured Decision Prompts (SDPs) when they encounter ambiguity or decision points during execution. This is expected behavior, not an error.
+
+**How SDPs work during phase execution:**
+
+1. An agent encounters a question where the user's intent is unclear and the decision materially affects the outcome
+2. The agent presents numbered options with a recommendation and an escape hatch (custom response / discuss further)
+3. The user selects an option by number or types a custom response
+4. The agent records the decision in `.sniper/artifacts/{protocol_id}/decisions.yaml` and continues
+5. At the phase's interactive review, the decisions log is included in the summary
+
+**Decision record format:**
+```yaml
+decisions:
+  - id: D-design-001
+    phase: design
+    agent: architect
+    context: "Authentication strategy for the API"
+    selected_option: 0
+    selected_label: "JWT with refresh tokens"
+    options_snapshot:
+      - "JWT with refresh tokens"
+      - "Session-based auth"
+      - "OAuth2 with external provider"
+    custom_response: null
+    timestamp: 2026-03-11T14:30:00Z
+```
+
+**Downstream context:** When spawning agents, include the current decisions log (Layer 6 in Agent Composition) so agents don't re-ask settled questions.
+
+**Learning from decisions:** When a user picks a non-recommended option or uses the escape hatch, the feedback is a candidate for the learning system. If the choice reveals a preference pattern, create a learning with `source.type: human`, `confidence: 0.85`, scoped to relevant agents and phases.
 
 ## Reference: Retrospective (Legacy)
 

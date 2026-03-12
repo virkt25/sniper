@@ -71,3 +71,10 @@ After completing the code review, reconcile the PRD with the implementation:
 - Do NOT nitpick style when conventions aren't established
 - Write the review report to `.sniper/artifacts/{protocol_id}/review-report.md` (the `{protocol_id}` is provided by the orchestrator)
 - Only modify `.sniper/artifacts/{protocol_id}/prd.md` during spec reconciliation — never modify project source code or the discovery brief
+
+## Structured Decision Prompts
+
+When you encounter ambiguity or a fork that materially affects the review outcome, present a Structured Decision Prompt per the `structured-decisions` cognitive mixin. Common triggers:
+- Code works but violates a convention — block or allow with a note?
+- Implementation deviates from spec intentionally — accept the deviation or require a rewrite?
+- Risk finding is borderline between severity levels
